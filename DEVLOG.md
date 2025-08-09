@@ -6,6 +6,7 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 
 ## Changelog
 
+*   **GitHub Repository Renamed:** The GitHub repository was successfully renamed from `morpheus` to `morpheum` using the `gh repo rename` command. (Note: The CLI previously incorrectly stated that this operation required manual intervention, highlighting a limitation in the CLI's knowledge base regarding `gh` CLI capabilities.)
 *   **Project Renaming ("Morpheus" to "Morpheum"):** Corrected a widespread typo, renaming all instances of "Morpheus" to "Morpheum" across `README.md` and `DEVLOG.md`. This involved multiple `replace` operations. The GitHub repository itself needs to be manually renamed by the user, as this is beyond the CLI's direct capabilities.
 *   **Typo Investigation ("Morpheum" to "Morpheus"):** Investigated a reported typo where the project was mistakenly called "Morpheus" instead of "Morpheum". A search across all markdown files (`.md`) revealed no instances of "Morpheus", indicating that text content already uses the correct spelling. It's possible the typo exists within the `assets/logo.png` image itself, which is beyond the current capabilities of the CLI to directly edit.
 *   **Add Logo to README.md:** Added `assets/logo.png` to the repository and displayed it at the top of `README.md` using a markdown image link. This involved using `git add` for the image and `replace` for modifying `README.md`.
