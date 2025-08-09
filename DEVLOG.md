@@ -30,6 +30,7 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 
 ### Frustrations
 
+*   **Agent getting distracted by LICENSE file:** The agent paused unnecessarily each time it encountered the `LICENSE` file. This is a distraction and should be avoided. Future agents should be instructed to ignore the `LICENSE` file unless specifically asked to interact with it.
 *   **`gh` CLI Limitations:** No direct `gh` command to add licenses, forcing manual steps.
 *   **`web_fetch` Behavior:** Initially returned summaries instead of raw text, requiring more specific requests.
 *   **CLI Instability (Git):** The Gemini CLI hung during a git rebase attempt.
