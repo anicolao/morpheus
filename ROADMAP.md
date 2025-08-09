@@ -2,7 +2,7 @@
 
 This document outlines the development roadmap for Morpheum, focusing on the near-term tasks required to transition from a single-developer, local CLI-based workflow to a collaborative, Matrix-based workflow.
 
-## Near-Term Goals (The "Matrix Milestone")
+## Morpheum v0.1: The "Matrix Milestone"
 
 The primary goal for the near future is to establish the basic infrastructure for Matrix-based collaboration. This will involve the following tasks:
 
@@ -15,12 +15,16 @@ The primary goal for the near future is to establish the basic infrastructure fo
 
 The core of the Matrix milestone is the development of a bot, tentatively named the "Morpheum Bot," that will act as the primary interface between the developers and the GitHub repository.
 
+*   **Initial Proof of Concept:**
+    *   Fork the Gemini CLI to create the initial version of the Morpheum Bot. This will allow the bot to directly be the Gemini CLI for an initial proof of concept.
 *   **Basic Bot Infrastructure:**
-    *   Set up a basic bot framework (e.g., using a library like `matrix-nio` for Python).
+    *   Set up a basic bot framework in Python (e.g., using a library like `matrix-nio`).
     *   Configure the bot to join the project's Matrix room.
     *   Implement a simple command handler to respond to basic commands (e.g., `!help`).
 
 *   **GitHub Integration:**
+    *   Each AI agent should have its own GitHub account, which it will use to fork repositories and create pull requests.
+    *   Human developers can then use an AI agent with their own accounts for the purposes of accepting pull requests into the project.
     *   Implement OAuth or a similar mechanism to allow the bot to authenticate with GitHub on behalf of the user.
     *   Develop a set of commands for interacting with the GitHub repository, including:
         *   `!create-repo <repo-name>`: Creates a new GitHub repository.

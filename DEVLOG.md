@@ -6,7 +6,7 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 
 ## Changelog
 
-*   **Draft `ROADMAP.md`:** Created the first draft of the `ROADMAP.md` file, focusing on the near-term tasks required to move to a Matrix-based workflow.
+*   **Draft `ROADMAP.md`:** Created the first draft of the `ROADMAP.md` file, focusing on the near-term tasks required to move to a Matrix-based workflow. The draft was reviewed and updated to include the concept of forking the Gemini CLI for the initial bot, the idea of each AI agent having its own GitHub account, and to ensure consistency regarding the use of Python for the bot development.
 *   **Draft `ARCHITECTURE.md`:** Created the first draft of the `ARCHITECTURE.md` file, outlining the technical architecture of the Morpheum project. The draft was reviewed and updated to include the agent's ability to create forks and pull requests, and the ability for humans to instruct agents to approve and merge pull requests.
 *   **Draft `VISION.md`:** Created the first draft of the `VISION.md` file, outlining the long-term vision for the Morpheum project.
 *   **Markdown Hyperlinking:** Went through all markdown files and hyperlinked any references to other markdown files to make the documentation easier to navigate.
