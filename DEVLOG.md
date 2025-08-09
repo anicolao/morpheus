@@ -6,6 +6,7 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 
 ## Changelog
 
+*   **Correction: Gemini CLI Language:** Identified and corrected a significant error in the `ROADMAP.md` where the Gemini CLI was incorrectly stated as Python-based. The Gemini CLI is primarily TypeScript/JavaScript. The `ROADMAP.md` has been updated to reflect that the Morpheum Bot (Python-based) will *use* the Gemini CLI, rather than directly forking its codebase. This highlights the importance of external verification and not making assumptions about tool implementations.
 *   **Draft `ROADMAP.md`:** Created the first draft of the `ROADMAP.md` file, focusing on the near-term tasks required to move to a Matrix-based workflow. The draft was reviewed and updated to include the concept of forking the Gemini CLI (explicitly noting it is Python-based) for the initial bot, the idea of each AI agent having its own GitHub account, and to ensure consistency regarding the use of Python for the bot development.
 *   **Draft `ARCHITECTURE.md`:** Created the first draft of the `ARCHITECTURE.md` file, outlining the technical architecture of the Morpheum project. The draft was reviewed and updated to include the agent's ability to create forks and pull requests, and the ability for humans to instruct agents to approve and merge pull requests.
 *   **Draft `VISION.md`:** Created the first draft of the `VISION.md` file, outlining the long-term vision for the Morpheum project.
