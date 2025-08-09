@@ -30,7 +30,8 @@ The typical workflow for a project in Morpheum is as follows:
 3.  **Task Decomposition:** The project is broken down into smaller tasks, which are assigned to either humans or AI agents.
 4.  **Development:** Developers work on their assigned tasks, using Git for version control and GitHub for collaboration.
 5.  **Communication:** All project-related communication takes place in the project room on Matrix.
-6.  **CI/CD:** GitHub Actions is used to automate the testing, building, and deployment of the project.
+6.  **Review and Approval:** Pull requests are reviewed by humans, who can then instruct an AI agent to perform the mechanics of approving and merging the pull request.
+7.  **CI/CD:** GitHub Actions is used to automate the testing, building, and deployment of the project.
 
 ## Extensibility
 
