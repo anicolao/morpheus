@@ -13,19 +13,20 @@ The primary goal for the near future is to establish the basic infrastructure fo
 
 ### 2. Bot Development: The "Morpheum Bot"
 
-The core of the Matrix milestone is the development of a bot, tentatively named the "Morpheum Bot," that will act as the primary interface between the developers and the GitHub repository.
+The core of the Matrix milestone is the development of a bot, tentatively named the "Morpheum Bot," that will act as the primary interface between the developers and the GitHub repository. This bot will be developed in TypeScript/JavaScript, leveraging the forked Gemini CLI.
 
 *   **Initial Proof of Concept:**
-    *   The Morpheum Bot (Python-based) will be developed to interact with the Gemini CLI (primarily TypeScript/JavaScript) to perform tasks. This will allow for an initial proof of concept where the bot leverages the existing Gemini CLI functionality.
-*   **Basic Bot Infrastructure:**
-    *   Set up a basic bot framework in Python (e.g., using a library like `matrix-nio`).
+    *   Fork the Gemini CLI (TypeScript/JavaScript-based) to create the initial version of the Morpheum Bot. This will allow the bot to directly be the Gemini CLI for an initial proof of concept, working within its native language environment.
+
+*   **Basic Bot Infrastructure (TypeScript/JavaScript):**
+    *   Set up a basic bot framework using appropriate TypeScript/JavaScript libraries for Matrix interaction (e.g., `matrix-bot-sdk` or similar).
     *   Configure the bot to join the project's Matrix room.
     *   Implement a simple command handler to respond to basic commands (e.g., `!help`).
 
-*   **GitHub Integration:**
+*   **GitHub Integration (TypeScript/JavaScript):**
     *   Each AI agent should have its own GitHub account, which it will use to fork repositories and create pull requests.
     *   Human developers can then use an AI agent with their own accounts for the purposes of accepting pull requests into the project.
-    *   Implement OAuth or a similar mechanism to allow the bot to authenticate with GitHub on behalf of the user.
+    *   Implement OAuth or a similar mechanism to allow the bot to authenticate with GitHub on behalf of the user, using TypeScript/JavaScript libraries.
     *   Develop a set of commands for interacting with the GitHub repository, including:
         *   `!create-repo <repo-name>`: Creates a new GitHub repository.
         *   `!create-issue <title> <description>`: Creates a new issue in the repository.
