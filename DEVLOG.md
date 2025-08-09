@@ -6,6 +6,7 @@ This log tracks the development of `morpheus` using `morpheus` itself. Our main 
 
 ## Changelog
 
+*   **Typo Investigation ("Morpheum" to "Morpheus"):** Investigated a reported typo where the project was mistakenly called "Morpheum" instead of "Morpheus". A search across all markdown files (`.md`) revealed no instances of "Morpheum", indicating that text content already uses the correct spelling. It's possible the typo exists within the `assets/logo.png` image itself, which is beyond the current capabilities of the CLI to directly edit.
 *   **Add Logo to README.md:** Added `assets/logo.png` to the repository and displayed it at the top of `README.md` using a markdown image link. This involved using `git add` for the image and `replace` for modifying `README.md`.
 *   **DEVLOG.md Editing Pass:** Performed an editing pass on this `DEVLOG.md` file to make it briefer and less formal, without losing any content. Reduced word count from 700 to 500 words. (Note: Obtaining the previous word count required instructing the Gemini CLI to use `git show` and then count words, highlighting a current friction point in fully automated metrics gathering.)
 *   **GPLv3 License Added (Current):** We just added the GPLv3 license. We used `google_web_search`, `web_fetch`, and `write_file` for this. However, the file created by the CLI was eventually discarded, and the license was added manually via GitHub's UI.
