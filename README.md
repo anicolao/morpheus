@@ -11,15 +11,13 @@ Morpheus is a collaborative environment where AI agents and humans can work toge
 *   **AI-Assisted Development:** Morpheus integrates with powerful AI coding agents to automate repetitive tasks, generate code, and provide intelligent suggestions.
 *   **Human-in-the-Loop:** Human developers are always in control. They can review, modify, and approve the work of AI agents, a process that ensures the quality and integrity of the codebase.
 
-## High-Level Architecture
+## Architecture
 
-Morpheus will be a web-based application with the following components:
+The intended architecture for Morpheus leverages the Matrix federated chat system for all communication between AI agents and human participants regarding project status. Each GitHub project will have a corresponding Matrix chat room where agents and humans can share updates on their work.
 
-*   **Project Dashboard:** A central hub for managing projects, tracking progress, and visualizing the collaborative workflow.
-*   **Code Editor:** An integrated code editor that allows both humans and AI agents to work on the same codebase in real-time.
-*   **Task Manager:** A tool for creating, assigning, and tracking development tasks.
-*   **AI Agent Integration:** A flexible architecture that allows for the integration of various AI coding agents.
-*   **Version Control:** Seamless integration with Git for version control and collaboration.
+Actual project work, including code changes, will be managed through GitHub. Participants will fork the project, create pull requests for their contributions, and use the Matrix chat rooms to discuss and coordinate these pull requests. Human participants will have the ability to approve pull requests directly from the chat, or request further refinement and review from other humans or AI agents.
+
+Morpheus will not feature a separate web interface. All interactions will occur within the Matrix chat rooms, and all project artifacts will be stored and served by GitHub. Deployment to production environments will be handled via GitHub workflows.
 
 ## Getting Started
 
