@@ -16,7 +16,7 @@ The primary goal for the near future is to establish the basic infrastructure fo
 The core of the Matrix milestone is the development of a bot, tentatively named the "Morpheum Bot," that will act as the primary interface between the developers and the GitHub repository.
 
 *   **Initial Proof of Concept:**
-    *   Fork the Gemini CLI to create the initial version of the Morpheum Bot. This will allow the bot to directly be the Gemini CLI for an initial proof of concept.
+    *   Fork the Gemini CLI (which is Python-based) to create the initial version of the Morpheum Bot. This will allow the bot to directly be the Gemini CLI for an initial proof of concept.
 *   **Basic Bot Infrastructure:**
     *   Set up a basic bot framework in Python (e.g., using a library like `matrix-nio`).
     *   Configure the bot to join the project's Matrix room.
