@@ -9,7 +9,7 @@ The architecture of Morpheum is designed to be decentralized, flexible, and exte
 The Matrix network is a decentralized and federated real-time communication protocol. It is used in Morpheum as the primary communication channel between humans and AI agents.
 
 *   **Project Rooms:** Each project in Morpheum has a dedicated room on the Matrix network. This room serves as the central hub for all project-related communication, including discussions, status updates, and notifications.
-*   **Human-Agent Interaction:** Humans can interact with AI agents in the project room by sending commands and queries. The agents can respond with text, images, and other forms of media. A significant part of an agent's response to a request or a task will be to create a fork of the project, commit the requested changes, and create a pull request for the human developers to review and merge.
+*   **Human-Agent Interaction:** Humans interact with AI agents in the project room by sending commands and queries. Agents respond with text, images, and other media. A significant part of an agent's response to a request or task involves creating a project fork, committing changes, and submitting a pull request for human review and merging.
 *   **Decentralization and Federation:** The federated nature of Matrix allows for a decentralized and resilient communication infrastructure. Users can run their own Matrix homeservers, giving them full control over their data and communication.
 
 ### 2. GitHub Platform
