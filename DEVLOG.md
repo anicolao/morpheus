@@ -1,12 +1,13 @@
 # DEVLOG
 
-## Morpheus Development Log
+## Morpheum Development Log
 
-This log tracks the development of `morpheus` using `morpheus` itself. Our main goal is to minimize manual work, letting AI agents handle most tasks by generating project markdown. This explains why we sometimes hit snags and have to work around them.
+This log tracks the development of `morpheum` using `morpheum` itself. Our main goal is to minimize manual work, letting AI agents handle most tasks by generating project markdown. This explains why we sometimes hit snags and have to work around them.
 
 ## Changelog
 
-*   **Typo Investigation ("Morpheum" to "Morpheus"):** Investigated a reported typo where the project was mistakenly called "Morpheum" instead of "Morpheus". A search across all markdown files (`.md`) revealed no instances of "Morpheum", indicating that text content already uses the correct spelling. It's possible the typo exists within the `assets/logo.png` image itself, which is beyond the current capabilities of the CLI to directly edit.
+*   **Project Renaming ("Morpheus" to "Morpheum"):** Corrected a widespread typo, renaming all instances of "Morpheus" to "Morpheum" across `README.md` and `DEVLOG.md`. This involved multiple `replace` operations. The GitHub repository itself needs to be manually renamed by the user, as this is beyond the CLI's direct capabilities.
+*   **Typo Investigation ("Morpheum" to "Morpheus"):** Investigated a reported typo where the project was mistakenly called "Morpheus" instead of "Morpheum". A search across all markdown files (`.md`) revealed no instances of "Morpheus", indicating that text content already uses the correct spelling. It's possible the typo exists within the `assets/logo.png` image itself, which is beyond the current capabilities of the CLI to directly edit.
 *   **Add Logo to README.md:** Added `assets/logo.png` to the repository and displayed it at the top of `README.md` using a markdown image link. This involved using `git add` for the image and `replace` for modifying `README.md`.
 *   **DEVLOG.md Editing Pass:** Performed an editing pass on this `DEVLOG.md` file to make it briefer and less formal, without losing any content. Reduced word count from 700 to 500 words. (Note: Obtaining the previous word count required instructing the Gemini CLI to use `git show` and then count words, highlighting a current friction point in fully automated metrics gathering.)
 *   **GPLv3 License Added (Current):** We just added the GPLv3 license. We used `google_web_search`, `web_fetch`, and `write_file` for this. However, the file created by the CLI was eventually discarded, and the license was added manually via GitHub's UI.
@@ -31,6 +32,6 @@ This log tracks the development of `morpheus` using `morpheus` itself. Our main 
 *   **CLI Instability (Git):** The Gemini CLI hung during a git rebase attempt.
 *   **Inconsistent CLI Behavior:** The license addition process wasn't as smooth this time, leading to manual intervention.
 
-### Experience Building Morpheus with Morpheus
+### Experience Building Morpheum with Morpheum
 
-It's been a mixed bag. The CLI's ability to interact with the file system and web is powerful. But issues like hallucinated content, CLI hangs, and inconsistent behavior show that `morpheus` still needs human oversight. While functional, the process can be indirect and sometimes unreliable, sometimes requiring manual workarounds (like adding the license via GitHub UI). All commits to the repository will now be reflected with at least one comment in this worklog to reflect the work done and any challenges encountered.
+It's been a mixed bag. The CLI's ability to interact with the file system and web is powerful. But issues like hallucinated content, CLI hangs, and inconsistent behavior show that `morpheum` still needs human oversight. While functional, the process can be indirect and sometimes unreliable, sometimes requiring manual workarounds (like adding the license via GitHub UI). All commits to the repository will now be reflected with at least one comment in this worklog to reflect the work done and any challenges encountered.
