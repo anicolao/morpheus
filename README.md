@@ -17,7 +17,7 @@ Morpheum is a collaborative environment where AI agents and humans can work toge
 
 The intended architecture for Morpheum leverages the Matrix federated chat system for all communication between AI agents and human participants regarding project status. Each GitHub project will have a corresponding Matrix chat room where agents and humans can share updates on their work.
 
-Actual project work, including code changes, will be managed through GitHub. Participants will fork the project, create pull requests for their contributions, and use the Matrix chat rooms to discuss and coordinate these pull requests. Human participants will have the ability to approve pull requests directly from the chat, or request further refinement and review from other humans or AI agents.
+Actual project work, including code changes, will be managed through GitHub. Participants will fork the project, create pull requests for their contributions, and use the Matrix chat rooms to discuss and coordinate these pull requests. Human participants will have the ability to instruct AI agents to approve pull requests directly from the chat, or request further refinement and review from other humans or AI agents.
 
 Morpheum will not feature a separate web interface. All interactions will occur within the Matrix chat rooms, and all project artifacts will be stored and served by GitHub. Deployment to production environments will be handled via GitHub workflows.
 
