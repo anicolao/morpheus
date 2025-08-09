@@ -6,6 +6,7 @@ This log tracks the development of `morpheus` using `morpheus` itself. Our main 
 
 ## Changelog
 
+*   **Add Logo to README.md:** Added `assets/logo.png` to the repository and displayed it at the top of `README.md` using a markdown image link. This involved using `git add` for the image and `replace` for modifying `README.md`.
 *   **DEVLOG.md Editing Pass:** Performed an editing pass on this `DEVLOG.md` file to make it briefer and less formal, without losing any content. Reduced word count from 700 to 500 words. (Note: Obtaining the previous word count required instructing the Gemini CLI to use `git show` and then count words, highlighting a current friction point in fully automated metrics gathering.)
 *   **GPLv3 License Added (Current):** We just added the GPLv3 license. We used `google_web_search`, `web_fetch`, and `write_file` for this. However, the file created by the CLI was eventually discarded, and the license was added manually via GitHub's UI.
 *   **Initial License Attempt (MIT):** Earlier, Gemini picked an MIT license, which we didn't want. Trying to switch to GPL caused the CLI to hang during a git rebase, so we abandoned that approach.

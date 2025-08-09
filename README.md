@@ -1,3 +1,5 @@
+![Morpheus Logo](assets/logo.png)
+
 # Morpheus
 
 ## Vision
