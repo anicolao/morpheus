@@ -6,6 +6,7 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 
 ## Changelog
 
+*   **Refine `VISION.md`:** Made two improvements to `VISION.md`: a minor rephrasing for conciseness in the "Project Scaffolding" bullet, and a more significant correction to clarify that human developers will need to adapt to new, AI-mediated workflows for interacting with version control systems, rather than using "familiar workflows."
 *   **Clarify `README.md` PR Approval:** Updated `README.md` to clarify that human participants instruct AI agents to approve pull requests, aligning with the updated `ARCHITECTURE.md`.
 *   **Draft `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`:** Created the first drafts of the `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` files. The `CONTRIBUTING.md` was heavily revised to reflect the Matrix-centric, AI-agent-mediated workflow. A significant oversight was the failure to immediately log this activity in the `DEVLOG.md`, highlighting a need for stricter adherence to logging conventions.
 *   **Refine `ROADMAP.md`:** Removed the "Future Goals" section, ensured all markdown files are linked, and clarified that AI agents will handle low-level GitHub command integration.

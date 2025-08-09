@@ -8,7 +8,7 @@ In the imagined end state of Morpheum, a development team, or even a single indi
 
 Once the room is created, the team can spin up a series of AI agents to assist with the project. These agents will be responsible for a wide range of tasks, including:
 
-*   **Project Scaffolding:** Creating the initial project structure on GitHub, including the repository, issue tracker, and CI/CD pipelines.
+*   **Project Scaffolding:** Creating the initial GitHub project structure, including repositories, issue trackers, and CI/CD pipelines.
 *   **Code Generation:** Writing code in various programming languages, based on the project's requirements and specifications.
 *   **Bug Fixing and Refactoring:** Identifying and fixing bugs, as well as improving the quality and maintainability of the codebase.
 *   **Documentation:** Generating and maintaining clear and comprehensive documentation for the project.
@@ -22,6 +22,6 @@ In this ecosystem:
 
 *   **AI agents** can be developed and contributed by anyone in the community.
 *   **Hardware resources** for running the agents can be provided by the team members themselves, by paid infrastructure from major cloud providers, or by a marketplace of hardware providers associated with Morpheum.
-*   **Human developers** can contribute to projects from anywhere in the world, using the tools and workflows they are already familiar with.
+*   **Human developers** can contribute to projects from anywhere in the world, adapting to new workflows where AI agents mediate interactions with version control systems like GitHub.
 
 By fostering a decentralized and collaborative environment, we believe that Morpheum can unlock the full potential of AI-assisted software development and empower a new generation of builders and creators.
