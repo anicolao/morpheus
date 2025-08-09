@@ -27,9 +27,9 @@ This project is still in its early stages. The first step is to define the proje
 
 **Next Steps:**
 
-1.  Elaborate on the project vision in `VISION.md`.
-2.  Detail the proposed architecture in `ARCHITECTURE.md`.
-3.  Outline the development roadmap in `ROADMAP.md`.
-4.  Define contribution guidelines in `CONTRIBUTING.md`.
+1.  Elaborate on the project vision in [`VISION.md`](VISION.md).
+2.  Detail the proposed architecture in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+3.  Outline the development roadmap in [`ROADMAP.md`](ROADMAP.md).
+4.  Define contribution guidelines in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 5.  Review the development log in [DEVLOG.md](DEVLOG.md).
 6.  Understand the expected behavior of AI agents in [AGENTS.md](AGENTS.md).

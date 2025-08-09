@@ -26,8 +26,8 @@ This document outlines the expected behavior and best practices for all AI agent
     *   If an agent encounters an error or is unable to complete a task, it should report the issue clearly and provide any relevant context or logs.
     *   Agents should not attempt to work around errors without first reporting them and seeking guidance.
 *   **Development Log (`DEVLOG.md`):**
-    *   The `DEVLOG.md` is a critical component of this project. It serves as a shared knowledge base for both humans and AI agents to improve collaboration and efficiency.
-    *   Agents must log a summary of their work in `DEVLOG.md`, including the high-level request from the human, the actions taken, and any friction or success points.
+    *   The [`DEVLOG.md`](DEVLOG.md) is a critical component of this project. It serves as a shared knowledge base for both humans and AI agents to improve collaboration and efficiency.
+    *   Agents must log a summary of their work in [`DEVLOG.md`](DEVLOG.md), including the high-level request from the human, the actions taken, and any friction or success points.
     *   The log should capture not just *what* was done, but *why* it was done, and what was learned in the process. For example, if a new technique is discovered (e.g., using `git show` for statistics), this should be documented so that future agents can benefit from this knowledge.
     *   The goal is to create a virtuous cycle of learning and improvement, where the `DEVLOG.md` becomes a repository of best practices and lessons learned.
 
