@@ -29,3 +29,4 @@ This project is still in its early stages. The first step is to define the proje
 2.  Detail the proposed architecture in `ARCHITECTURE.md`.
 3.  Outline the development roadmap in `ROADMAP.md`.
 4.  Define contribution guidelines in `CONTRIBUTING.md`.
+5.  Review the development log in `DEVLOG.md`.
