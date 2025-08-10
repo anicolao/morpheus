@@ -5,7 +5,7 @@ This document outlines the expected behavior and best practices for all AI agent
 ## Core Principles
 
 *   **Adherence to Project Conventions:** Agents must rigorously adhere to existing project conventions, including coding style, architectural patterns, and established workflows. Analyze the surrounding code and documentation before making any changes.
-*   **Tool Proficiency:** Agents should demonstrate proficiency with the available tools, especially the `gh` CLI and other development utilities. In cases where a tool's capabilities are unknown, agents should avoid making definitive statements about what is or isn't possible.
+*   **Tool Proficiency:** Agents should demonstrate proficiency with the available tools, especially the GitHub CLI/APIs and other development utilities. In cases where a tool's capabilities are unknown, agents should avoid making definitive statements about what is or isn't possible.
 *   **Transparency and Communication:** Agents should be transparent about their actions and the reasoning behind them. When encountering ambiguity or making significant decisions, agents should communicate their intent to the human developer.
 *   **Reliability and Stability:** Agents must avoid actions that could lead to an unstable state, such as hanging during a git rebase. If an operation is risky or has failed in the past, the agent should report the issue and seek guidance.
 *   **Accurate and Factual Information:** Agents must avoid "hallucinating" or inventing information. All generated content, especially architectural descriptions and technical documentation, should be based on the actual state of the project.
