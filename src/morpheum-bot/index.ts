@@ -7,6 +7,7 @@ import {
     LogLevel,
     LogService,
 } from "matrix-bot-sdk";
+import { exec } from "child_process";
 
 // read environment variables
 const homeserverUrl = process.env.HOMESERVER_URL;
@@ -40,13 +41,42 @@ LogService.setLogger({
     trace: (module, ...args) => console.trace(new Date().toISOString(), "[TRACE]", module, ...args),
 });
 
-// Now, let's set up a command handler. We'll be using a simple `!help` command.
+// Now, let's set up a command handler.
 client.on("room.message", (roomId, event) => {
-    if (event.content?.body?.startsWith("!help")) {
-        const message = "Hello! I am the Morpheum Bot. I am still under development.";
+    const body = event.content?.body;
+    if (!body) return;
+
+    if (body.startsWith("!help")) {
+        const message = "Hello! I am the Morpheum Bot. I am still under development. You can use `!gemini <prompt>` to interact with the Gemini CLI.";
         client.sendMessage(roomId, {
             msgtype: "m.text",
             body: message,
+        });
+    } else if (body.startsWith("!gemini ")) {
+        const prompt = body.substring("!gemini ".length);
+        client.sendMessage(roomId, {
+            msgtype: "m.text",
+            body: `Executing Gemini CLI with prompt: "${prompt}"`,
+        });
+
+        exec(`bunx @google/gemini-cli -p "${prompt}"`, (error, stdout, stderr) => {
+            if (error) {
+                client.sendMessage(roomId, {
+                    msgtype: "m.text",
+                    body: `Error executing Gemini CLI: ${error.message}`,
+                });
+                return;
+            }
+            if (stderr) {
+                client.sendMessage(roomId, {
+                    msgtype: "m.text",
+                    body: `Gemini CLI stderr: ${stderr}`,
+                });
+            }
+            client.sendMessage(roomId, {
+                msgtype: "m.text",
+                body: stdout,
+            });
         });
     }
 });
