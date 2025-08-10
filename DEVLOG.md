@@ -6,6 +6,7 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 
 ## Changelog
 
+*   **Draft `TASKS.md` for Morpheum Bot:** Collaborated on creating and refining the initial `TASKS.md` to outline the development of the Morpheum Bot. The process involved reviewing all project markdown to align with the project's goals, and iteratively refining the task list based on feedback to use a local `src/morpheum-bot` directory with top-level dependencies. This exercise served as a successful test of the human-agent collaboration workflow. A minor friction point was an initial hang when reading multiple files, which was resolved by globbing for the files first.
 *   **Refine `ARCHITECTURE.md` Human-Agent Interaction:** Improved clarity and conciseness in the "Human-Agent Interaction" section of `ARCHITECTURE.md` by rephrasing a long sentence into shorter, more direct ones.
 *   **Refine `VISION.md`:** Made two improvements to `VISION.md`: a minor rephrasing for conciseness in the "Project Scaffolding" bullet, and a more significant correction to clarify that human developers will need to adapt to new, AI-mediated workflows for interacting with version control systems, rather than using "familiar workflows."
 *   **Clarify `README.md` PR Approval:** Updated `README.md` to clarify that human participants instruct AI agents to approve pull requests, aligning with the updated `ARCHITECTURE.md`.
