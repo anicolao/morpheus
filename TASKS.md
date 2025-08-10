@@ -17,10 +17,10 @@ This file tracks the current and upcoming tasks for the Morpheum project.
     *   [x] Implement the basic bot structure to connect to a Matrix homeserver.
     *   [x] Implement a simple `!help` command to verify the bot is working.
 
-*   [ ] **Task 3: Gemini CLI Integration (Proof of Concept)**
-    *   [ ] Fork the Gemini CLI repository.
-    *   [ ] Investigate how to invoke the Gemini CLI from the TypeScript bot.
-    *   [ ] Implement a command (e.g., `!gemini <prompt>`) that passes the prompt to the Gemini CLI and returns the output to the Matrix room.
+*   [x] **Task 3: Gemini CLI Integration (Proof of Concept)**
+    *   [x] Fork the Gemini CLI repository.
+    *   [x] Investigate how to invoke the Gemini CLI from the TypeScript bot.
+    *   [x] Implement a command (e.g., `!gemini <prompt>`) that passes the prompt to the Gemini CLI and returns the output to the Matrix room.
 
 *   [ ] **Task 4: GitHub Integration**
     *   [ ] Research and select a suitable GitHub API library for TypeScript/JavaScript.
