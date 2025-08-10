@@ -6,16 +6,16 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 
 ### 1. Matrix Bot Development (Morpheum Bot)
 
-*   [ ] **Task 1: Initial Project Setup for the Bot**
-    *   [ ] Create a new directory for the bot: `src/morpheum-bot`.
-    *   [ ] Install necessary dependencies for a basic Matrix bot (e.g., `matrix-bot-sdk`) at the project root.
-    *   [ ] Install TypeScript at the project root.
-    *   [ ] Create a `tsconfig.json` at the project root if one doesn't exist, or update the existing one to include the bot's source files.
+*   [x] **Task 1: Initial Project Setup for the Bot**
+    *   [x] Create a new directory for the bot: `src/morpheum-bot`.
+    *   [x] Install necessary dependencies for a basic Matrix bot (e.g., `matrix-bot-sdk`) at the project root.
+    *   [x] Install TypeScript at the project root.
+    *   [x] Create a `tsconfig.json` at the project root if one doesn't exist, or update the existing one to include the bot's source files.
 
-*   [ ] **Task 2: Basic Bot Implementation**
-    *   [ ] Create a `src/morpheum-bot/index.ts` file.
-    *   [ ] Implement the basic bot structure to connect to a Matrix homeserver.
-    *   [ ] Implement a simple `!help` command to verify the bot is working.
+*   [x] **Task 2: Basic Bot Implementation**
+    *   [x] Create a `src/morpheum-bot/index.ts` file.
+    *   [x] Implement the basic bot structure to connect to a Matrix homeserver.
+    *   [x] Implement a simple `!help` command to verify the bot is working.
 
 *   [ ] **Task 3: Gemini CLI Integration (Proof of Concept)**
     *   [ ] Fork the Gemini CLI repository.
