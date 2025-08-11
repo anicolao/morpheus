@@ -22,12 +22,12 @@ This file tracks the current and upcoming tasks for the Morpheum project.
     *   [x] Investigate how to invoke the Gemini CLI from the TypeScript bot.
     *   [x] Implement a command (e.g., `!gemini <prompt>`) that passes the prompt to the Gemini CLI and returns the output to the Matrix room.
 
-*   [ ] **Task 4: GitHub Integration**
-    *   [ ] Research and select a suitable GitHub API library for TypeScript/JavaScript.
-    *   [ ] Install the selected GitHub library at the project root.
-    *   [ ] Implement OAuth for the bot to authenticate with GitHub.
-    *   [ ] Create a command to allow the bot to create a GitHub repository.
+*   [x] **Task 4: GitHub Integration in Gemini CLI**
+    *   [x] Investigate how to add `gh` as a tool to the forked Gemini CLI.
+    *   [x] Implement the necessary changes in the forked Gemini CLI to use the `gh` tool.
+    *   [x] Test the integration by running `gh` commands through the `!gemini` command in the bot.
+    *   [x] Document the correct way to invoke the Gemini CLI to execute `gh` commands.
 
-*   [ ] **Task 5: `DEVLOG.md` and `TASKS.md` management**
-    *   [ ] The bot should be able to read and write to the `DEVLOG.md` and `TASKS.md` files.
-    *   [ ] Create commands to add entries to the `DEVLOG.md` and to update the status of tasks in `TASKS.md`.
+*   [x] **Task 5: `DEVLOG.md` and `TASKS.md` management**
+    *   [x] The bot should be able to read and write to the `DEVLOG.md` and `TASKS.md` files.
+    *   [x] Create commands to add entries to the `DEVLOG.md` and to update the status of tasks in `TASKS.md`.
