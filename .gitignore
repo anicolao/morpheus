@@ -6,3 +6,4 @@
 bot.json
 src/morpheum-bot/*.js
 .secrets
+\n# Secrets\n.env
