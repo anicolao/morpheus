@@ -7,6 +7,15 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ## Changelog
 
 *   **Date:** 2025-08-11
+*   **Request:** Address Husky deprecation warning.
+*   **Actions Taken:**
+    *   Removed the deprecated lines from the `.husky/pre-commit` file.
+*   **Friction/Success Points:**
+    *   Quickly addressed the deprecation warning to ensure future compatibility.
+*   **Lessons Learned:**
+    *   It's important to pay attention to and address deprecation warnings from tools to avoid future breakage.
+
+*   **Date:** 2025-08-11
 *   **Request:** Finalize submodule push and implement a mechanism to prevent forgetting to update `DEVLOG.md` and `TASKS.md`.
 *   **Actions Taken:**
     *   Pushed the `gemini-cli` submodule changes to its remote repository using `git push --recurse-submodules=on-demand`.

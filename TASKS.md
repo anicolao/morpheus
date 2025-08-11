@@ -37,3 +37,4 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 *   [x] **Task 7: Enforce `DEVLOG.md` and `TASKS.md` Updates**
     *   [x] Implement a `pre-commit` hook that prevents commits if `DEVLOG.md` and `TASKS.md` are not staged.
     *   [x] Use `husky` to manage the hook so it's automatically installed for all contributors.
+    *   [x] Address Husky deprecation warning.
