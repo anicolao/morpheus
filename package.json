@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@matrix-org/olm": "^3.2.15",
     "matrix-bot-sdk": "^0.7.1",
+    "matrix-js-sdk": "^25.0.0",
     "typescript": "^5.9.2"
   }
 }
