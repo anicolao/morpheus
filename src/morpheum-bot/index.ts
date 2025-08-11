@@ -7,9 +7,9 @@ import {
   LogLevel,
   LogService,
 } from "matrix-bot-sdk";
-import { exec } from "child_process";
 import * as fs from "fs";
-import { runGeminiCli } from "../gemini-cli/packages/cli/src/bot-interface.js";
+import { initialize, streamQuery, BotMessage } from "../gemini-cli/packages/cli/src/library.js";
+import { Config } from "@google/gemini-cli-core";
 
 // read environment variables
 const homeserverUrl = process.env.HOMESERVER_URL;
@@ -21,6 +21,8 @@ if (!homeserverUrl || !accessToken) {
   );
   process.exit(1);
 }
+
+let geminiConfig: Config;
 
 // We'll want to make sure the bot doesn't have to do an initial sync every
 // time it restarts, so we need to prepare a storage provider. Here we use
@@ -60,43 +62,54 @@ client.on("room.message", async (roomId, event) => {
   const body = event.content?.body;
   if (!body) return;
 
+  const callback = (message: BotMessage) => {
+    let body = "";
+    switch (message.type) {
+      case "content":
+        body = message.content;
+        break;
+      case "thought":
+        // Only show thoughts that have text content.
+        if (message.thought && message.thought.thought) {
+          body = `Thinking: ${message.thought.thought}`;
+        }
+        break;
+      case "tool_call_request":
+        body = `Requesting tool: ${message.request.name}`;
+        break;
+      case "tool_result":
+        body = `Tool Result:\n---\n${message.result.result}\n---`;
+        break;
+      case "error":
+        body = `Error: ${message.error}`;
+        break;
+      case "info":
+        body = `Info: ${message.message}`;
+        break;
+      case "finished":
+        // Don't show the user the boring STOP reason.
+        if (message.reason !== 'STOP') {
+          body = `Finished with reason: ${message.reason}`;
+        }
+        break;
+    }
+    // Only send a message if there's something to say.
+    if (body.trim()) {
+      client.sendMessage(roomId, {
+        msgtype: "m.text",
+        body: body,
+      });
+    }
+  };
+
   if (body.startsWith("!")) {
     if (body.startsWith("!help")) {
       const message =
-        "Hello! I am the Morpheum Bot. I am still under development. You can use `!gemini <prompt>` to interact with the Gemini CLI, `!tasks` to see the current tasks, `!devlog` to see the development log, `!add-devlog <entry>` to add a new entry to the development log, and `!update-task <task-number> <status>` to update the status of a task.";
+        "Hello! I am the Morpheum Bot. I am still under development. You can use `!tasks` to see the current tasks, `!devlog` to see the development log, `!add-devlog <entry>` to add a new entry to the development log, and `!update-task <task-number> <status>` to update the status of a task.";
       client.sendMessage(roomId, {
         msgtype: "m.text",
         body: message,
       });
-    } else if (body.startsWith("!gemini ")) {
-      const prompt = body.substring("!gemini ".length);
-      client.sendMessage(roomId, {
-        msgtype: "m.text",
-        body: `Executing Gemini CLI with prompt: "${prompt}"`, 
-      });
-
-      exec(
-        `bunx @google/gemini-cli -e --yolo -p "${prompt}"`, 
-        (error, stdout, stderr) => {
-          if (error) {
-            client.sendMessage(roomId, {
-              msgtype: "m.text",
-              body: `Error executing Gemini CLI: ${error.message}`,
-            });
-            return;
-          }
-          if (stderr) {
-            client.sendMessage(roomId, {
-              msgtype: "m.text",
-              body: `Gemini CLI stderr: ${stderr}`,
-            });
-          }
-          client.sendMessage(roomId, {
-            msgtype: "m.text",
-            body: stdout,
-          });
-        },
-      );
     } else if (body.startsWith("!tasks")) {
       fs.readFile("TASKS.md", "utf8", (err, data) => {
         if (err) {
@@ -191,16 +204,14 @@ client.on("room.message", async (roomId, event) => {
       });
     }
   } else {
-    runGeminiCli(body, (message) => {
-      client.sendMessage(roomId, {
-        msgtype: "m.text",
-        body: message,
-      });
-    });
+    streamQuery(geminiConfig, body, callback);
   }
 });
 
 // And now we can start the client.
-client.start().then(() => {
-  console.log("Morpheum Bot started!");
+initialize().then((config) => {
+  geminiConfig = config;
+  client.start().then(() => {
+    console.log("Morpheum Bot started!");
+  });
 });

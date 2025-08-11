@@ -34,21 +34,22 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 
 ### 2. Gemini CLI Direct Integration
 
-*   [ ] **Task 6: Deep Integration with Gemini CLI for Interactive Chat**
-    *   [ ] **Add Gemini CLI as a Git Submodule:** Execute `git submodule add git@github.com:anicolao/gemini-cli.git src/gemini-cli`.
-    *   [ ] **Install Submodule Dependencies:** Navigate into the `src/gemini-cli` directory and run `npm install` (or `bun install`).
-    *   [ ] **Develop a Chat-Based Interface for Gemini CLI:**
-        *   Create a new interface within the Gemini CLI (e.g., in `packages/cli/src/bot-interface.ts`) that is designed for chat-based interaction.
-        *   This interface will need to accept a prompt and a callback function (e.g., `(message: string) => void`).
-        *   Modify the Gemini CLI's core logic to call this callback function at key points during its execution, such as:
-            *   When a tool is called, with the tool's name and arguments.
-            *   When a tool returns a result.
-            *   When the model returns a partial or final response.
-            *   When the status bar content changes.
-        *   The `run` function in the CLI will need to be refactored to use this new event-driven architecture instead of directly writing to the console.
-    *   [ ] **Adapt Bot to Handle Interactive Messages:**
-        *   Modify the bot's code (`src/morpheum-bot/index.ts`) to import and use the new chat-based interface from the Gemini CLI submodule.
-        *   The bot will pass a callback function to the Gemini CLI that sends each message it receives to the Matrix chat room.
-    *   [ ] **Testing:**
-        *   Thoroughly test the integration to ensure that the interactive messages are being sent to the chat room in a timely and accurate manner.
-        *   Verify that the chat experience is as close as possible to the experience of using the Gemini CLI directly in the terminal.
+*   [x] **Task 6: Deep Integration with Gemini CLI for Interactive Chat**
+    *   [x] **Add Gemini CLI as a Git Submodule:** Execute `git submodule add git@github.com:anicolao/gemini-cli.git src/gemini-cli`.
+    *   [x] **Install Submodule Dependencies:** Navigate into the `src/gemini-cli` directory and run `npm install` (or `bun install`).
+    *   [x] **Initial Stub and Testing:** Implemented and tested a basic stub for calling the CLI from the bot, including fixing an infinite loop found during integration testing.
+    *   [x] **Develop a Chat-Based Interface for Gemini CLI:**
+        *   [x] Create a new interface within the Gemini CLI (e.g., in `packages/cli/src/library.ts`) that is designed for chat-based interaction.
+        *   [x] This interface will need to accept a prompt and a callback function (e.g., `(message: BotMessage) => void`).
+        *   [x] Modify the Gemini CLI's core logic to call this callback function at key points during its execution, such as:
+            *   [x] When a tool is called, with the tool's name and arguments.
+            *   [x] When a tool returns a result.
+            *   [x] When the model returns a partial or final response.
+            *   [x] When the status bar content changes.
+        *   [x] The `run` function in the CLI will need to be refactored to use this new event-driven architecture instead of directly writing to the console.
+    *   [x] **Adapt Bot to Handle Interactive Messages:**
+        *   [x] Modify the bot's code (`src/morpheum-bot/index.ts`) to import and use the new chat-based interface from the Gemini CLI submodule.
+        *   [x] The bot will pass a callback function to the Gemini CLI that sends each message it receives to the Matrix chat room.
+    *   [x] **Testing:**
+        *   [x] Thoroughly test the integration to ensure that the interactive messages are being sent to the chat room in a timely and accurate manner.
+        *   [x] Verify that the chat experience is as close as possible to the experience of using the Gemini CLI directly in the terminal.
