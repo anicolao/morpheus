@@ -9,6 +9,7 @@ import {
 } from "matrix-bot-sdk";
 import { exec } from "child_process";
 import * as fs from "fs";
+import { runGeminiCli } from "../gemini-cli/packages/cli/src/bot-interface.js";
 
 // read environment variables
 const homeserverUrl = process.env.HOMESERVER_URL;
@@ -53,137 +54,147 @@ LogService.setLogger({
 client.on("room.event", (roomId, event) => {
   console.log("EVENT", event.type);
 });
-client.on("room.message", (roomId, event) => {
+client.on("room.message", async (roomId, event) => {
+  if (event.sender === await client.getUserId()) return;
   console.log("MESSAGE");
   const body = event.content?.body;
   if (!body) return;
 
-  if (body.startsWith("!help")) {
-    const message =
-      "Hello! I am the Morpheum Bot. I am still under development. You can use `!gemini <prompt>` to interact with the Gemini CLI, `!tasks` to see the current tasks, `!devlog` to see the development log, `!add-devlog <entry>` to add a new entry to the development log, and `!update-task <task-number> <status>` to update the status of a task.";
-    client.sendMessage(roomId, {
-      msgtype: "m.text",
-      body: message,
-    });
-  } else if (body.startsWith("!gemini ")) {
-    const prompt = body.substring("!gemini ".length);
-    client.sendMessage(roomId, {
-      msgtype: "m.text",
-      body: `Executing Gemini CLI with prompt: "${prompt}"`, 
-    });
+  if (body.startsWith("!")) {
+    if (body.startsWith("!help")) {
+      const message =
+        "Hello! I am the Morpheum Bot. I am still under development. You can use `!gemini <prompt>` to interact with the Gemini CLI, `!tasks` to see the current tasks, `!devlog` to see the development log, `!add-devlog <entry>` to add a new entry to the development log, and `!update-task <task-number> <status>` to update the status of a task.";
+      client.sendMessage(roomId, {
+        msgtype: "m.text",
+        body: message,
+      });
+    } else if (body.startsWith("!gemini ")) {
+      const prompt = body.substring("!gemini ".length);
+      client.sendMessage(roomId, {
+        msgtype: "m.text",
+        body: `Executing Gemini CLI with prompt: "${prompt}"`, 
+      });
 
-    exec(
-      `bunx @google/gemini-cli -e --yolo -p "${prompt}"`, 
-      (error, stdout, stderr) => {
-        if (error) {
+      exec(
+        `bunx @google/gemini-cli -e --yolo -p "${prompt}"`, 
+        (error, stdout, stderr) => {
+          if (error) {
+            client.sendMessage(roomId, {
+              msgtype: "m.text",
+              body: `Error executing Gemini CLI: ${error.message}`,
+            });
+            return;
+          }
+          if (stderr) {
+            client.sendMessage(roomId, {
+              msgtype: "m.text",
+              body: `Gemini CLI stderr: ${stderr}`,
+            });
+          }
           client.sendMessage(roomId, {
             msgtype: "m.text",
-            body: `Error executing Gemini CLI: ${error.message}`,
+            body: stdout,
           });
-          return;
-        }
-        if (stderr) {
-          client.sendMessage(roomId, {
-            msgtype: "m.text",
-            body: `Gemini CLI stderr: ${stderr}`,
-          });
-        }
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: stdout,
-        });
-      },
-    );
-  } else if (body.startsWith("!tasks")) {
-    fs.readFile("TASKS.md", "utf8", (err, data) => {
-      if (err) {
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: `Error reading TASKS.md: ${err.message}`,
-        });
-        return;
-      }
-      client.sendMessage(roomId, {
-        msgtype: "m.text",
-        body: data,
-      });
-    });
-  } else if (body.startsWith("!devlog")) {
-    fs.readFile("DEVLOG.md", "utf8", (err, data) => {
-      if (err) {
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: `Error reading DEVLOG.md: ${err.message}`,
-        });
-        return;
-      }
-      client.sendMessage(roomId, {
-        msgtype: "m.text",
-        body: data,
-      });
-    });
-  } else if (body.startsWith("!add-devlog ")) {
-    const entry = body.substring("!add-devlog ".length);
-    fs.appendFile("DEVLOG.md", `\n*   ${entry}\n`, (err) => {
-      if (err) {
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: `Error writing to DEVLOG.md: ${err.message}`,
-        });
-        return;
-      }
-      client.sendMessage(roomId, {
-        msgtype: "m.text",
-        body: "Successfully added entry to DEVLOG.md",
-      });
-    });
-  } else if (body.startsWith("!update-task ")) {
-    const args = body.substring("!update-task ".length).split(" ");
-    const taskNumber = parseInt(args[0]);
-    const status = args[1];
-
-    fs.readFile("TASKS.md", "utf8", (err, data) => {
-      if (err) {
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: `Error reading TASKS.md: ${err.message}`,
-        });
-        return;
-      }
-
-      const lines = data.split("\n");
-      const taskRegex = new RegExp(
-        `^\*\s+\[[\\s\\w]\]\s+\*\*Task ${taskNumber}:`,
+        },
       );
-      let taskFound = false;
-      for (let i = 0; i < lines.length; i++) {
-        if (taskRegex.test(lines[i])) {
-          lines[i] = lines[i].replace(/\\[[\\s\\w]\]/, status);
-          taskFound = true;
-          break;
-        }
-      }
-
-      if (!taskFound) {
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: `Task ${taskNumber} not found.`,
-        });
-        return;
-      }
-
-      fs.writeFile("TASKS.md", lines.join("\n"), (err) => {
+    } else if (body.startsWith("!tasks")) {
+      fs.readFile("TASKS.md", "utf8", (err, data) => {
         if (err) {
           client.sendMessage(roomId, {
             msgtype: "m.text",
-            body: `Error writing to TASKS.md: ${err.message}`,
+            body: `Error reading TASKS.md: ${err.message}`,
           });
           return;
         }
         client.sendMessage(roomId, {
           msgtype: "m.text",
-          body: `Successfully updated task ${taskNumber}`,
+          body: data,
         });
+      });
+    } else if (body.startsWith("!devlog")) {
+      fs.readFile("DEVLOG.md", "utf8", (err, data) => {
+        if (err) {
+          client.sendMessage(roomId, {
+            msgtype: "m.text",
+            body: `Error reading DEVLOG.md: ${err.message}`,
+          });
+          return;
+        }
+        client.sendMessage(roomId, {
+          msgtype: "m.text",
+          body: data,
+        });
+      });
+    } else if (body.startsWith("!add-devlog ")) {
+      const entry = body.substring("!add-devlog ".length);
+      fs.appendFile("DEVLOG.md", `\n*   ${entry}\n`, (err) => {
+        if (err) {
+          client.sendMessage(roomId, {
+            msgtype: "m.text",
+            body: `Error writing to DEVLOG.md: ${err.message}`,
+          });
+          return;
+        }
+        client.sendMessage(roomId, {
+          msgtype: "m.text",
+          body: "Successfully added entry to DEVLOG.md",
+        });
+      });
+    } else if (body.startsWith("!update-task ")) {
+      const args = body.substring("!update-task ".length).split(" ");
+      const taskNumber = parseInt(args[0]);
+      const status = args[1];
+
+      fs.readFile("TASKS.md", "utf8", (err, data) => {
+        if (err) {
+          client.sendMessage(roomId, {
+            msgtype: "m.text",
+            body: `Error reading TASKS.md: ${err.message}`,
+          });
+          return;
+        }
+
+        const lines = data.split("\n");
+        const taskRegex = new RegExp(
+          `^\*\s+\[[\\s\\w]\]\s+\*\*Task ${taskNumber}:`,
+        );
+        let taskFound = false;
+        for (let i = 0; i < lines.length; i++) {
+          if (taskRegex.test(lines[i])) {
+            lines[i] = lines[i].replace(/\\[[\\s\\w]\\]/, status);
+            taskFound = true;
+            break;
+          }
+        }
+
+        if (!taskFound) {
+          client.sendMessage(roomId, {
+            msgtype: "m.text",
+            body: `Task ${taskNumber} not found.`,
+          });
+          return;
+        }
+
+        fs.writeFile("TASKS.md", lines.join("\n"), (err) => {
+          if (err) {
+            client.sendMessage(roomId, {
+              msgtype: "m.text",
+              body: `Error writing to TASKS.md: ${err.message}`,
+            });
+            return;
+          }
+          client.sendMessage(roomId, {
+            msgtype: "m.text",
+            body: `Successfully updated task ${taskNumber}`,
+          });
+        });
+      });
+    }
+  } else {
+    runGeminiCli(body, (message) => {
+      client.sendMessage(roomId, {
+        msgtype: "m.text",
+        body: message,
       });
     });
   }
@@ -193,4 +204,3 @@ client.on("room.message", (roomId, event) => {
 client.start().then(() => {
   console.log("Morpheum Bot started!");
 });
-
