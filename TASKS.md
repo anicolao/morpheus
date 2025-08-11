@@ -31,3 +31,13 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 *   [x] **Task 5: `DEVLOG.md` and `TASKS.md` management**
     *   [x] The bot should be able to read and write to the `DEVLOG.md` and `TASKS.md` files.
     *   [x] Create commands to add entries to the `DEVLOG.md` and to update the status of tasks in `TASKS.md`.
+
+### 2. Gemini CLI Direct Integration
+
+*   [ ] **Task 6: Integrate Gemini CLI Source Code**
+    *   [ ] **Identify Gemini CLI Source:** Determine the exact location of the Gemini CLI's source code.
+    *   [ ] **Clone/Copy Relevant Code:** Copy essential files/directories from the Gemini CLI into a new project directory (e.g., `src/gemini-cli-core/`).
+    *   [ ] **Adapt for Direct Invocation:** Modify copied code to remove terminal interactions, expose a clear API for the bot, and handle configuration.
+    *   [ ] **Integrate into `src/morpheum-bot/index.ts`:** Replace `exec` call with direct invocation of the new Gemini CLI core module.
+    *   [ ] **Update Dependencies:** Add any necessary Gemini CLI dependencies to `package.json`.
+    *   [ ] **Testing:** Thoroughly test the direct integration.
