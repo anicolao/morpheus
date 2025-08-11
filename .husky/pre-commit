@@ -1,0 +1,21 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Staged files
+STAGED_FILES=$(git diff --cached --name-only)
+
+# Check if DEVLOG.md is staged for commit
+if ! echo "$STAGED_FILES" | grep -q "DEVLOG.md"; then
+  echo "Error: DEVLOG.md has not been updated or staged." >&2
+  echo "Please update the devlog and stage it before committing." >&2
+  exit 1
+fi
+
+# Check if TASKS.md is staged for commit
+if ! echo "$STAGED_FILES" | grep -q "TASKS.md"; then
+  echo "Error: TASKS.md has not been updated or staged." >&2
+  echo "Please update the tasks list and stage it before committing." >&2
+  exit 1
+fi
+
+exit 0

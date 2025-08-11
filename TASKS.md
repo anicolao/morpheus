@@ -32,24 +32,8 @@ This file tracks the current and upcoming tasks for the Morpheum project.
     *   [x] The bot should be able to read and write to the `DEVLOG.md` and `TASKS.md` files.
     *   [x] Create commands to add entries to the `DEVLOG.md` and to update the status of tasks in `TASKS.md`.
 
-### 2. Gemini CLI Direct Integration
+### 3. Process and Quality of Life
 
-*   [x] **Task 6: Deep Integration with Gemini CLI for Interactive Chat**
-    *   [x] **Add Gemini CLI as a Git Submodule:** Execute `git submodule add git@github.com:anicolao/gemini-cli.git src/gemini-cli`.
-    *   [x] **Install Submodule Dependencies:** Navigate into the `src/gemini-cli` directory and run `npm install` (or `bun install`).
-    *   [x] **Initial Stub and Testing:** Implemented and tested a basic stub for calling the CLI from the bot, including fixing an infinite loop found during integration testing.
-    *   [x] **Develop a Chat-Based Interface for Gemini CLI:**
-        *   [x] Create a new interface within the Gemini CLI (e.g., in `packages/cli/src/library.ts`) that is designed for chat-based interaction.
-        *   [x] This interface will need to accept a prompt and a callback function (e.g., `(message: BotMessage) => void`).
-        *   [x] Modify the Gemini CLI's core logic to call this callback function at key points during its execution, such as:
-            *   [x] When a tool is called, with the tool's name and arguments.
-            *   [x] When a tool returns a result.
-            *   [x] When the model returns a partial or final response.
-            *   [x] When the status bar content changes.
-        *   [x] The `run` function in the CLI will need to be refactored to use this new event-driven architecture instead of directly writing to the console.
-    *   [x] **Adapt Bot to Handle Interactive Messages:**
-        *   [x] Modify the bot's code (`src/morpheum-bot/index.ts`) to import and use the new chat-based interface from the Gemini CLI submodule.
-        *   [x] The bot will pass a callback function to the Gemini CLI that sends each message it receives to the Matrix chat room.
-    *   [x] **Testing:**
-        *   [x] Thoroughly test the integration to ensure that the interactive messages are being sent to the chat room in a timely and accurate manner.
-        *   [x] Verify that the chat experience is as close as possible to the experience of using the Gemini CLI directly in the terminal.
+*   [x] **Task 7: Enforce `DEVLOG.md` and `TASKS.md` Updates**
+    *   [x] Implement a `pre-commit` hook that prevents commits if `DEVLOG.md` and `TASKS.md` are not staged.
+    *   [x] Use `husky` to manage the hook so it's automatically installed for all contributors.
