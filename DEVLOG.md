@@ -7,6 +7,21 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ## Changelog
 
 *   **Date:** 2025-08-10
+*   **Request:** Delete `src/morpheum-bot/register_morpheum.ts` and ensure `.secrets` is ignored in `.gitignore`.
+*   **Actions Taken:**
+    *   Deleted `src/morpheum-bot/register_morpheum.ts`.
+    *   Attempted to update `.gitignore` to correctly ignore `.secrets` and remove the `register_morpheum.ts` entry.
+*   **Friction/Success Points:**
+    *   Repeatedly struggled with correctly appending/modifying `.gitignore` using `write_file`, leading to overwrites and incorrect entries.
+    *   Discovered that `src/morpheum-bot/register_morpheum.ts` was never tracked by Git, so `git rm` was not applicable.
+    *   Successfully used `echo >>` to append `.secrets` to `.gitignore` after multiple attempts.
+    *   Learned the importance of verifying `git status` and file content after every modification, especially for `.gitignore`.
+*   **Lessons Learned:**
+    *   My current implementation of file modification (especially appending) is prone to errors and needs significant improvement.
+    *   For simple appends, `echo >>` is a more reliable shell command than `write_file` (given my current limitations).
+    *   Thoroughly check `git status` and file content after every step to catch errors early.
+
+*   **Date:** 2025-08-10
 *   **Request:** Get the example bot in `src/morpheum-bot/index.ts` working and commit the working state.
 *   **Actions Taken:**
     *   Attempted automatic registration on `tchncs.de` and `envs.net` using `matrix-js-sdk`. Both failed with `401 Unauthorized` errors due to server-side registration requirements (e.g., reCAPTCHA).
