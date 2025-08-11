@@ -5,4 +5,4 @@
 # Bot generated files
 bot.json
 src/morpheum-bot/*.js
-src/morpheum-bot/register_morpheum.ts.secrets
+.secrets
