@@ -34,10 +34,9 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 
 ### 2. Gemini CLI Direct Integration
 
-*   [ ] **Task 6: Integrate Gemini CLI Source Code**
-    *   [ ] **Identify Gemini CLI Source:** Determine the exact location of the Gemini CLI's source code.
-    *   [ ] **Clone/Copy Relevant Code:** Copy essential files/directories from the Gemini CLI into a new project directory (e.g., `src/gemini-cli-core/`).
-    *   [ ] **Adapt for Direct Invocation:** Modify copied code to remove terminal interactions, expose a clear API for the bot, and handle configuration.
-    *   [ ] **Integrate into `src/morpheum-bot/index.ts`:** Replace `exec` call with direct invocation of the new Gemini CLI core module.
-    *   [ ] **Update Dependencies:** Add any necessary Gemini CLI dependencies to `package.json`.
-    *   [ ] **Testing:** Thoroughly test the direct integration.
+*   [ ] **Task 6: Integrate Gemini CLI Source Code (using Git Submodule)**
+    *   [ ] **Add Gemini CLI as a Git Submodule:** Execute `git submodule add https://github.com/google-gemini/gemini-cli src/gemini-cli`.
+    *   [ ] **Install Submodule Dependencies:** Navigate into the `src/gemini-cli` directory and run `npm install` (or `bun install`).
+    *   [ ] **Identify Core Invocation:** Examine the `src/gemini-cli` project to understand how its main CLI functionality is invoked programmatically.
+    *   [ ] **Adapt for Direct Invocation (within our bot):** Modify the bot's code (`src/morpheum-bot/index.ts`) to import and directly call the Gemini CLI's core logic.
+    *   [ ] **Testing:** Thoroughly test the integration to ensure the bot correctly interacts with the Gemini API and sends responses to the chat room.
