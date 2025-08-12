@@ -43,3 +43,4 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 *   [x] **Task 8: Reformat `DEVLOG.md` for Readability**
     *   [x] Restructure the `DEVLOG.md` file to use a more organized format with horizontal rules and nested lists to improve scannability.
     *   [x] Use git history to date old entries and link all markdown file references.
+    *   [x] Remove redundant "Request" line from entries.

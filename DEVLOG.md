@@ -9,7 +9,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-11: Reformat DEVLOG.md for improved readability and historical accuracy
 
-*   **Request:** Reformat [`DEVLOG.md`](DEVLOG.md) for better readability, use git history to date old entries, and link all markdown file references.
 *   **Actions Taken:**
     *   Reordered tasks in [`TASKS.md`](TASKS.md) to be sequential.
     *   Analyzed `git log` to find the original commit dates for older, undated entries.
@@ -23,7 +22,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-11: Correctly push submodule changes and verify
 
-*   **Request:** Correctly push submodule changes and verify.
 *   **Actions Taken:**
     *   After being prompted, I discovered that my previous method for verifying the submodule push (`git push --recurse-submodules=check`) was insufficient.
     *   I `cd`-ed into the `src/gemini-cli` directory and used `git status` to confirm that the submodule's `main` branch was ahead of its remote.
@@ -36,7 +34,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-11: Address Husky deprecation warning
 
-*   **Request:** Address Husky deprecation warning.
 *   **Actions Taken:**
     *   Removed the deprecated lines from the `.husky/pre-commit` file.
 *   **Friction/Success Points:**
@@ -47,7 +44,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-11: Finalize submodule push and implement a mechanism to prevent forgetting to update DEVLOG.md and TASKS.md
 
-*   **Request:** Finalize submodule push and implement a mechanism to prevent forgetting to update [`DEVLOG.md`](DEVLOG.md) and [`TASKS.md`](TASKS.md).
 *   **Actions Taken:**
     *   Pushed the `gemini-cli` submodule changes to its remote repository using `git push --recurse-submodules=on-demand`.
     *   Identified the repeated process failure of forgetting to update [`DEVLOG.md`](DEVLOG.md).
@@ -63,7 +59,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-11: Remove the .env file from the git repository
 
-*   **Request:** Remove the `.env` file from the git repository.
 *   **Actions Taken:**
     *   A `.env` file containing secrets was incorrectly committed to the repository.
     *   Added `.env` to the `.gitignore` file to prevent future commits.
@@ -81,7 +76,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-11: Refactor the gemini-cli into a library, integrate it with the morpheum-bot, and debug the integration
 
-*   **Request:** Refactor the `gemini-cli` into a library, integrate it with the `morpheum-bot`, and debug the integration.
 *   **Actions Taken:**
     *   Refactored the `gemini-cli`'s core logic into a new `library.ts` file, exposing `initialize` and `streamQuery` functions.
     *   Created a non-React `ToolScheduler` to execute tools like `run_shell_command`, `read_file`, `write_file`, and `replace`.
@@ -102,7 +96,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-10: Implement and test the integration of the forked gemini-cli with the morpheum-bot
 
-*   **Request:** Implement and test the integration of the forked `gemini-cli` with the `morpheum-bot`.
 *   **Actions Taken:**
     *   Implemented an initial stub to call the `gemini-cli` (as a Git submodule) from the `morpheum-bot`.
     *   After being prompted, created a test for the stub implementation.
@@ -120,7 +113,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-10: Revise Task 6 in TASKS.md to use Git submodule for Gemini CLI integration
 
-*   **Request:** Revise Task 6 in [`TASKS.md`](TASKS.md) to use Git submodule for Gemini CLI integration.
 *   **Actions Taken:**
     *   Updated [`TASKS.md`](TASKS.md) to reflect the new plan for integrating the Gemini CLI using a Git submodule (`git submodule add`).
     *   The previous plan involved manually copying relevant files, which was deemed less robust for version control and dependency management.
@@ -133,7 +125,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-10: Delete src/morpheum-bot/register_morpheum.ts and ensure .secrets is ignored in .gitignore
 
-*   **Request:** Delete `src/morpheum-bot/register_morpheum.ts` and ensure `.secrets` is ignored in `.gitignore`.
 *   **Actions Taken:**
     *   Deleted `src/morpheum-bot/register_morpheum.ts`.
     *   Attempted to update `.gitignore` to correctly ignore `.secrets` and remove the `register_morpheum.ts` entry.
@@ -150,7 +141,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-10: Get the example bot in src/morpheum-bot/index.ts working and commit the working state
 
-*   **Request:** Get the example bot in `src/morpheum-bot/index.ts` working and commit the working state.
 *   **Actions Taken:**
     *   Attempted automatic registration on `tchncs.de` and `envs.net` using `matrix-js-sdk`. Both failed with `401 Unauthorized` errors due to server-side registration requirements (e.g., reCAPTCHA).
     *   Created `src/morpheum-bot/register_morpheum.ts` for registration attempts.
@@ -171,7 +161,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-09: Draft TASKS.md for Morpheum Bot
 
-*   **Request:** Draft [`TASKS.md`](TASKS.md) for Morpheum Bot.
 *   **Actions Taken:**
     *   Collaborated on creating and refining the initial [`TASKS.md`](TASKS.md) to outline the development of the Morpheum Bot. The process involved reviewing all project markdown to align with the project's goals, and iteratively refining the task list based on feedback to use a local `src/morpheum-bot` directory with top-level dependencies.
 *   **Friction/Success Points:**
@@ -181,28 +170,24 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-09: Refine ARCHITECTURE.md Human-Agent Interaction
 
-*   **Request:** Refine [`ARCHITECTURE.md`](ARCHITECTURE.md) Human-Agent Interaction.
 *   **Actions Taken:**
     *   Improved clarity and conciseness in the "Human-Agent Interaction" section of [`ARCHITECTURE.md`](ARCHITECTURE.md) by rephrasing a long sentence into shorter, more direct ones.
 
 ---
 ### 2025-08-09: Refine VISION.md
 
-*   **Request:** Refine [`VISION.md`](VISION.md).
 *   **Actions Taken:**
     *   Made two improvements to [`VISION.md`](VISION.md): a minor rephrasing for conciseness in the "Project Scaffolding" bullet, and a more significant correction to clarify that human developers will need to adapt to new, AI-mediated workflows for interacting with version control systems, rather than using "familiar workflows."
 
 ---
 ### 2025-08-09: Clarify README.md PR Approval
 
-*   **Request:** Clarify [`README.md`](README.md) PR Approval.
 *   **Actions Taken:**
     *   Updated [`README.md`](README.md) to clarify that human participants instruct AI agents to approve pull requests, aligning with the updated [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ---
 ### 2025-08-08: Draft CONTRIBUTING.md and CODE_OF_CONDUCT.md
 
-*   **Request:** Draft [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 *   **Actions Taken:**
     *   Created the first drafts of the [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) files. The [`CONTRIBUTING.md`](CONTRIBUTING.md) was heavily revised to reflect the Matrix-centric, AI-agent-mediated workflow.
 *   **Friction/Success Points:**
@@ -211,14 +196,12 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-08: Refine ROADMAP.md
 
-*   **Request:** Refine [`ROADMAP.md`](ROADMAP.md).
 *   **Actions Taken:**
     *   Removed the "Future Goals" section, ensured all markdown files are linked, and clarified that AI agents will handle low-level GitHub command integration.
 
 ---
 ### 2025-08-08: Correction: Gemini CLI Language (Repeated Error)
 
-*   **Request:** Correction: Gemini CLI Language (Repeated Error).
 *   **Actions Taken:**
     *   Identified and corrected a significant, and *repeated*, error in the [`ROADMAP.md`](ROADMAP.md) where the Gemini CLI's implementation language was consistently misrepresented. Initially, it was incorrectly assumed to be Python-based, then incorrectly stated that a Python bot would *use* it. The Gemini CLI is primarily TypeScript/JavaScript. The [`ROADMAP.md`](ROADMAP.md) has now been updated to reflect that the Morpheum Bot will be developed in TypeScript/JavaScript, directly leveraging the forked Gemini CLI codebase.
 *   **Lessons Learned:**
@@ -227,35 +210,30 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-07: Draft ROADMAP.md
 
-*   **Request:** Draft [`ROADMAP.md`](ROADMAP.md).
 *   **Actions Taken:**
     *   Created the first draft of the [`ROADMAP.md`](ROADMAP.md) file, focusing on the near-term tasks required to move to a Matrix-based workflow. The draft was reviewed and updated to include the concept of forking the Gemini CLI for the initial bot, the idea of each AI agent having its own GitHub account, and to ensure consistency regarding the use of TypeScript/JavaScript for the bot development.
 
 ---
 ### 2025-08-07: Draft ARCHITECTURE.md
 
-*   **Request:** Draft [`ARCHITECTURE.md`](ARCHITECTURE.md).
 *   **Actions Taken:**
     *   Created the first draft of the [`ARCHITECTURE.md`](ARCHITECTURE.md) file, outlining the technical architecture of the Morpheum project. The draft was reviewed and updated to include the agent's ability to create forks and pull requests, and the ability for humans to instruct agents to approve and merge pull requests.
 
 ---
 ### 2025-08-07: Draft VISION.md
 
-*   **Request:** Draft [`VISION.md`](VISION.md).
 *   **Actions Taken:**
     *   Created the first draft of the [`VISION.md`](VISION.md) file, outlining the long-term vision for the Morpheum project.
 
 ---
 ### 2025-08-06: Markdown Hyperlinking
 
-*   **Request:** Markdown Hyperlinking.
 *   **Actions Taken:**
     *   Went through all markdown files and hyperlinked any references to other markdown files to make the documentation easier to navigate.
 
 ---
 ### 2025-08-06: Agent Guidelines (AGENTS.md)
 
-*   **Request:** Agent Guidelines ([`AGENTS.md`](AGENTS.md)).
 *   **Actions Taken:**
     *   Created [`AGENTS.md`](AGENTS.md) to document the expected behavior of AI agents. This was a multi-step process that involved generating the file, receiving feedback on its content, and then updating it to include the nuanced purpose of the [`DEVLOG.md`](DEVLOG.md). The [`README.md`](README.md) was also updated to link to this new file.
 *   **Friction/Success Points:**
@@ -264,7 +242,6 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-05: GitHub Repository Renamed
 
-*   **Request:** GitHub Repository Renamed.
 *   **Actions Taken:**
     *   The GitHub repository was successfully renamed from `morpheus` to `morpheum` using the `gh repo rename` command.
 *   **Friction/Success Points:**
@@ -273,28 +250,24 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-05: Project Renaming ("Morpheus" to "Morpheum")
 
-*   **Request:** Project Renaming ("Morpheus" to "Morpheum").
 *   **Actions Taken:**
     *   Corrected a widespread typo, renaming all instances of "Morpheus" to "Morpheum" across [`README.md`](README.md) and [`DEVLOG.md`](DEVLOG.md). This involved multiple `replace` operations. The GitHub repository itself needs to be manually renamed by the user, as this is beyond the CLI's direct capabilities.
 
 ---
 ### 2025-08-05: Typo Investigation ("Morpheum" to "Morpheus")
 
-*   **Request:** Typo Investigation ("Morpheum" to "Morpheus").
 *   **Actions Taken:**
     *   Investigated a reported typo where the project was mistakenly called "Morpheus" instead of "Morpheum". A search across all markdown files (`.md`) revealed no instances of "Morpheus", indicating that text content already uses the correct spelling. It's possible the typo exists within the `assets/logo.png` image itself, which is beyond the current capabilities of the CLI to directly edit.
 
 ---
 ### 2025-08-04: Add Logo to README.md
 
-*   **Request:** Add Logo to [`README.md`](README.md).
 *   **Actions Taken:**
     *   Added `assets/logo.png` to the repository and displayed it at the top of [`README.md`](README.md) using a markdown image link. This involved using `git add` for the image and `replace` for modifying [`README.md`](README.md).
 
 ---
 ### 2025-08-04: DEVLOG.md Editing Pass
 
-*   **Request:** [`DEVLOG.md`](DEVLOG.md) Editing Pass.
 *   **Actions Taken:**
     *   Performed an editing pass on this [`DEVLOG.md`](DEVLOG.md) file to make it briefer and less formal, without losing any content. Reduced word count from 700 to 500 words.
 *   **Friction/Success Points:**
@@ -303,35 +276,30 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ---
 ### 2025-08-03: GPLv3 License Added
 
-*   **Request:** GPLv3 License Added.
 *   **Actions Taken:**
     *   We just added the GPLv3 license. We used `google_web_search`, `web_fetch`, and `write_file` for this. However, the file created by the CLI was eventually discarded, and the license was added manually via GitHub's UI.
 
 ---
 ### 2025-08-03: Initial License Attempt (MIT)
 
-*   **Request:** Initial License Attempt (MIT).
 *   **Actions Taken:**
     *   Earlier, Gemini picked an MIT license, which we didn't want. Trying to switch to GPL caused the CLI to hang during a git rebase, so we abandoned that approach.
 
 ---
 ### 2025-08-02: README Drafted
 
-*   **Request:** [`README.md`](README.md) Drafted.
 *   **Actions Taken:**
     *   The [`README.md`](README.md) was initially drafted by the Gemini CLI (`gemini-2.5-flash`). It was mostly good, but the architecture section was a hallucination and needed a rewrite.
 
 ---
 ### 2025-08-01: GitHub Repo Created
 
-*   **Request:** GitHub Repo Created.
 *   **Actions Taken:**
     *   A big win was the Gemini CLI creating the local GitHub repo from scratch and pushing it using `gh`. I had to authenticate manually, but the CLI handled the initial README and git setup.
 
 ---
 ### 2025-08-01: Project Context Setup
 
-*   **Request:** Project Context Setup.
 *   **Actions Taken:**
     *   We started by setting up the development environment and giving the `morpheus` CLI its current context.
 
