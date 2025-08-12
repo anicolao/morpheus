@@ -8,6 +8,7 @@ import {
   LogService,
 } from "matrix-bot-sdk";
 import * as fs from "fs";
+import { marked } from "marked";
 import { initialize, streamQuery, BotMessage } from "../gemini-cli/packages/cli/src/library.js";
 import { Config } from "@google/gemini-cli-core";
 
@@ -47,18 +48,46 @@ LogService.setLogger({
   error: (module, ...args) =>
     console.error(new Date().toISOString(), "[ERROR]", module, ...args),
   debug: (module, ...args) =>
-    console.debug(new Date().toISOString(), "[DEBUG]", module, ...args),
+    console.debug(new Date().toISOString(), "[DEBUG]", ...args),
   trace: (module, ...args) =>
-    console.trace(new Date().toISOString(), "[TRACE]", module, ...args),
+    console.trace(new Date().toISOString(), "[TRACE]", ...args),
 });
+
+// Function to send file content to a room
+const sendFileContent = (roomId: string, filePath: string) => {
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      client.sendMessage(roomId, {
+        msgtype: "m.text",
+        body: `Error reading ${filePath}: ${err.message}`,
+      });
+      return;
+    }
+
+    if (filePath.endsWith(".md")) {
+      const html = marked(data);
+      client.sendMessage(roomId, {
+        msgtype: "m.text",
+        body: data,
+        format: "org.matrix.custom.html",
+        formatted_body: html,
+      });
+    } else {
+      client.sendMessage(roomId, {
+        msgtype: "m.text",
+        body: data,
+      });
+    }
+  });
+};
 
 // Now, let's set up a command handler.
 client.on("room.event", (roomId, event) => {
   console.log("EVENT", event.type);
 });
 client.on("room.message", async (roomId, event) => {
+  console.log(`MESSAGE from ${event.sender}:`, event.content?.body?.substring(0, 30));
   if (event.sender === await client.getUserId()) return;
-  console.log("MESSAGE");
   const body = event.content?.body;
   if (!body) return;
 
@@ -78,7 +107,21 @@ client.on("room.message", async (roomId, event) => {
         body = `Requesting tool: ${message.request.name}`;
         break;
       case "tool_result":
-        body = `Tool Result:\n---\n${message.result.result}\n---`;
+        const args = message.request.args as { absolute_path?: string };
+        if (
+          message.request.name === "read_file" &&
+          typeof args?.absolute_path === "string" &&
+          args.absolute_path.endsWith(".md")
+        ) {
+          const html = marked(message.result.result as string);
+          client.sendMessage(roomId, {
+            msgtype: "m.text",
+            body: message.result.result as string,
+            format: "org.matrix.custom.html",
+            formatted_body: html,
+          });
+        }
+        body = `${message.request.name} succeeded.`;
         break;
       case "error":
         body = `Error: ${message.error}`;
@@ -111,33 +154,9 @@ client.on("room.message", async (roomId, event) => {
         body: message,
       });
     } else if (body.startsWith("!tasks")) {
-      fs.readFile("TASKS.md", "utf8", (err, data) => {
-        if (err) {
-          client.sendMessage(roomId, {
-            msgtype: "m.text",
-            body: `Error reading TASKS.md: ${err.message}`,
-          });
-          return;
-        }
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: data,
-        });
-      });
+      sendFileContent(roomId, "TASKS.md");
     } else if (body.startsWith("!devlog")) {
-      fs.readFile("DEVLOG.md", "utf8", (err, data) => {
-        if (err) {
-          client.sendMessage(roomId, {
-            msgtype: "m.text",
-            body: `Error reading DEVLOG.md: ${err.message}`,
-          });
-          return;
-        }
-        client.sendMessage(roomId, {
-          msgtype: "m.text",
-          body: data,
-        });
-      });
+      sendFileContent(roomId, "DEVLOG.md");
     } else if (body.startsWith("!add-devlog ")) {
       const entry = body.substring("!add-devlog ".length);
       fs.appendFile("DEVLOG.md", `\n*   ${entry}\n`, (err) => {

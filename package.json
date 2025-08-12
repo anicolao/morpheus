@@ -1,14 +1,19 @@
 {
   "dependencies": {
     "@matrix-org/olm": "^3.2.15",
+    "@types/marked": "^5.0.2",
+    "marked": "^16.1.2",
     "matrix-bot-sdk": "^0.7.1",
     "matrix-js-sdk": "^25.0.0",
     "typescript": "^5.9.2"
   },
   "devDependencies": {
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "vitest"
   }
 }
