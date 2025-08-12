@@ -6,52 +6,121 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 
 ### 1. Matrix Bot Development (Morpheum Bot)
 
-*   [x] **Task 1: Initial Project Setup for the Bot**
-    *   [x] Create a new directory for the bot: `src/morpheum-bot`.
-    *   [x] Install necessary dependencies for a basic Matrix bot (e.g., `matrix-bot-sdk`) at the project root.
-    *   [x] Install TypeScript at the project root.
-    *   [x] Create a `tsconfig.json` at the project root if one doesn't exist, or update the existing one to include the bot's source files.
+- [x] **Task 1: Initial Project Setup for the Bot**
 
-*   [x] **Task 2: Basic Bot Implementation**
-    *   [x] Create a `src/morpheum-bot/index.ts` file.
-    *   [x] Implement the basic bot structure to connect to a Matrix homeserver.
-    *   [x] Implement a simple `!help` command to verify the bot is working.
+  - [x] Create a new directory for the bot: `src/morpheum-bot`.
+  - [x] Install necessary dependencies for a basic Matrix bot (e.g.,
+        `matrix-bot-sdk`) at the project root.
+  - [x] Install TypeScript at the project root.
+  - [x] Create a `tsconfig.json` at the project root if one doesn't exist, or
+        update the existing one to include the bot's source files.
 
-*   [x] **Task 3: Gemini CLI Integration (Proof of Concept)**
-    *   [x] Fork the Gemini CLI repository.
-    *   [x] Investigate how to invoke the Gemini CLI from the TypeScript bot.
-    *   [x] Implement a command (e.g., `!gemini <prompt>`) that passes the prompt to the Gemini CLI and returns the output to the Matrix room.
+- [x] **Task 2: Basic Bot Implementation**
 
-*   [x] **Task 4: GitHub Integration in Gemini CLI**
-    *   [x] Investigate how to add `gh` as a tool to the forked Gemini CLI.
-    *   [x] Implement the necessary changes in the forked Gemini CLI to use the `gh` tool.
-    *   [x] Test the integration by running `gh` commands through the `!gemini` command in the bot.
-    *   [x] Document the correct way to invoke the Gemini CLI to execute `gh` commands.
+  - [x] Create a `src/morpheum-bot/index.ts` file.
+  - [x] Implement the basic bot structure to connect to a Matrix homeserver.
+  - [x] Implement a simple `!help` command to verify the bot is working.
 
-*   [x] **Task 5: `DEVLOG.md` and `TASKS.md` management**
-    *   [x] The bot should be able to read and write to the `DEVLOG.md` and `TASKS.md` files.
-    *   [x] Create commands to add entries to the `DEVLOG.md` and to update the status of tasks in `TASKS.md`.
+- [x] **Task 3: Gemini CLI Integration (Proof of Concept)**
+
+  - [x] Fork the Gemini CLI repository.
+  - [x] Investigate how to invoke the Gemini CLI from the TypeScript bot.
+  - [x] Implement a command (e.g., `!gemini <prompt>`) that passes the prompt to
+        the Gemini CLI and returns the output to the Matrix room.
+
+- [x] **Task 4: GitHub Integration in Gemini CLI**
+
+  - [x] Investigate how to add `gh` as a tool to the forked Gemini CLI.
+  - [x] Implement the necessary changes in the forked Gemini CLI to use the `gh`
+        tool.
+  - [x] Test the integration by running `gh` commands through the `!gemini`
+        command in the bot.
+  - [x] Document the correct way to invoke the Gemini CLI to execute `gh`
+        commands.
+
+- [x] **Task 5: `DEVLOG.md` and `TASKS.md` management**
+  - [x] The bot should be able to read and write to the `DEVLOG.md` and
+        `TASKS.md` files.
+  - [x] Create commands to add entries to the `DEVLOG.md` and to update the
+        status of tasks in `TASKS.md`.
 
 ### 3. Process and Quality of Life
 
-*   [x] **Task 7: Enforce `DEVLOG.md` and `TASKS.md` Updates**
-    *   [x] Implement a `pre-commit` hook that prevents commits if `DEVLOG.md` and `TASKS.md` are not staged.
-    *   [x] Use `husky` to manage the hook so it's automatically installed for all contributors.
-    *   [x] Address Husky deprecation warning.
-    *   [x] Verify submodule pushes by checking the status within the submodule directory.
+- [x] **Task 7: Enforce `DEVLOG.md` and `TASKS.md` Updates**
 
-*   [x] **Task 8: Reformat `DEVLOG.md` for Readability**
-    *   [x] Restructure the `DEVLOG.md` file to use a more organized format with horizontal rules and nested lists to improve scannability.
-    *   [x] Use git history to date old entries and link all markdown file references.
-    *   [x] Remove redundant "Request" line from entries.
+  - [x] Implement a `pre-commit` hook that prevents commits if `DEVLOG.md` and
+        `TASKS.md` are not staged.
+  - [x] Use `husky` to manage the hook so it's automatically installed for all
+        contributors.
+  - [x] Address Husky deprecation warning.
+  - [x] Verify submodule pushes by checking the status within the submodule
+        directory.
 
-*   [x] **Task 9: Implement and Test Markdown to Matrix HTML Formatting**
-    *   [x] Create a new test suite for markdown formatting logic (`src/morpheum-bot/format-markdown.test.ts`).
-    *   [x] Write a test case for converting basic markdown (headings, bold, italics) to Matrix-compatible HTML.
-    *   [x] Write a test case for handling markdown code blocks (fenced and indented).
-    *   [x] Write a test case for converting markdown lists (ordered and unordered) to HTML.
-    *   [x] Implement the core `formatMarkdown` function that converts markdown text to the HTML format required by Matrix.
-    *   [x] Ensure all tests pass and the output is correctly formatted for Matrix messages.
+- [x] **Task 8: Reformat `DEVLOG.md` for Readability**
 
-*   [x] **Task 11: Update Pre-commit Hook for Submodule Verification**
-    *   [x] Modify the `.husky/pre-commit` hook to include a check that verifies the `src/gemini-cli` submodule is pushed to its remote.
+  - [x] Restructure the `DEVLOG.md` file to use a more organized format with
+        horizontal rules and nested lists to improve scannability.
+  - [x] Use git history to date old entries and link all markdown file
+        references.
+  - [x] Remove redundant "Request" line from entries.
+
+- [x] **Task 9: Implement and Test Markdown to Matrix HTML Formatting**
+
+  - [x] Create a new test suite for markdown formatting logic
+        (`src/morpheum-bot/format-markdown.test.ts`).
+  - [x] Write a test case for converting basic markdown (headings, bold,
+        italics) to Matrix-compatible HTML.
+  - [x] Write a test case for handling markdown code blocks (fenced and
+        indented).
+  - [x] Write a test case for converting markdown lists (ordered and unordered)
+        to HTML.
+  - [x] Implement the core `formatMarkdown` function that converts markdown text
+        to the HTML format required by Matrix.
+  - [x] Ensure all tests pass and the output is correctly formatted for Matrix
+        messages.
+
+- [x] **Task 11: Update Pre-commit Hook for Submodule Verification**
+
+  - [x] Modify the `.husky/pre-commit` hook to include a check that verifies the
+        `src/gemini-cli` submodule is pushed to its remote.
+
+- [x] **Task 12: Switch to Claude Code with a local LLM for development (manual
+      plan)**
+
+  - [ ] Set up a Local LLM with an OpenAI-compatible API:
+
+    - [ ] Install and run a local LLM provider like Ollama, vLLM, or
+          llama-cpp-python.
+    - [ ] Ensure it exposes an OpenAI-compatible API endpoint (e.g.,
+          http://localhost:11434/v1 for Ollama).
+    - [ ] Download a model to use, for example mistral-small-24b.
+
+  - [ ] Install `claudecode`:
+
+    - [ ] Find and install the claudecode tool. This might be from a package
+          manager or a code repository.
+
+  - [ ] Install and Configure the Proxy:
+
+    - [ ] Clone the proxy server from the GitHub repository mentioned in the
+          Reddit post.
+    - [ ] Install its dependencies.
+    - [ ] Edit the proxy's configuration (e.g., a server.py file) to point to
+          your local LLM's API endpoint.
+
+  - [ ] Run the Proxy:
+
+    - [ ] Start the proxy server. It will listen for incoming requests and
+          forward them to your local LLM.
+
+  - [ ] Configure `claudecode` to Use the Proxy:
+    - [ ] Set the following environment variables in your shell to direct
+          claudecode to the proxy:
+
+```bash
+export ANTHROPIC_BASE_URL=http://localhost:8000 # Or whatever port your proxy is on
+export ANTHROPIC_AUTH_TOKEN=dummy-token
+```
+
+- [ ] Test the Setup:
+  - [ ] Run claudecode to interact with your local model.
