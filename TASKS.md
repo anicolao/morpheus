@@ -34,6 +34,9 @@ This file tracks the current and upcoming tasks for the Morpheum project.
 
 ### 3. Process and Quality of Life
 
+*   [x] **Task 8: Reformat `DEVLOG.md` for Readability**
+    *   [x] Restructure the `DEVLOG.md` file to use a more organized format with horizontal rules and nested lists to improve scannability.
+
 *   [x] **Task 7: Enforce `DEVLOG.md` and `TASKS.md` Updates**
     *   [x] Implement a `pre-commit` hook that prevents commits if `DEVLOG.md` and `TASKS.md` are not staged.
     *   [x] Use `husky` to manage the hook so it's automatically installed for all contributors.

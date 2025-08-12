@@ -6,7 +6,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 
 ## Changelog
 
-*   **Date:** 2025-08-11
+---
+
+### 2025-08-11
+
 *   **Request:** Correctly push submodule changes and verify.
 *   **Actions Taken:**
     *   After being prompted, I discovered that my previous method for verifying the submodule push (`git push --recurse-submodules=check`) was insufficient.
@@ -17,7 +20,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 *   **Lessons Learned:**
     *   The most reliable way to verify the status of a submodule is to check it directly from within its own directory (`cd submodule && git status`). Do not rely solely on commands run from the parent repository.
 
-*   **Date:** 2025-08-11
+---
+
+### 2025-08-11
+
 *   **Request:** Address Husky deprecation warning.
 *   **Actions Taken:**
     *   Removed the deprecated lines from the `.husky/pre-commit` file.
@@ -26,7 +32,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 *   **Lessons Learned:**
     *   It's important to pay attention to and address deprecation warnings from tools to avoid future breakage.
 
-*   **Date:** 2025-08-11
+---
+
+### 2025-08-11
+
 *   **Request:** Finalize submodule push and implement a mechanism to prevent forgetting to update `DEVLOG.md` and `TASKS.md`.
 *   **Actions Taken:**
     *   Pushed the `gemini-cli` submodule changes to its remote repository using `git push --recurse-submodules=on-demand`.
@@ -40,7 +49,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
     *   Process failures should be addressed with systemic solutions, not just promises to improve. Using tools like `husky` to enforce development conventions is a powerful way to improve reliability.
     *   Forgetting to push submodule changes is a common error. The `--recurse-submodules=on-demand` flag is a useful tool to ensure they are pushed along with the parent repository.
 
-*   **Date:** 2025-08-11
+---
+
+### 2025-08-11
+
 *   **Request:** Remove the `.env` file from the git repository.
 *   **Actions Taken:**
     *   A `.env` file containing secrets was incorrectly committed to the repository.
@@ -56,7 +68,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
     *   Never commit secrets or environment-specific files to a Git repository. Use `.gitignore` to explicitly exclude them.
     *   When a secret is accidentally committed, it's not enough to just delete it and commit. You must remove it from the history using tools like `git rm --cached` or more advanced history rewriting tools if necessary.
 
-*   **Date:** 2025-08-11
+---
+
+### 2025-08-11
+
 *   **Request:** Refactor the `gemini-cli` into a library, integrate it with the `morpheum-bot`, and debug the integration.
 *   **Actions Taken:**
     *   Refactored the `gemini-cli`'s core logic into a new `library.ts` file, exposing `initialize` and `streamQuery` functions.
@@ -75,7 +90,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
     *   Thorough testing is not just a "nice-to-have," but a critical part of the development process.
     *   When debugging, it's important to look at the entire lifecycle of the application, including initialization and authentication.
 
-*   **Date:** 2025-08-10
+---
+
+### 2025-08-10
+
 *   **Request:** Implement and test the integration of the forked `gemini-cli` with the `morpheum-bot`.
 *   **Actions Taken:**
     *   Implemented an initial stub to call the `gemini-cli` (as a Git submodule) from the `morpheum-bot`.
@@ -91,7 +109,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
     *   I must be more proactive about including testing as part of the development process, rather than waiting for a prompt. A test-driven approach would have been more effective.
     *   It is critical to update `DEVLOG.md` and `TASKS.md` immediately after completing work, especially when the work involves multiple steps, interruptions, and bug fixes. Failing to do so loses important context about the development process.
 
-*   **Date:** 2025-08-10
+---
+
+### 2025-08-10
+
 *   **Request:** Revise Task 6 in `TASKS.md` to use Git submodule for Gemini CLI integration.
 *   **Actions Taken:**
     *   Updated `TASKS.md` to reflect the new plan for integrating the Gemini CLI using a Git submodule (`git submodule add`).
@@ -102,7 +123,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 *   **Lessons Learned:**
     *   Always consider standard version control mechanisms (like Git submodules) for managing external code dependencies to improve maintainability and update processes.
 
-*   **Date:** 2025-08-10
+---
+
+### 2025-08-10
+
 *   **Request:** Delete `src/morpheum-bot/register_morpheum.ts` and ensure `.secrets` is ignored in `.gitignore`.
 *   **Actions Taken:**
     *   Deleted `src/morpheum-bot/register_morpheum.ts`.
@@ -117,22 +141,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
     *   For simple appends, `echo >>` is a more reliable shell command than `write_file` (given my current limitations).
     *   Thoroughly check `git status` and file content after every step to catch errors early.
 
-*   **Date:** 2025-08-10
-*   **Request:** Delete `src/morpheum-bot/register_morpheum.ts` and ensure `.secrets` is ignored in `.gitignore`.
-*   **Actions Taken:**
-    *   Deleted `src/morpheum-bot/register_morpheum.ts`.
-    *   Attempted to update `.gitignore` to correctly ignore `.secrets` and remove the `register_morpheum.ts` entry.
-*   **Friction/Success Points:**
-    *   Repeatedly struggled with correctly appending/modifying `.gitignore` using `write_file`, leading to overwrites and incorrect entries.
-    *   Discovered that `src/morpheum-bot/register_morpheum.ts` was never tracked by Git, so `git rm` was not applicable.
-    *   Successfully used `echo >>` to append `.secrets` to `.gitignore` after multiple attempts.
-    *   Learned the importance of verifying `git status` and file content after every modification, especially for `.gitignore`.
-*   **Lessons Learned:**
-    *   My current implementation of file modification (especially appending) is prone to errors and needs significant improvement.
-    *   For simple appends, `echo >>` is a more reliable shell command than `write_file` (given my current limitations).
-    *   Thoroughly check `git status` and file content after every step to catch errors early.
+---
 
-*   **Date:** 2025-08-10
+### 2025-08-10
+
 *   **Request:** Get the example bot in `src/morpheum-bot/index.ts` working and commit the working state.
 *   **Actions Taken:**
     *   Attempted automatic registration on `tchncs.de` and `envs.net` using `matrix-js-sdk`. Both failed with `401 Unauthorized` errors due to server-side registration requirements (e.g., reCAPTCHA).
@@ -150,6 +162,10 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
     *   For complex tasks involving external services (like Matrix homeservers), always investigate their specific requirements (e.g., registration flows, CAPTCHA).
     *   When modifying existing code, prefer creating separate utilities or modules for new functionality (like token generation) to maintain modularity and reduce risk to the main application.
     *   Always double-check `replace` tool parameters, especially `old_string` and `new_string`, and verify `git status` after staging to ensure only intended changes are committed.
+
+---
+
+### Other Entries
 
 *   **Draft `TASKS.md` for Morpheum Bot:** Collaborated on creating and refining the initial `TASKS.md` to outline the development of the Morpheum Bot. The process involved reviewing all project markdown to align with the project's goals, and iteratively refining the task list based on feedback to use a local `src/morpheum-bot` directory with top-level dependencies. This exercise served as a successful test of the human-agent collaboration workflow. A minor friction point was an initial hang when reading multiple files, which was resolved by globbing for the files first.
 *   **Refine `ARCHITECTURE.md` Human-Agent Interaction:** Improved clarity and conciseness in the "Human-Agent Interaction" section of `ARCHITECTURE.md` by rephrasing a long sentence into shorter, more direct ones.
@@ -171,7 +187,7 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 *   **GPLv3 License Added (Current):** We just added the GPLv3 license. We used `google_web_search`, `web_fetch`, and `write_file` for this. However, the file created by the CLI was eventually discarded, and the license was added manually via GitHub's UI.
 *   **Initial License Attempt (MIT):** Earlier, Gemini picked an MIT license, which we didn't want. Trying to switch to GPL caused the CLI to hang during a git rebase, so we abandoned that approach.
 *   **README Drafted:** The [`README.md`](README.md) was initially drafted by the Gemini CLI (`gemini-2.5-flash`). It was mostly good, but the architecture section was a hallucination and needed a rewrite.
-*   **GitHub Repo Created:** A big win was the Gemini CLI creating the local GitHub repo from scratch and pushing it using `gh`. I had to authenticate manually, but the CLI handled the initial README and git setup.
+*   **GitHub Repo Created:** A big win was the Gemini CLI creating the local GitHub repo from scratch and and pushing it using `gh`. I had to authenticate manually, but the CLI handled the initial README and git setup.
 *   **Project Context Setup:** We started by setting up the development environment and giving the `morpheus` CLI its current context.
 
 ### Tools Used
