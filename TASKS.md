@@ -103,7 +103,8 @@ This file tracks the current and upcoming tasks for the Morpheum project.
   - [ ] Install and Configure the Proxy:
 
     - [ ] Clone the proxy server from the GitHub repository mentioned in the
-          Reddit post.
+          [Reddit post.](https://www.reddit.com/r/LocalLLaMA/comments/1m118is/use_claudecode_with_local_models/)
+
     - [ ] Install its dependencies.
     - [ ] Edit the proxy's configuration (e.g., a server.py file) to point to
           your local LLM's API endpoint.
