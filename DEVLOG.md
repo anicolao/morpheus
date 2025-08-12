@@ -7,6 +7,17 @@ This log tracks the development of `morpheum` using `morpheum` itself. Our main 
 ## Changelog
 
 ---
+### 2025-08-12: Update gemini-cli submodule
+
+*   **Actions Taken:**
+    *   Updated the `gemini-cli` submodule to the latest commit.
+    *   The submodule changes include markdown to HTML formatting and updates to the `BotMessage` type.
+*   **Friction/Success Points:**
+    *   The pre-commit hook correctly prevented a commit without updating the devlog.
+*   **Lessons Learned:**
+    *   The pre-commit hook is working as expected.
+
+---
 ### 2025-08-11: Implement and Test Markdown to Matrix HTML Formatting
 
 *   **Actions Taken:**
