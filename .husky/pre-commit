@@ -17,4 +17,13 @@ if ! echo "$STAGED_FILES" | grep -q "TASKS.md"; then
   exit 1
 fi
 
+# Check if src/gemini-cli submodule is pushed
+cd src/gemini-cli || exit 1
+if [ "$(git rev-parse @)" != "$(git rev-parse @{u})" ]; then
+  echo "Error: src/gemini-cli submodule is not pushed to its remote." >&2
+  echo "Please cd into src/gemini-cli and run 'git push' before committing." >&2
+  exit 1
+fi
+cd ../.. || exit 1
+
 exit 0

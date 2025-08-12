@@ -53,4 +53,5 @@ This file tracks the current and upcoming tasks for the Morpheum project.
     *   [x] Implement the core `formatMarkdown` function that converts markdown text to the HTML format required by Matrix.
     *   [x] Ensure all tests pass and the output is correctly formatted for Matrix messages.
 
-<!-- No changes in this commit -->
+*   [x] **Task 11: Update Pre-commit Hook for Submodule Verification**
+    *   [x] Modify the `.husky/pre-commit` hook to include a check that verifies the `src/gemini-cli` submodule is pushed to its remote.
