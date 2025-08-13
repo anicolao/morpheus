@@ -149,3 +149,4 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [ ] Apply this process to build a larger version of an Ollama model.
   - [ ] Ensure the new model supports tool usage and has a larger context size.
   - [ ] Test the new model for performance and accuracy.
+  - [ ] Fix web search tool configuration to enable proper web research.
