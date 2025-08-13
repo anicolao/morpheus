@@ -125,3 +125,11 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 
 - [x] Test the Setup:
   - [x] Run claudecode to interact with your local model.
+
+### 4. New Investigation
+
+- [ ] **Task 13: Investigate Qwen3-Code as a Bootstrapping Mechanism**
+
+  - [ ] Investigate the `qwen3-code` fork of the Gemini CLI.
+  - [ ] Determine if `qwen3-code` is a suitable replacement for `claudecode`.
+  - [ ] Document the findings and next steps.

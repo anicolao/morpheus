@@ -42,6 +42,23 @@ to work around them.
 
   > Result – All tasks are now marked as completed, and the process is documented so future iterations will be faster and less error‑prone.
 
+### 2025-08-13: Investigation into Qwen3-Code as a Bootstrapping Mechanism
+
+- **Actions Taken:**
+  - Investigated using `claude` for a bootstrapping UI.
+  - Discovered that `claude`'s license restricts its use for building potentially competing systems.
+  - Concluded that `claude` is not a viable option for the project.
+  - Decided to investigate using the `qwen3-code` fork of the Gemini CLI as an alternative bootstrapping mechanism.
+  - Created a new task in `TASKS.md` to track this investigation.
+- **Friction/Success Points:**
+  - The license restriction on `claude` was an unexpected dead end.
+  - Identified `qwen3-code` as a promising alternative.
+- **Lessons Learned:**
+  - Licensing restrictions are a critical factor to consider when selecting tools for AI development.
+  - Having a backup plan is essential when initial tooling choices don't work out.
+
+---
+
 ### 2025-08-12: Switching Development Tools from Gemini CLI to `claudecode`
 
 I am abandoning the use of Gemini CLI for my development workflow and switching
