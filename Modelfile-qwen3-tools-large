@@ -1,0 +1,22 @@
+# Modelfile for a larger Qwen3-Coder model with tool usage and larger context size
+
+# Use a larger base model if available (this is speculative)
+# For example, if there's a qwen3-coder:7b or qwen3-coder:14b version
+FROM qwen3-coder:7b
+
+# Increase context size (if supported by the model)
+PARAMETER num_ctx 8192
+
+# Generation parameters
+PARAMETER temperature 0.7
+PARAMETER top_p 0.8
+PARAMETER repeat_penalty 1.05
+
+# Tool definitions would go here if Ollama supported them directly
+# Since Ollama doesn't natively support tool definitions in Modelfiles,
+# tools would typically be handled by the application layer that calls Ollama
+
+# Example of what tool definitions might look like (not functional in Ollama Modelfile):
+# TOOL read_file
+# TOOL write_file
+# TOOL run_shell_command

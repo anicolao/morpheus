@@ -145,7 +145,7 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 
 - [ ] **Task 14: Build a Larger, Tool-Capable Ollama Model**
 
-  - [ ] Investigate the process used to create the `kirito1/qwen3-coder` model.
+  - [x] Investigate the process used to create the `kirito1/qwen3-coder` model.
   - [ ] Apply this process to build a larger version of an Ollama model.
   - [ ] Ensure the new model supports tool usage and has a larger context size.
   - [ ] Test the new model for performance and accuracy.
