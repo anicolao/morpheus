@@ -135,8 +135,17 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 
 ### 4. New Investigation
 
-- [ ] **Task 13: Investigate Qwen3-Code as a Bootstrapping Mechanism**
+- [x] **Task 13: Investigate Qwen3-Code as a Bootstrapping Mechanism**
 
-  - [ ] Investigate the `qwen3-code` fork of the Gemini CLI.
-  - [ ] Determine if `qwen3-code` is a suitable replacement for `claudecode`.
-  - [ ] Document the findings and next steps.
+  - [x] Investigate the `qwen3-code` fork of the Gemini CLI.
+  - [x] Determine if `qwen3-code` is a suitable replacement for `claudecode`.
+  - [x] Document the findings and next steps.
+
+### 5. Next Steps
+
+- [ ] **Task 14: Build a Larger, Tool-Capable Ollama Model**
+
+  - [ ] Investigate the process used to create the `kirito1/qwen3-coder` model.
+  - [ ] Apply this process to build a larger version of an Ollama model.
+  - [ ] Ensure the new model supports tool usage and has a larger context size.
+  - [ ] Test the new model for performance and accuracy.
