@@ -126,6 +126,13 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 - [x] Test the Setup:
   - [x] Run claudecode to interact with your local model.
 
+### 4. Process Improvement
+
+- [x] **Task 13: Fix DEVLOG.md Entry Order for Qwen3-Code Investigation**
+
+  - [x] Move the entry for the Qwen3-Code investigation to the top of the changelog in `DEVLOG.md`.
+  - [x] Ensure the entry is in the correct chronological order.
+
 ### 4. New Investigation
 
 - [ ] **Task 13: Investigate Qwen3-Code as a Bootstrapping Mechanism**
