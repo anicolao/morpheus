@@ -11,6 +11,14 @@ to work around them.
 
 ---
 
+### 2025-08-15: Enhance Markdown Formatting
+
+- **Actions Taken:**
+  - Enhanced markdown formatting to support GFM task lists.
+  - Added tests for the new markdown task list rendering.
+
+---
+
 ### 2025-08-15: Refine Local Model Prompts
 
 - **Actions Taken:**
