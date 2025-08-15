@@ -26,18 +26,16 @@ describe('formatMarkdown', () => {
     expect(formatMarkdown(markdown)).toBe(expectedHtml);
   });
 
-  // New tests for task‑list rendering
-  it('should render unchecked task list items as disabled checkboxes', () => {
+  it('should render unchecked task list items as unicode characters', () => {
     const markdown = '- [ ] Do something';
     const html = formatMarkdown(markdown);
-    expect(html).toContain('<input disabled="" type="checkbox"');
-    expect(html).not.toContain('checked');
+    expect(html).toContain('☐ Do something');
   });
 
-  it('should render checked task list items as disabled checked checkboxes', () => {
+  it('should render checked task list items as unicode characters', () => {
     const markdown = '- [x] Completed task';
     const html = formatMarkdown(markdown);
-    expect(html).toContain('<input checked="" disabled="" type="checkbox"');
+    expect(html).toContain('☑ Completed task');
   });
 });
 

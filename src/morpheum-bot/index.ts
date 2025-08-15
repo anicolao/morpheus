@@ -8,9 +8,9 @@ import {
   LogService,
 } from "matrix-bot-sdk";
 import * as fs from "fs";
-import { marked } from "marked";
 import { initialize, streamQuery, BotMessage } from "../gemini-cli/packages/cli/src/library.js";
 import { Config } from "@google/gemini-cli-core";
+import { formatMarkdown } from "./format-markdown";
 
 // read environment variables
 const homeserverUrl = process.env.HOMESERVER_URL;
@@ -65,7 +65,8 @@ const sendFileContent = (roomId: string, filePath: string) => {
     }
 
     if (filePath.endsWith(".md")) {
-      const html = marked(data);
+      const html = formatMarkdown(data);
+      console.log('Generated HTML:', html);
       client.sendMessage(roomId, {
         msgtype: "m.text",
         body: data,
@@ -113,7 +114,7 @@ client.on("room.message", async (roomId, event) => {
           typeof args?.absolute_path === "string" &&
           args.absolute_path.endsWith(".md")
         ) {
-          const html = marked(message.result.result as string);
+          const html = formatMarkdown(message.result.result as string);
           client.sendMessage(roomId, {
             msgtype: "m.text",
             body: message.result.result as string,

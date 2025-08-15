@@ -170,3 +170,7 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 - [x] **Task 22: Enhance Markdown Task List Rendering**
   - [x] Update `format-markdown.ts` to correctly render GitHub-flavored markdown task lists.
   - [x] Add tests to `format-markdown.test.ts` to verify that checked and unchecked task list items are rendered correctly.
+
+- [ ] **Task 23: Fix Markdown Checkbox Rendering**
+  - [ ] Modify `format-markdown.ts` to use Unicode characters for checkboxes to prevent them from being stripped by the Matrix client's HTML sanitizer.
+  - [ ] Update `format-markdown.test.ts` to reflect the new Unicode character output.
