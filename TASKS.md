@@ -162,3 +162,11 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Establish a `<model-name>.ollama` convention for model definition files.
   - [x] Implement a `Makefile` that uses Ollama's internal manifest files for dependency tracking.
   - [x] Use a generic pattern rule in the `Makefile` to automatically discover and build any `*.ollama` file.
+
+- [ ] **Task 21: Refine Local Model Prompts**
+  - [ ] Update the prompt templates in `morpheum-local.ollama` and `qwen3-coder-local.ollama` to improve tool-use instructions.
+  - [ ] Add untracked local models to the repository.
+
+- [ ] **Task 22: Enhance Markdown Task List Rendering**
+  - [ ] Update `format-markdown.ts` to correctly render GitHub-flavored markdown task lists.
+  - [ ] Add tests to `format-markdown.test.ts` to verify that checked and unchecked task list items are rendered correctly.

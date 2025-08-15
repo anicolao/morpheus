@@ -1,5 +1,7 @@
-FROM qwen2:7b-instruct
+FROM starcoder2:instruct
 
+# Using a more standard instruction-following template.
+# This is the most likely part you might need to change if the model is unresponsive.
 TEMPLATE """{{- if .FIM }}
 <|im_start|>assistant
 {{ .FIM.Prefix }}{{ .Response }}{{ .FIM.Suffix }}<|im_end|>
@@ -56,15 +58,22 @@ For each function call, return a json object with function name and arguments wi
 """
 
 # The SYSTEM prompt logic remains the same.
-SYSTEM """You are a helpful assistant that has access to a set of tools.
-To use a tool, you must respond with a single, valid JSON object.
-The JSON object must have a single key, "tool_code", and its value must be the exact Python code to execute.
-Do not add any other text, explanations, or markdown formatting around the JSON object.
+SYSTEM """You are an AI assistant that can use tools.
+When you need to use a tool, you MUST respond with a single JSON object.
+This JSON object must have a single key called "tool_code".
+The value of "tool_code" must be a string containing the Python code to execute.
+Do NOT add any other text, explanations, or markdown formatting.
 
-For example, if you need to list files, you must respond with:
+Correct format:
 {"tool_code": "print(default_api.list_directory(path='.'))"}
 
-If you need to read a file, you must respond with:
+Incorrect format (do NOT do this):
+I need to list the files, so I will use the `list_directory` tool.
+```json
+{"tool_code": "print(default_api.list_directory(path='.'))"}
+```
+
+Another correct example:
 {"tool_code": "print(default_api.read_file(absolute_path='/path/to/file.txt'))"}
 """
 
