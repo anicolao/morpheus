@@ -150,3 +150,15 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Ensure the new model supports tool usage and has a larger context size.
   - [x] Test the new model for performance and accuracy.
   - [x] Fix web search tool configuration to enable proper web research.
+
+### 6. Local LLM Development Workflow
+
+- [x] **Task 19: Define and Build Local Tool-Capable Models**
+  - [x] Create a `Modelfile` to make a base model (e.g., Qwen2) compatible with the Gemini CLI tool-use format.
+  - [x] Create a `Modelfile` for the `qwen3-coder` model.
+  - [x] Add `ollama` to the `flake.nix` development environment to ensure the tool is available.
+
+- [x] **Task 20: Automate Model Building with a Generic Makefile**
+  - [x] Establish a `<model-name>.ollama` convention for model definition files.
+  - [x] Implement a `Makefile` that uses Ollama's internal manifest files for dependency tracking.
+  - [x] Use a generic pattern rule in the `Makefile` to automatically discover and build any `*.ollama` file.

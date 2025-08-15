@@ -1,0 +1,28 @@
+FROM qwen2:7b-instruct
+
+# Use the official Qwen2 chat template
+TEMPLATE """{{- if .System }}
+<|im_start|>system
+{{ .System }}<|im_end|>
+{{- end }}
+<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+"""
+
+# This is the critical part: You must teach the model to speak like the Gemini API
+SYSTEM """You are a helpful assistant that has access to a set of tools.
+To use a tool, you must respond with a single, valid JSON object.
+The JSON object must have a single key, "tool_code", and its value must be the exact Python code to execute.
+Do not add any other text, explanations, or markdown formatting around the JSON object.
+
+For example, if you need to list files, you must respond with:
+{"tool_code": "print(default_api.list_directory(path='.'))"}
+
+If you need to read a file, you must respond with:
+{"tool_code": "print(default_api.read_file(absolute_path='/path/to/file.txt'))"}
+"""
+
+# Set parameters for the model
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|im_end|>"

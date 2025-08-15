@@ -1,0 +1,31 @@
+FROM kirito1/qwen3-coder
+
+# Using a more standard instruction-following template.
+# This is the most likely part you might need to change if the model is unresponsive.
+TEMPLATE """{{- if .System }}
+### System:
+{{ .System }}
+{{- end }}
+
+### User:
+{{ .Prompt }}
+
+### Assistant:
+"""
+
+# The SYSTEM prompt logic remains the same.
+SYSTEM """You are a helpful assistant that has access to a set of tools.
+To use a tool, you must respond with a single, valid JSON object.
+The JSON object must have a single key, "tool_code", and its value must be the exact Python code to execute.
+Do not add any other text, explanations, or markdown formatting around the JSON object.
+
+For example, if you need to list files, you must respond with:
+{"tool_code": "print(default_api.list_directory(path='.'))"}
+
+If you need to read a file, you must respond with:
+{"tool_code": "print(default_api.read_file(absolute_path='/path/to/file.txt'))"}
+"""
+
+# Update the stop parameters to match the new template
+PARAMETER stop "### User:"
+PARAMETER stop "### Assistant:"
