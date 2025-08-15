@@ -11,18 +11,14 @@ to work around them.
 
 ---
 
-### 2025-08-15: Refine Local Models and Markdown Formatting
+### 2025-08-15: Refine Local Model Prompts
 
 - **Actions Taken:**
   - Updated the prompt templates in `morpheum-local.ollama` and `qwen3-coder-local.ollama` to improve tool-use instructions.
   - Added new untracked local models to the repository.
-  - Enhanced markdown formatting to support GFM task lists.
-  - Added tests for the new markdown task list rendering.
 - **Friction/Success Points:**
-  - The pre-commit hook correctly prevented a commit without updating the devlog.
   - A significant amount of time was spent trying to get `gpt-oss:120b` to understand the state of the commit it wrote for the markdown fix, but it was unable to do so. In contrast, `gemini-pro` was able to understand the commit on the first request. This indicates that more work is needed on the local model templates, or that the local models themselves are not yet capable of this level of assessment.
 - **Lessons Learned:**
-  - The pre-commit hook is a valuable tool for enforcing development processes.
   - Local models, while promising, may not yet be on par with commercial models for complex reasoning tasks.
 
 ---
