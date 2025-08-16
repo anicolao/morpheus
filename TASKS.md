@@ -178,6 +178,11 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 - [ ] **Task 24: Suppress Bullets from Task Lists**
   - [ ] Modify `format-markdown.ts` to suppress the bullets from task list items.
 
+- [ ] **Task 27: Investigate incorrect commit**
+  - [ ] `AGENTS.md` was checked in incorrectly.
+  - [ ] A change to the bot's source was missed.
+  - [ ] Investigate what went wrong and document it.
+
 - [x] **Task 25: Fix `gemini-cli` Submodule Build and Crash**
   - [x] Investigate and fix a crash in the `gemini-cli` submodule's `shellExecutionService.ts`.
   - [x] Fix the `gemini-cli` submodule's build.
