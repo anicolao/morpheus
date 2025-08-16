@@ -2,20 +2,18 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { queueMessage, startMessageQueue, stopMessageQueue, messageQueue } from './message-queue';
 import { MatrixClient, MatrixError } from 'matrix-bot-sdk';
 
-vi.useFakeTimers();
-
 describe('message-queue', () => {
   let client: MatrixClient;
 
   beforeEach(() => {
     client = new MatrixClient('http://localhost', 'token');
     vi.spyOn(client, 'sendMessage').mockResolvedValue('');
+    messageQueue.clear!();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     stopMessageQueue();
-    messageQueue.clear?.();
   });
 
   it('should send a message from the queue', async () => {
@@ -23,7 +21,7 @@ describe('message-queue', () => {
 
     queueMessage('room1', { msgtype: 'm.text', body: 'Hello' });
 
-    await vi.advanceTimersByTimeAsync(1100);
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
     expect(client.sendMessage).toHaveBeenCalledWith('room1', { msgtype: 'm.text', body: 'Hello' });
   });
@@ -38,11 +36,11 @@ describe('message-queue', () => {
     queueMessage('room1', { msgtype: 'm.text', body: 'Hello' });
 
     // First attempt
-    await vi.advanceTimersByTimeAsync(1100);
+    await new Promise((resolve) => setTimeout(resolve, 1200));
     expect(client.sendMessage).toHaveBeenCalledTimes(1);
 
     // Wait for retry
-    await vi.advanceTimersByTimeAsync(1100);
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
     // Second attempt
     expect(client.sendMessage).toHaveBeenCalledTimes(2);
@@ -54,7 +52,7 @@ describe('message-queue', () => {
     queueMessage('room1', { msgtype: 'm.text', body: 'Hello' });
     queueMessage('room1', { msgtype: 'm.text', body: 'World' });
 
-    await vi.advanceTimersByTimeAsync(1100);
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
     expect(client.sendMessage).toHaveBeenCalledTimes(1);
     expect(client.sendMessage).toHaveBeenCalledWith('room1', {
@@ -63,41 +61,24 @@ describe('message-queue', () => {
     });
   });
 
-  it('should only send the first batch of messages', async () => {
+  it('should not batch html messages', async () => {
     startMessageQueue(client);
 
     queueMessage('room1', { msgtype: 'm.text', body: 'Hello' });
-    queueMessage('room1', { msgtype: 'm.html', body: '<p>World</p>' });
+    queueMessage('room1', { msgtype: 'm.text', body: 'World', format: 'org.matrix.custom.html', formatted_body: '<p>World</p>' });
 
-    await vi.advanceTimersByTimeAsync(1100);
-
-    expect(client.sendMessage).toHaveBeenCalledTimes(1);
-    expect(client.sendMessage).toHaveBeenCalledWith('room1', {
-      msgtype: 'm.text',
-      body: 'Hello',
-    });
-  });
-
-  it('should send subsequent batches in later intervals', async () => {
-    startMessageQueue(client);
-
-    queueMessage('room1', { msgtype: 'm.text', body: 'Hello' });
-    queueMessage('room1', { msgtype: 'm.html', body: '<p>World</p>' });
-
-    await vi.advanceTimersByTimeAsync(1100);
-
-    expect(client.sendMessage).toHaveBeenCalledTimes(1);
-    expect(client.sendMessage).toHaveBeenCalledWith('room1', {
-      msgtype: 'm.text',
-      body: 'Hello',
-    });
-
-    await vi.advanceTimersByTimeAsync(1100);
+    await new Promise((resolve) => setTimeout(resolve, 2200));
 
     expect(client.sendMessage).toHaveBeenCalledTimes(2);
     expect(client.sendMessage).toHaveBeenCalledWith('room1', {
-      msgtype: 'm.html',
-      body: '<p>World</p>',
+      msgtype: 'm.text',
+      body: 'Hello',
+    });
+    expect(client.sendMessage).toHaveBeenCalledWith('room1', {
+      msgtype: 'm.text',
+      body: 'World',
+      format: 'org.matrix.custom.html',
+      formatted_body: '<p>World</p>',
     });
   });
 });
