@@ -20,6 +20,7 @@ This document outlines the expected behavior and best practices for all AI agent
     *   Commit messages should be clear, concise, and follow the project's established format.
     *   Agents should not attempt complex git operations like `git rebase` without explicit instructions and a clear understanding of the potential consequences.
     *   Agents should prefer SSH over HTTPS for git repositories.
+*   **Package Management:** Prefer `bun` over `npm` for running scripts and managing packages.
 *   **Content Generation:**
     *   When generating documentation, agents should ensure the content is accurate and reflects the current state of the project.
     *   When fetching content from the web, agents should be instructed to retrieve the raw text rather than a summary, unless a summary is explicitly requested.

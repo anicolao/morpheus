@@ -181,3 +181,6 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 - [x] **Task 25: Fix `gemini-cli` Submodule Build and Crash**
   - [x] Investigate and fix a crash in the `gemini-cli` submodule's `shellExecutionService.ts`.
   - [x] Fix the `gemini-cli` submodule's build.
+
+- [x] **Task 26: Handle Matrix Rate-Limiting**
+  - [x] Implement a retry mechanism to handle `M_LIMIT_EXCEEDED` errors from the Matrix server.
