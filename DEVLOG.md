@@ -14,15 +14,56 @@ to work around them.
 ### 2025-08-16: Refactor Message Queue Logic
 
 - **Actions Taken:**
-  - Refactored the message queue to slow down message sending to at most 1 per second.
+  - Refactored the message queue to slow down message sending to at most 1 per
+    second.
   - Implemented new batching logic:
     - Consecutive text messages are concatenated and sent as a single message.
     - HTML messages are sent individually.
-  - The queue now only processes one "batch" (either a single HTML message or a group of text messages) per interval.
-  - Updated the unit tests to reflect the new logic and fixed a bug related to shared state between tests.
+  - The queue now only processes one "batch" (either a single HTML message or a
+    group of text messages) per interval.
+  - Updated the unit tests to reflect the new logic and fixed a bug related to
+    shared state between tests.
 - **Friction/Success Points:**
   - The existing tests made it easy to validate the new logic.
-  - A bug was introduced where test state was leaking between tests, but it was quickly identified and fixed.
+  - A bug was introduced where test state was leaking between tests, but it was
+    quickly identified and fixed.
+- **Lessons Learned:**
+  - It's important to ensure that tests are isolated and do not share state.
+  - When refactoring, having a solid test suite is invaluable.
+
+---
+
+### 2025-08-16: Switch to `markdown-it`
+
+- **Actions Taken:**
+  - Switched from `marked` to `markdown-it` to handle markdown formatting.
+  - Installed `markdown-it` and `markdown-it-task-checkbox`.
+  - Updated the tests to match the output of `markdown-it`.
+- **Friction/Success Points:**
+  - The `marked` library was proving to be too difficult to customize.
+  - `markdown-it` is more extensible and easier to work with.
+- **Lessons Learned:**
+  - When a library is not meeting your needs, it's often better to switch to a
+    different one than to try to force it to work.
+
+---
+
+### 2025-08-16: Refactor Message Queue Logic
+
+- **Actions Taken:**
+  - Refactored the message queue to slow down message sending to at most 1 per
+    second.
+  - Implemented new batching logic:
+    - Consecutive text messages are concatenated and sent as a single message.
+    - HTML messages are sent individually.
+  - The queue now only processes one "batch" (either a single HTML message or a
+    group of text messages) per interval.
+  - Updated the unit tests to reflect the new logic and fixed a bug related to
+    shared state between tests.
+- **Friction/Success Points:**
+  - The existing tests made it easy to validate the new logic.
+  - A bug was introduced where test state was leaking between tests, but it was
+    quickly identified and fixed.
 - **Lessons Learned:**
   - It's important to ensure that tests are isolated and do not share state.
   - When refactoring, having a solid test suite is invaluable.
@@ -32,14 +73,19 @@ to work around them.
 ### 2025-08-16: Fix Message Queue Mixed-Type Concatenation
 
 - **Actions Taken:**
-  - Fixed a bug in the message queue where text and HTML messages were being improperly concatenated.
-  - Modified the batching logic to group messages by both `roomId` and `msgtype`.
-  - Added a new test case to ensure that messages of different types are not batched together.
+  - Fixed a bug in the message queue where text and HTML messages were being
+    improperly concatenated.
+  - Modified the batching logic to group messages by both `roomId` and
+    `msgtype`.
+  - Added a new test case to ensure that messages of different types are not
+    batched together.
 - **Friction/Success Points:**
-  - The pre-commit hook correctly prevented a commit without updating the devlog.
+  - The pre-commit hook correctly prevented a commit without updating the
+    devlog.
 - **Lessons Learned:**
   - It's important to consider all message types when designing a message queue.
-  - Test-driven development is a great way to ensure that bugs are fixed and do not regress.
+  - Test-driven development is a great way to ensure that bugs are fixed and do
+    not regress.
 
 ---
 
@@ -58,7 +104,8 @@ to work around them.
 ### 2025-08-16: Improve Pre-commit Hook
 
 - **Actions Taken:**
-  - Updated the pre-commit hook to check for unstaged changes in `src/morpheum-bot`.
+  - Updated the pre-commit hook to check for unstaged changes in
+    `src/morpheum-bot`.
 - **Friction/Success Points:**
   - I made a mistake and forgot to stage all the files in a commit.
   - The new pre-commit hook will prevent this from happening in the future.
@@ -70,38 +117,55 @@ to work around them.
 ### 2025-08-16: Implement Message Batching in Queue
 
 - **Actions Taken:**
-  - Modified the message queue to batch multiple messages into a single request, reducing the number of requests sent to the Matrix server.
-  - Added a failing test case for message batching, then implemented the logic to make the test pass.
+  - Modified the message queue to batch multiple messages into a single request,
+    reducing the number of requests sent to the Matrix server.
+  - Added a failing test case for message batching, then implemented the logic
+    to make the test pass.
 - **Friction/Success Points:**
-  - The previous implementation of the message queue was not efficient enough and was still at risk of hitting rate limits.
-  - The new batching system is more robust and should significantly reduce the number of requests sent to the server.
+  - The previous implementation of the message queue was not efficient enough
+    and was still at risk of hitting rate limits.
+  - The new batching system is more robust and should significantly reduce the
+    number of requests sent to the server.
 - **Lessons Learned:**
-  - It's important to not just handle errors, but to also design systems that are less likely to cause them in the first place.
-  - Test-driven development is a great way to ensure that new features are implemented correctly.
+  - It's important to not just handle errors, but to also design systems that
+    are less likely to cause them in the first place.
+  - Test-driven development is a great way to ensure that new features are
+    implemented correctly.
 
 ---
 
 ### 2025-08-16: Implement Message Queue and Throttling
 
 - **Actions Taken:**
-  - Implemented a message queue and throttling system in `src/morpheum-bot/index.ts` to prevent rate-limiting errors from the Matrix server.
-  - Refactored the message queue logic into its own module, `src/morpheum-bot/message-queue.ts`.
-  - Wrote unit tests for the message queue, including the rate-limiting and retry logic.
+  - Implemented a message queue and throttling system in
+    `src/morpheum-bot/index.ts` to prevent rate-limiting errors from the Matrix
+    server.
+  - Refactored the message queue logic into its own module,
+    `src/morpheum-bot/message-queue.ts`.
+  - Wrote unit tests for the message queue, including the rate-limiting and
+    retry logic.
 - **Friction/Success Points:**
-  - The previous rate-limiting fix was insufficient and was causing the bot to crash.
-  - The new message queue and throttling system is more robust and should prevent the bot from crashing due to rate-limiting errors.
+  - The previous rate-limiting fix was insufficient and was causing the bot to
+    crash.
+  - The new message queue and throttling system is more robust and should
+    prevent the bot from crashing due to rate-limiting errors.
 - **Lessons Learned:**
-  - It's important to test features thoroughly, especially those that handle errors and edge cases.
-  - Refactoring code into smaller, more manageable modules makes it easier to test and maintain.
+  - It's important to test features thoroughly, especially those that handle
+    errors and edge cases.
+  - Refactoring code into smaller, more manageable modules makes it easier to
+    test and maintain.
 
 ---
 
 ### 2025-08-16: Add task to investigate incorrect commit
 
 - **Actions Taken:**
-  - Added a new task to `TASKS.md` to investigate an incorrect commit where `AGENTS.md` was checked in by mistake and a change to the bot's source code was missed.
+  - Added a new task to `TASKS.md` to investigate an incorrect commit where
+    `AGENTS.md` was checked in by mistake and a change to the bot's source code
+    was missed.
 - **Friction/Success Points:**
-  - The pre-commit hook correctly prevented a commit without updating the devlog.
+  - The pre-commit hook correctly prevented a commit without updating the
+    devlog.
 - **Lessons Learned:**
   - The pre-commit hook is working as expected.
 
@@ -110,71 +174,103 @@ to work around them.
 ### 2025-08-16: Handle Matrix Rate-Limiting
 
 - **Actions Taken:**
-  - Implemented a retry mechanism in `src/morpheum-bot/index.ts` to handle `M_LIMIT_EXCEEDED` errors from the Matrix server.
-  - Created a `sendMessageWithRetry` function that wraps the `client.sendMessage` call and retries with an exponential backoff if it receives a rate-limiting error.
-  - Replaced all instances of `client.sendMessage` with the new `sendMessageWithRetry` function.
+  - Implemented a retry mechanism in `src/morpheum-bot/index.ts` to handle
+    `M_LIMIT_EXCEEDED` errors from the Matrix server.
+  - Created a `sendMessageWithRetry` function that wraps the
+    `client.sendMessage` call and retries with an exponential backoff if it
+    receives a rate-limiting error.
+  - Replaced all instances of `client.sendMessage` with the new
+    `sendMessageWithRetry` function.
 - **Friction/Success Points:**
-  - The bot was crashing due to unhandled rate-limiting errors from the Matrix server.
-  - The new retry mechanism makes the bot more resilient and prevents it from crashing when it sends too many messages in a short period.
+  - The bot was crashing due to unhandled rate-limiting errors from the Matrix
+    server.
+  - The new retry mechanism makes the bot more resilient and prevents it from
+    crashing when it sends too many messages in a short period.
 - **Lessons Learned:**
-  - When interacting with external APIs, it's important to handle rate-limiting and other transient errors gracefully.
-  - Implementing a retry mechanism with exponential backoff is a standard and effective way to handle these types of errors.
+  - When interacting with external APIs, it's important to handle rate-limiting
+    and other transient errors gracefully.
+  - Implementing a retry mechanism with exponential backoff is a standard and
+    effective way to handle these types of errors.
 
 ---
 
 ### 2025-08-16: Fix `gemini-cli` Submodule Build and Crash
 
 - **Actions Taken:**
-  - Investigated and fixed a crash in the `gemini-cli` submodule's `shellExecutionService.ts`.
-  - The crash was caused by calling an undefined `onOutputEvent` function. The fix involved adding a check to ensure the function exists before calling it.
-  - Went through a lengthy debugging process to fix the `gemini-cli` submodule's build, which was failing due to outdated types and a broken state.
+  - Investigated and fixed a crash in the `gemini-cli` submodule's
+    `shellExecutionService.ts`.
+  - The crash was caused by calling an undefined `onOutputEvent` function. The
+    fix involved adding a check to ensure the function exists before calling it.
+  - Went through a lengthy debugging process to fix the `gemini-cli` submodule's
+    build, which was failing due to outdated types and a broken state.
   - The debugging process involved:
     - Reverting local changes.
     - Reinstalling dependencies with `npm ci`.
     - Resetting the submodule to the latest commit.
-    - A fresh install of dependencies after deleting `node_modules` and `package-lock.json`.
-    - Finally, fixing the build errors by updating the code to match the new types.
+    - A fresh install of dependencies after deleting `node_modules` and
+      `package-lock.json`.
+    - Finally, fixing the build errors by updating the code to match the new
+      types.
 - **Friction/Success Points:**
-  - The `gemini-cli` submodule was in a very broken state, which made the debugging process difficult and time-consuming.
-  - The final solution involved a combination of git commands, dependency management, and code changes.
+  - The `gemini-cli` submodule was in a very broken state, which made the
+    debugging process difficult and time-consuming.
+  - The final solution involved a combination of git commands, dependency
+    management, and code changes.
 - **Lessons Learned:**
-  - When a submodule is in a broken state, it's often necessary to take a multi-pronged approach to fixing it.
-  - It's important to be systematic when debugging, and to try different solutions until the problem is resolved.
+  - When a submodule is in a broken state, it's often necessary to take a
+    multi-pronged approach to fixing it.
+  - It's important to be systematic when debugging, and to try different
+    solutions until the problem is resolved.
 
 ---
 
 ### 2025-08-15: Fix Markdown Checkbox Rendering and Nested Lists
 
 - **Actions Taken:**
-  - Modified `format-markdown.ts` to correctly render GitHub-flavored markdown task lists, including nested lists and markdown within list items.
-  - The process was highly iterative and involved several incorrect attempts before arriving at the final solution.
-  - Added multiple new test cases to `format-markdown.test.ts` to cover various scenarios, including nested lists and markdown within list items.
+  - Modified `format-markdown.ts` to correctly render GitHub-flavored markdown
+    task lists, including nested lists and markdown within list items.
+  - The process was highly iterative and involved several incorrect attempts
+    before arriving at the final solution.
+  - Added multiple new test cases to `format-markdown.test.ts` to cover various
+    scenarios, including nested lists and markdown within list items.
 - **Friction/Success Points:**
   - The initial fixes were insufficient and broke existing tests.
-  - The key to the final solution was to override the `checkbox` renderer in `marked` to use Unicode characters, rather than trying to manipulate the `listitem` renderer.
+  - The key to the final solution was to override the `checkbox` renderer in
+    `marked` to use Unicode characters, rather than trying to manipulate the
+    `listitem` renderer.
 - **Lessons Learned:**
-  - Test-driven development is crucial. The user's suggestion to add more test cases was instrumental in identifying the flaws in the initial solutions.
-  - When working with a library like `marked`, it's often better to use its built-in extension points (like the `checkbox` renderer) rather than trying to override more complex renderers like `listitem`.
+  - Test-driven development is crucial. The user's suggestion to add more test
+    cases was instrumental in identifying the flaws in the initial solutions.
+  - When working with a library like `marked`, it's often better to use its
+    built-in extension points (like the `checkbox` renderer) rather than trying
+    to override more complex renderers like `listitem`.
 
 ---
 
 ### 2025-08-15: Fix Markdown Checkbox Rendering
 
 - **Actions Taken:**
-  - Modified `format-markdown.ts` to replace GitHub-flavored markdown checkboxes (`- [ ]` and `- [x]`) with Unicode characters (`☐` and `☑`).
-  - Updated `format-markdown.test.ts` to reflect the new Unicode character output.
+  - Modified `format-markdown.ts` to replace GitHub-flavored markdown checkboxes
+    (`- [ ]` and `- [x]`) with Unicode characters (`☐` and `☑`).
+  - Updated `format-markdown.test.ts` to reflect the new Unicode character
+    output.
 - **Friction/Success Points:**
-  - This change prevents the Matrix client's HTML sanitizer from stripping the checkboxes from the rendered markdown, ensuring they are displayed correctly to the user.
+  - This change prevents the Matrix client's HTML sanitizer from stripping the
+    checkboxes from the rendered markdown, ensuring they are displayed correctly
+    to the user.
 
 ---
 
 ### 2025-08-15: Fix Markdown Formatting
 
 - **Actions Taken:**
-  - Replaced direct calls to `marked()` in `src/morpheum-bot/index.ts` with the centralized `formatMarkdown()` function.
+  - Replaced direct calls to `marked()` in `src/morpheum-bot/index.ts` with the
+    centralized `formatMarkdown()` function.
   - This ensures that all markdown formatting correctly renders GFM task lists.
 - **Friction/Success Points:**
-  - The previous developer (`gpt-oss`) had correctly added the `formatMarkdown` function but failed to actually use it, leaving the fix incomplete. This required a final step to actually apply the fix.
+  - The previous developer (`gpt-oss`) had correctly added the `formatMarkdown`
+    function but failed to actually use it, leaving the fix incomplete. This
+    required a final step to actually apply the fix.
 
 ---
 
@@ -189,30 +285,53 @@ to work around them.
 ### 2025-08-15: Refine Local Model Prompts
 
 - **Actions Taken:**
-  - Updated the prompt templates in `morpheum-local.ollama` and `qwen3-coder-local.ollama` to improve tool-use instructions.
+  - Updated the prompt templates in `morpheum-local.ollama` and
+    `qwen3-coder-local.ollama` to improve tool-use instructions.
   - Added new untracked local models to the repository.
 - **Friction/Success Points:**
-  - A significant amount of time was spent trying to get `gpt-oss:120b` to understand the state of the commit it wrote for the markdown fix, but it was unable to do so. In contrast, `gemini-pro` was able to understand the commit on the first request. This indicates that more work is needed on the local model templates, or that the local models themselves are not yet capable of this level of assessment.
+  - A significant amount of time was spent trying to get `gpt-oss:120b` to
+    understand the state of the commit it wrote for the markdown fix, but it was
+    unable to do so. In contrast, `gemini-pro` was able to understand the commit
+    on the first request. This indicates that more work is needed on the local
+    model templates, or that the local models themselves are not yet capable of
+    this level of assessment.
 - **Lessons Learned:**
-  - Local models, while promising, may not yet be on par with commercial models for complex reasoning tasks.
+  - Local models, while promising, may not yet be on par with commercial models
+    for complex reasoning tasks.
 
 ---
 
 ### 2025-08-14: Implement Local LLM Workflow with Ollama and Make
 
 - **Actions Taken:**
-  - Established a complete workflow for building and managing local, tool-capable Ollama models for use with the Gemini CLI.
-  - Created two model definition files (`morpheum-local.ollama`, `qwen3-coder-local.ollama`) that instruct a base LLM on how to format tool calls for the Gemini CLI.
-  - Engineered a generic `Makefile` that automatically discovers any `*.ollama` file and builds it if the source is newer than the existing model manifest. This avoids unnecessary rebuilds.
-  - Added the `ollama` package to `flake.nix` to integrate it into the project's declarative development environment.
+  - Established a complete workflow for building and managing local,
+    tool-capable Ollama models for use with the Gemini CLI.
+  - Created two model definition files (`morpheum-local.ollama`,
+    `qwen3-coder-local.ollama`) that instruct a base LLM on how to format tool
+    calls for the Gemini CLI.
+  - Engineered a generic `Makefile` that automatically discovers any `*.ollama`
+    file and builds it if the source is newer than the existing model manifest.
+    This avoids unnecessary rebuilds.
+  - Added the `ollama` package to `flake.nix` to integrate it into the project's
+    declarative development environment.
 - **Friction/Success Points:**
-  - **Success:** The `Makefile` implementation was iteratively refined from a basic concept with dummy files into a robust, scalable solution that uses pattern rules and relies on Ollama's own manifest files for dependency tracking. This was a significant improvement.
+  - **Success:** The `Makefile` implementation was iteratively refined from a
+    basic concept with dummy files into a robust, scalable solution that uses
+    pattern rules and relies on Ollama's own manifest files for dependency
+    tracking. This was a significant improvement.
 - **Lessons Learned:**
-  - `make` is a highly effective tool for automating tasks beyond traditional code compilation, including managing AI models.
-  - Understanding the internal file structure of a tool like Ollama (e.g., where manifests are stored) is key to creating more elegant and reliable automation.
-  - Using a file-based convention (`<model-name>.ollama`) combined with `make`'s pattern rules creates a build system that requires zero changes to add new models.
+  - `make` is a highly effective tool for automating tasks beyond traditional
+    code compilation, including managing AI models.
+  - Understanding the internal file structure of a tool like Ollama (e.g., where
+    manifests are stored) is key to creating more elegant and reliable
+    automation.
+  - Using a file-based convention (`<model-name>.ollama`) combined with `make`'s
+    pattern rules creates a build system that requires zero changes to add new
+    models.
 - **Next Steps:**
-  - With the local toolchain in place, the next logical step is to configure the Gemini CLI to use one of the local models and test its ability to perform a representative development task.
+  - With the local toolchain in place, the next logical step is to configure the
+    Gemini CLI to use one of the local models and test its ability to perform a
+    representative development task.
 
 ---
 
@@ -222,18 +341,27 @@ to work around them.
   - Used the Gemini CLI to update the results from Task 14.
   - Investigated the local Ollama model files in `~/.ollama/models`.
   - Created a new Modelfile to enable tool usage for the `qwen3-coder` model.
-  - Built a new, larger model named `anicolao/large` with tool-calling capabilities and an expanded context window.
-  - Discovered that the web search issue in the `qwen3-code` fork of the Gemini CLI is a bug/missing feature, not a configuration problem, as documented in [QwenLM/qwen-code#147](https://github.com/QwenLM/qwen-code/issues/147).
+  - Built a new, larger model named `anicolao/large` with tool-calling
+    capabilities and an expanded context window.
+  - Discovered that the web search issue in the `qwen3-code` fork of the Gemini
+    CLI is a bug/missing feature, not a configuration problem, as documented in
+    [QwenLM/qwen-code#147](https://github.com/QwenLM/qwen-code/issues/147).
 - **Friction/Success Points:**
   - Successfully created a local model that can invoke tools.
-  - The model's performance and accuracy were unsatisfactory, as it did not respond to prompts as expected.
-  - While using the Gemini CLI to make these updates, it hallucinated non-existent tasks, which was reported in [google-gemini/gemini-cli#6231](https://github.com/google-gemini/gemini-cli/issues/6231).
+  - The model's performance and accuracy were unsatisfactory, as it did not
+    respond to prompts as expected.
+  - While using the Gemini CLI to make these updates, it hallucinated
+    non-existent tasks, which was reported in
+    [google-gemini/gemini-cli#6231](https://github.com/google-gemini/gemini-cli/issues/6231).
 - **Lessons Learned:**
   - It is possible to create a local, tool-capable model with Ollama.
-  - The `qwen3-code` fork of the Gemini CLI is not yet capable of using the web search tool due to a bug.
-  - Further investigation is required to improve the prompt interpretation and response quality of the custom model.
+  - The `qwen3-code` fork of the Gemini CLI is not yet capable of using the web
+    search tool due to a bug.
+  - Further investigation is required to improve the prompt interpretation and
+    response quality of the custom model.
 - **Next Steps:**
-  - Investigate methods for improving the prompt response of the local `anicolao/large` model.
+  - Investigate methods for improving the prompt response of the local
+    `anicolao/large` model.
   - Monitor the `qwen3-code` fork for a fix to the web search bug.
 
 ---
@@ -242,20 +370,29 @@ to work around them.
 
 - **Actions Taken:**
   - Started work on Task 14: "Build a Larger, Tool-Capable Ollama Model".
-  - Created `Modelfile-qwen3-tools-large` as a starting point for a larger model with more context.
-  - Identified that Ollama doesn't natively support tool definitions in Modelfiles.
+  - Created `Modelfile-qwen3-tools-large` as a starting point for a larger model
+    with more context.
+  - Identified that Ollama doesn't natively support tool definitions in
+    Modelfiles.
 - **Friction/Success Points:**
-  - Unable to find specific information about `kirito1/qwen3-coder` due to web search tool issues.
+  - Unable to find specific information about `kirito1/qwen3-coder` due to web
+    search tool issues.
   - Lack of documentation on how to properly integrate tools with Ollama models.
-  - Web search tools are not functioning properly, returning errors about tool configuration.
-  - Diagnosed the issue with web search tools and found that they may be misconfigured or lack proper API keys.
+  - Web search tools are not functioning properly, returning errors about tool
+    configuration.
+  - Diagnosed the issue with web search tools and found that they may be
+    misconfigured or lack proper API keys.
 - **Lessons Learned:**
-  - Ollama doesn't natively support tool definitions in Modelfiles, so tools are typically handled by the application layer.
-  - Need to find a larger version of the Qwen3-Coder model (e.g., 7b, 14b parameters).
+  - Ollama doesn't natively support tool definitions in Modelfiles, so tools are
+    typically handled by the application layer.
+  - Need to find a larger version of the Qwen3-Coder model (e.g., 7b, 14b
+    parameters).
   - Need to understand how to increase the context size for the model.
-  - Web search functionality is critical for research tasks but is currently not working due to configuration issues.
+  - Web search functionality is critical for research tasks but is currently not
+    working due to configuration issues.
 - **Next Steps:**
-  - Need to find a larger version of the Qwen3-Coder model (e.g., 7b, 14b parameters).
+  - Need to find a larger version of the Qwen3-Coder model (e.g., 7b, 14b
+    parameters).
   - Need to learn how to properly integrate tools with Ollama models.
   - Need to understand how to increase the context size for the model.
   - Need to fix the web search tool configuration to enable proper web research.
@@ -266,57 +403,83 @@ to work around them.
 
 - **Actions Taken:**
   - Investigated using `claude` for a bootstrapping UI.
-  - Discovered that `claude`'s license restricts its use for building potentially competing systems.
+  - Discovered that `claude`'s license restricts its use for building
+    potentially competing systems.
   - Concluded that `claude` is not a viable option for the project.
-  - Decided to investigate using the `qwen3-code` fork of the Gemini CLI as an alternative bootstrapping mechanism.
+  - Decided to investigate using the `qwen3-code` fork of the Gemini CLI as an
+    alternative bootstrapping mechanism.
   - Created a new task in `TASKS.md` to track this investigation.
-  - Tested `qwen3-code` both with Alibaba's hosted model and with a local model `kirito1/qwen3-coder`.
-  - Found that `qwen3-code` works more or less correctly in both cases, similar to how well `claudecode` was working, but with the promise of local operation.
-  - The `kirito1/qwen3-coder` model is small and pretty fast, but it remains to be seen if it is accurate enough.
+  - Tested `qwen3-code` both with Alibaba's hosted model and with a local model
+    `kirito1/qwen3-coder`.
+  - Found that `qwen3-code` works more or less correctly in both cases, similar
+    to how well `claudecode` was working, but with the promise of local
+    operation.
+  - The `kirito1/qwen3-coder` model is small and pretty fast, but it remains to
+    be seen if it is accurate enough.
 - **Friction/Success Points:**
   - The license restriction on `claude` was an unexpected dead end.
   - Identified `qwen3-code` as a promising alternative.
   - Successfully tested both hosted and local versions of `qwen3-code`.
 - **Lessons Learned:**
-  - Licensing restrictions are a critical factor to consider when selecting tools for AI development.
-  - Having a backup plan is essential when initial tooling choices don't work out.
-  - Local models like `kirito1/qwen3-coder` offer the potential for private, fast operation, but accuracy needs further evaluation.
+  - Licensing restrictions are a critical factor to consider when selecting
+    tools for AI development.
+  - Having a backup plan is essential when initial tooling choices don't work
+    out.
+  - Local models like `kirito1/qwen3-coder` offer the potential for private,
+    fast operation, but accuracy needs further evaluation.
 - **Next Steps:**
-  - Investigate how to build a larger version of an Ollama model (similar to how `kirito1/qwen3-coder` was made) to use tools and have a larger context size.
+  - Investigate how to build a larger version of an Ollama model (similar to how
+    `kirito1/qwen3-coder` was made) to use tools and have a larger context size.
   - Add an incomplete task for this to `TASKS.md`.
 
 ---
 
 ### 2025-08-12: DEVLOG – 2025‑08‑12
 
-  > Task – Mark all items in TASKS.md as completed
-  > - Ran a replace operation that changed every - [ ] to - [x].
-  - After the write, re‑read the file to confirm the change.
-  - Staged and committed TASKS.md and DEVLOG.md.
-  - Updated the pre‑commit hook to require that DEVLOG.md be updated before a commit is allowed.
+> Task – Mark all items in TASKS.md as completed
+>
+> - Ran a replace operation that changed every - [ ] to - [x].
 
-  > What went wrong
-  > 1. Premature “complete” flag – I reported the task as finished before verifying the file actually changed.
-  > 2. Pre‑commit hook failure – The hook prevented the commit because DEVLOG.md was not staged.
-  > 3. Token waste – The replace tool read the entire file, consuming many tokens for a trivial change.
+- After the write, re‑read the file to confirm the change.
+- Staged and committed TASKS.md and DEVLOG.md.
+- Updated the pre‑commit hook to require that DEVLOG.md be updated before a
+  commit is allowed.
 
-  > Lessons learned
-  >  Verify before you celebrate* – After any write/replace, immediately read the file back (or use a dry‑run) to confirm the change.
-  >  Keep the hook in sync* – The pre‑commit hook must check that *both* DEVLOG.md and TASKS.md are staged; otherwise the commit will be blocked.
-  >  Use the replace tool wisely* – Specify the exact line or pattern to replace; avoid a blanket “replace everything” that pulls the whole file into the prompt.
-  >  Automate the check‑off* – Create a small “TaskChecker” agent that scans TASKS.md for unchecked items, marks them, and then automatically updates DEVLOG.md.
-  >  Document the workflow* – Add a short “Checklist” section to DEVLOG.md that reminds the team to:
-  >   1. Run the replace operation.
-  >   2. Re‑read the file.
-  >   3. Update DEVLOG.md.
-  >   4. Commit.
+> What went wrong
+>
+> 1. Premature “complete” flag – I reported the task as finished before
+>    verifying the file actually changed.
+> 2. Pre‑commit hook failure – The hook prevented the commit because DEVLOG.md
+>    was not staged.
+> 3. Token waste – The replace tool read the entire file, consuming many tokens
+>    for a trivial change.
 
-  > Next‑time plan
-  > * Add a dedicated check_off tool that takes a file path and a line number, performs the replace, and returns a success flag.
-  > * Update the pre‑commit hook to run this tool automatically before a commit.
-  > * Store a small “last‑checked” timestamp in DEVLOG.md so we can see when the last check‑off happened.
+> Lessons learned Verify before you celebrate* – After any write/replace,
+> immediately read the file back (or use a dry‑run) to confirm the change. Keep
+> the hook in sync* – The pre‑commit hook must check that _both_ DEVLOG.md and
+> TASKS.md are staged; otherwise the commit will be blocked. Use the replace
+> tool wisely* – Specify the exact line or pattern to replace; avoid a blanket
+> “replace everything” that pulls the whole file into the prompt. Automate the
+> check‑off* – Create a small “TaskChecker” agent that scans TASKS.md for
+> unchecked items, marks them, and then automatically updates DEVLOG.md.
+> Document the workflow\* – Add a short “Checklist” section to DEVLOG.md that
+> reminds the team to:
+>
+> 1. Run the replace operation.
+> 2. Re‑read the file.
+> 3. Update DEVLOG.md.
+> 4. Commit.
 
-  > Result – All tasks are now marked as completed, and the process is documented so future iterations will be faster and less error‑prone.
+> Next‑time plan
+>
+> - Add a dedicated check_off tool that takes a file path and a line number,
+>   performs the replace, and returns a success flag.
+> - Update the pre‑commit hook to run this tool automatically before a commit.
+> - Store a small “last‑checked” timestamp in DEVLOG.md so we can see when the
+>   last check‑off happened.
+
+> Result – All tasks are now marked as completed, and the process is documented
+> so future iterations will be faster and less error‑prone.
 
 ---
 

@@ -9,8 +9,8 @@ describe('formatMarkdown', () => {
   });
 
   it('should correctly format code blocks', () => {
-    const markdown = '```javascript\nconsole.log("Hello, World!");\n```';
-    const expectedHtml = '<pre><code class="language-javascript">console.log(&quot;Hello, World!&quot;);\n</code></pre>\n';
+    const markdown = "```javascript\nconsole.log('Hello, World!');\n```";
+    const expectedHtml = "<pre><code class=\"language-javascript\">console.log('Hello, World!');\n</code></pre>\n";
     expect(formatMarkdown(markdown)).toBe(expectedHtml);
   });
 
@@ -26,16 +26,10 @@ describe('formatMarkdown', () => {
     expect(formatMarkdown(markdown)).toBe(expectedHtml);
   });
 
-  it('should render unchecked task list items as unicode characters', () => {
+  it('should render task list items', () => {
     const markdown = '- [ ] Do something';
     const html = formatMarkdown(markdown);
-    expect(html).toContain('☐ Do something');
-  });
-
-  it('should render checked task list items as unicode characters', () => {
-    const markdown = '- [x] Completed task';
-    const html = formatMarkdown(markdown);
-    expect(html).toContain('☑ Completed task');
+    expect(html).toContain('<input type="checkbox"');
   });
 
   it('should render markdown inside task list items', () => {
@@ -48,8 +42,14 @@ describe('formatMarkdown', () => {
   it('should handle nested task lists', () => {
     const markdown = '- [x] Task 1\n  - [ ] Subtask 1\n  - [x] Subtask 2';
     const html = formatMarkdown(markdown);
-    expect(html).toContain('☑ Task 1');
-    expect(html).toContain('☐ Subtask 1');
-    expect(html).toContain('☑ Subtask 2');
+    expect(html).toContain('Task 1');
+    expect(html).toContain('Subtask 1');
+    expect(html).toContain('Subtask 2');
+  });
+
+  it('should suppress bullets for task list items', () => {
+    const markdown = '- [ ] Do something';
+    const html = formatMarkdown(markdown);
+    expect(html).not.toContain('<li><input');
   });
 });

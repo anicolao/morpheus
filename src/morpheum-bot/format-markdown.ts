@@ -1,11 +1,8 @@
-import { marked } from 'marked';
+import MarkdownIt from 'markdown-it';
+import checkbox from 'markdown-it-task-checkbox';
 
-const renderer = new marked.Renderer();
-
-renderer.checkbox = (checked: any) => {
-  return checked.checked ? '☑' : '☐';
-};
+const md = new MarkdownIt().use(checkbox);
 
 export function formatMarkdown(markdown: string): string {
-  return marked(markdown, { renderer });
+  return md.render(markdown);
 }
