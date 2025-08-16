@@ -205,6 +205,11 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 - [x] **Task 31: Fix Message Queue Mixed-Type Concatenation**
   - [x] Fix a bug in the message queue where text and HTML messages were being improperly concatenated.
 
+- [x] **Task 32: Replace Checkbox Input Tags with Unicode Characters**
+  - [x] Write a failing test case to assert that the HTML output contains Unicode checkboxes instead of `<input>` tags.
+  - [x] Modify the `formatMarkdown` function to replace the `<input>` tags with Unicode characters.
+  - [x] Ensure all tests pass.
+
 - [x] **Task 28: Fix missing message-queue files**
   - [x] Add `src/morpheum-bot/message-queue.ts` and `src/morpheum-bot/message-queue.test.ts` to the commit.
   - [x] Replace all instances of `client.sendMessage` with `queueMessage` in `src/morpheum-bot/index.ts` to use the new message queue.

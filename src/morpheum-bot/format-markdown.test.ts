@@ -26,10 +26,11 @@ describe('formatMarkdown', () => {
     expect(formatMarkdown(markdown)).toBe(expectedHtml);
   });
 
-  it('should render task list items', () => {
+  it('should render task list items with unicode characters', () => {
     const markdown = '- [ ] Do something';
     const html = formatMarkdown(markdown);
-    expect(html).toContain('<input type="checkbox"');
+    expect(html).toContain('☐');
+    expect(html).not.toContain('<input');
   });
 
   it('should render markdown inside task list items', () => {
@@ -50,6 +51,6 @@ describe('formatMarkdown', () => {
   it('should suppress bullets for task list items', () => {
     const markdown = '- [ ] Do something';
     const html = formatMarkdown(markdown);
-    expect(html).not.toContain('<li><input');
+    expect(html).toContain('<ul style="list-style-type: none;">');
   });
 });
