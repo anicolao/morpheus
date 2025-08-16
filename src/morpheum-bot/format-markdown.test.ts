@@ -37,5 +37,19 @@ describe('formatMarkdown', () => {
     const html = formatMarkdown(markdown);
     expect(html).toContain('☑ Completed task');
   });
-});
 
+  it('should render markdown inside task list items', () => {
+    const markdown = '- [x] **Completed** task with [a link](http://example.com)';
+    const html = formatMarkdown(markdown);
+    expect(html).toContain('<strong>Completed</strong>');
+    expect(html).toContain('<a href="http://example.com">a link</a>');
+  });
+
+  it('should handle nested task lists', () => {
+    const markdown = '- [x] Task 1\n  - [ ] Subtask 1\n  - [x] Subtask 2';
+    const html = formatMarkdown(markdown);
+    expect(html).toContain('☑ Task 1');
+    expect(html).toContain('☐ Subtask 1');
+    expect(html).toContain('☑ Subtask 2');
+  });
+});
