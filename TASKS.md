@@ -189,3 +189,6 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 
 - [x] **Task 26: Handle Matrix Rate-Limiting**
   - [x] Implement a retry mechanism to handle `M_LIMIT_EXCEEDED` errors from the Matrix server.
+
+- [x] **Task 27: Implement Message Queue and Throttling**
+  - [x] Implement a message queue and throttling system to prevent rate-limiting errors.
