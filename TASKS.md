@@ -210,3 +210,8 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Update the `SYSTEM` prompt in `gpt-oss-120b.ollama` and `gpt-oss-small.ollama` to be more specific to a Test-Driven Development (TDD) approach.
   - [x] Reduce the `num_ctx` parameter in `gpt-oss-120b.ollama` to `65536`.
   - [x] Add `bun.lock` and `opencode.json` to the repository.
+
+- [x] **Task 30: Fix Message Queue Mixed-Type Concatenation**
+  - [x] Fixed a bug in the message queue where text and HTML messages were being improperly concatenated.
+  - [x] Modified the batching logic to group messages by both `roomId` and `msgtype`.
+  - [x] Added a new test case to ensure that messages of different types are not batched together.

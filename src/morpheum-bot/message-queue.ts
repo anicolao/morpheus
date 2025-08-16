@@ -13,19 +13,25 @@ async function processMessageQueue(client: MatrixClient) {
   const messagesToProcess = [...messageQueue];
   messageQueue.length = 0;
 
-  const batchedMessages: { [roomId: string]: string[] } = {};
+  const batchedMessages: { [key: string]: { roomId: string, msgtype: string, bodies: string[] } } = {};
 
   for (const message of messagesToProcess) {
-    if (!batchedMessages[message.roomId]) {
-      batchedMessages[message.roomId] = [];
+    const key = `${message.roomId}-${message.content.msgtype}`;
+    if (!batchedMessages[key]) {
+      batchedMessages[key] = {
+        roomId: message.roomId,
+        msgtype: message.content.msgtype,
+        bodies: [],
+      };
     }
-    batchedMessages[message.roomId].push(message.content.body);
+    batchedMessages[key].bodies.push(message.content.body);
   }
 
-  for (const roomId in batchedMessages) {
+  for (const key in batchedMessages) {
+    const { roomId, msgtype, bodies } = batchedMessages[key];
     const content = {
-      msgtype: 'm.text',
-      body: batchedMessages[roomId].join('\n'),
+      msgtype,
+      body: bodies.join('\n'),
     };
 
     try {

@@ -59,4 +59,23 @@ describe('message-queue', () => {
       body: 'Hello\nWorld',
     });
   });
+
+  it('should not batch different message types together', async () => {
+    startMessageQueue(client);
+
+    queueMessage('room1', { msgtype: 'm.text', body: 'Hello' });
+    queueMessage('room1', { msgtype: 'm.html', body: '<p>World</p>' });
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(client.sendMessage).toHaveBeenCalledTimes(2);
+    expect(client.sendMessage).toHaveBeenCalledWith('room1', {
+      msgtype: 'm.text',
+      body: 'Hello',
+    });
+    expect(client.sendMessage).toHaveBeenCalledWith('room1', {
+      msgtype: 'm.html',
+      body: '<p>World</p>',
+    });
+  });
 });
