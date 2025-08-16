@@ -215,3 +215,11 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Fixed a bug in the message queue where text and HTML messages were being improperly concatenated.
   - [x] Modified the batching logic to group messages by both `roomId` and `msgtype`.
   - [x] Added a new test case to ensure that messages of different types are not batched together.
+
+- [x] **Task 31: Refactor Message Queue Logic**
+  - [x] Refactored the message queue to slow down message sending to at most 1 per second.
+  - [x] Implemented new batching logic:
+    - Consecutive text messages are concatenated and sent as a single message.
+    - HTML messages are sent individually.
+  - [x] The queue now only processes one "batch" (either a single HTML message or a group of text messages) per interval.
+  - [x] Updated the unit tests to reflect the new logic and fixed a bug related to shared state between tests.

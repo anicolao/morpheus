@@ -1,6 +1,10 @@
 import { MatrixClient, MatrixError } from "matrix-bot-sdk";
 
-const messageQueue: { roomId: string; content: any }[] = [];
+// Exported for testing purposes
+export const messageQueue: { roomId: string; content: any }[] & { clear?: () => void } = [];
+messageQueue.clear = function() {
+  this.length = 0;
+}
 let isSending = false;
 let intervalId: NodeJS.Timeout | null = null;
 
@@ -10,39 +14,51 @@ async function processMessageQueue(client: MatrixClient) {
   }
 
   isSending = true;
-  const messagesToProcess = [...messageQueue];
-  messageQueue.length = 0;
 
-  const batchedMessages: { [key: string]: { roomId: string, msgtype: string, bodies: string[] } } = {};
-
-  for (const message of messagesToProcess) {
-    const key = `${message.roomId}-${message.content.msgtype}`;
-    if (!batchedMessages[key]) {
-      batchedMessages[key] = {
-        roomId: message.roomId,
-        msgtype: message.content.msgtype,
-        bodies: [],
-      };
+  const message = messageQueue[0];
+  if (message.content.msgtype === 'm.text') {
+    let body = '';
+    let lastRoomId = '';
+    const messagesToSend = [];
+    while (messageQueue.length > 0 && messageQueue[0].content.msgtype === 'm.text') {
+      const currentMessage = messageQueue.shift()!;
+      if (lastRoomId && currentMessage.roomId !== lastRoomId) {
+        messageQueue.unshift(currentMessage);
+        break;
+      }
+      messagesToSend.push(currentMessage);
+      body += currentMessage.content.body;
+      lastRoomId = currentMessage.roomId;
     }
-    batchedMessages[key].bodies.push(message.content.body);
-  }
-
-  for (const key in batchedMessages) {
-    const { roomId, msgtype, bodies } = batchedMessages[key];
-    const content = {
-      msgtype,
-      body: bodies.join('\n'),
-    };
 
     try {
-      await client.sendMessage(roomId, content);
+      await client.sendMessage(lastRoomId, {
+        msgtype: 'm.text',
+        body,
+      });
     } catch (e) {
       if (e instanceof MatrixError && e.errcode === "M_LIMIT_EXCEEDED") {
         console.warn(
           `Rate limited. Re-queueing message and waiting ${e.retryAfterMs}ms...`,
         );
         // Add all the messages back to the front of the queue
-        messageQueue.unshift(...messagesToProcess);
+        messageQueue.unshift(...messagesToSend);
+        await new Promise((resolve) => setTimeout(resolve, e.retryAfterMs || 1000));
+      } else {
+        console.error("Failed to send message:", e);
+      }
+    }
+  } else {
+    const messageToSend = messageQueue.shift()!;
+    try {
+      await client.sendMessage(messageToSend.roomId, messageToSend.content);
+    } catch (e) {
+      if (e instanceof MatrixError && e.errcode === "M_LIMIT_EXCEEDED") {
+        console.warn(
+          `Rate limited. Re-queueing message and waiting ${e.retryAfterMs}ms...`,
+        );
+        // Add all the messages back to the front of the queue
+        messageQueue.unshift(messageToSend);
         await new Promise((resolve) => setTimeout(resolve, e.retryAfterMs || 1000));
       } else {
         console.error("Failed to send message:", e);
@@ -57,7 +73,7 @@ export function startMessageQueue(client: MatrixClient) {
   if (intervalId) {
     clearInterval(intervalId);
   }
-  intervalId = setInterval(() => processMessageQueue(client), 150);
+  intervalId = setInterval(() => processMessageQueue(client), 1000);
 }
 
 export function stopMessageQueue() {
