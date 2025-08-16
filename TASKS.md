@@ -196,3 +196,8 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 - [x] **Task 28: Fix missing message-queue files**
   - [x] Add `src/morpheum-bot/message-queue.ts` and `src/morpheum-bot/message-queue.test.ts` to the commit.
   - [x] Replace all instances of `client.sendMessage` with `queueMessage` in `src/morpheum-bot/index.ts` to use the new message queue.
+
+- [x] **Task 29: Refine Ollama Model Prompts for TDD**
+  - [x] Update the `SYSTEM` prompt in `gpt-oss-120b.ollama` and `gpt-oss-small.ollama` to be more specific to a Test-Driven Development (TDD) approach.
+  - [x] Reduce the `num_ctx` parameter in `gpt-oss-120b.ollama` to `65536`.
+  - [x] Add `bun.lock` and `opencode.json` to the repository.

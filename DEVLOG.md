@@ -11,6 +11,19 @@ to work around them.
 
 ---
 
+### 2025-08-16: Refine Ollama Model Prompts for TDD
+
+- **Actions Taken:**
+  - Updated the `SYSTEM` prompt in `gpt-oss-120b.ollama` and `gpt-oss-small.ollama` to be more specific to a Test-Driven Development (TDD) approach.
+  - Reduced the `num_ctx` parameter in `gpt-oss-120b.ollama` to `65536`.
+  - Added `bun.lock` and `opencode.json` to the repository.
+- **Friction/Success Points:**
+  - The previous prompts were too generic. The new prompts should provide better guidance to the models.
+- **Lessons Learned:**
+  - Clear and specific prompts are crucial for getting the desired behavior from LLMs.
+
+---
+
 ### 2025-08-16: Fix missing message-queue files
 
 - **Actions Taken:**

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "gpt-oss-120b": {
+          "name": "GPT-OSS 120B - local",
+          "tools": true,
+          "reasoning": true,
+          "options": {}
+        },
+        "qwen3-coder-local": {
+          "name": "Qwen3 - local",
+          "tools": true,
+          "reasoning": true,
+          "options": { "num_ctx": 65536 }
+        },
+        "devstral": {
+          "name": "Devstral 14b Dense - local",
+          "tools": true,
+          "reasoning": false,
+          "options": { "num_ctx": 131072 }
+        }
+      }
+    }
+  }
+}
