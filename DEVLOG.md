@@ -11,6 +11,18 @@ to work around them.
 
 ---
 
+### 2025-08-16: Fix missing message-queue files
+
+- **Actions Taken:**
+  - Added `src/morpheum-bot/message-queue.ts` and `src/morpheum-bot/message-queue.test.ts` to the commit. These files were missed in the previous commit.
+  - Replaced all instances of `client.sendMessage` with `queueMessage` in `src/morpheum-bot/index.ts` to use the new message queue.
+- **Friction/Success Points:**
+  - The files were untracked and not included in the previous commit.
+- **Lessons Learned:**
+  - It's important to double-check the git status before committing to ensure all intended files are included.
+
+---
+
 ### 2025-08-16: Implement Message Queue and Throttling
 
 - **Actions Taken:**

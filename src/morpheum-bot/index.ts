@@ -11,6 +11,7 @@ import * as fs from "fs";
 import { initialize, streamQuery, BotMessage } from "../gemini-cli/packages/cli/src/library.js";
 import { Config } from "@google/gemini-cli-core";
 import { formatMarkdown } from "./format-markdown";
+import { startMessageQueue, queueMessage } from "./message-queue";
 
 // read environment variables
 const homeserverUrl = process.env.HOMESERVER_URL;
@@ -57,7 +58,7 @@ LogService.setLogger({
 const sendFileContent = (roomId: string, filePath: string) => {
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
-      client.sendMessage(roomId, {
+      queueMessage(roomId, {
         msgtype: "m.text",
         body: `Error reading ${filePath}: ${err.message}`,
       });
@@ -67,14 +68,14 @@ const sendFileContent = (roomId: string, filePath: string) => {
     if (filePath.endsWith(".md")) {
       const html = formatMarkdown(data);
       console.log('Generated HTML:', html);
-      client.sendMessage(roomId, {
+      queueMessage(roomId, {
         msgtype: "m.text",
         body: data,
         format: "org.matrix.custom.html",
         formatted_body: html,
       });
     } else {
-      client.sendMessage(roomId, {
+      queueMessage(roomId, {
         msgtype: "m.text",
         body: data,
       });
@@ -115,7 +116,7 @@ client.on("room.message", async (roomId, event) => {
           args.absolute_path.endsWith(".md")
         ) {
           const html = formatMarkdown(message.result.result as string);
-          client.sendMessage(roomId, {
+          queueMessage(roomId, {
             msgtype: "m.text",
             body: message.result.result as string,
             format: "org.matrix.custom.html",
@@ -139,7 +140,7 @@ client.on("room.message", async (roomId, event) => {
     }
     // Only send a message if there's something to say.
     if (body.trim()) {
-      client.sendMessage(roomId, {
+      queueMessage(roomId, {
         msgtype: "m.text",
         body: body,
       });
@@ -150,7 +151,7 @@ client.on("room.message", async (roomId, event) => {
     if (body.startsWith("!help")) {
       const message =
         "Hello! I am the Morpheum Bot. I am still under development. You can use `!tasks` to see the current tasks, `!devlog` to see the development log, `!add-devlog <entry>` to add a new entry to the development log, and `!update-task <task-number> <status>` to update the status of a task.";
-      client.sendMessage(roomId, {
+      queueMessage(roomId, {
         msgtype: "m.text",
         body: message,
       });
@@ -162,13 +163,13 @@ client.on("room.message", async (roomId, event) => {
       const entry = body.substring("!add-devlog ".length);
       fs.appendFile("DEVLOG.md", `\n*   ${entry}\n`, (err) => {
         if (err) {
-          client.sendMessage(roomId, {
+          queueMessage(roomId, {
             msgtype: "m.text",
             body: `Error writing to DEVLOG.md: ${err.message}`,
           });
           return;
         }
-        client.sendMessage(roomId, {
+        queueMessage(roomId, {
           msgtype: "m.text",
           body: "Successfully added entry to DEVLOG.md",
         });
@@ -180,7 +181,7 @@ client.on("room.message", async (roomId, event) => {
 
       fs.readFile("TASKS.md", "utf8", (err, data) => {
         if (err) {
-          client.sendMessage(roomId, {
+          queueMessage(roomId, {
             msgtype: "m.text",
             body: `Error reading TASKS.md: ${err.message}`,
           });
@@ -189,7 +190,7 @@ client.on("room.message", async (roomId, event) => {
 
         const lines = data.split("\n");
         const taskRegex = new RegExp(
-          `^\*\s+\[[\\s\\w]\]\s+\*\*Task ${taskNumber}:`,
+          `^\*\s+\[[\\s\\w]\]\s+\**Task ${taskNumber}:`,
         );
         let taskFound = false;
         for (let i = 0; i < lines.length; i++) {
@@ -201,7 +202,7 @@ client.on("room.message", async (roomId, event) => {
         }
 
         if (!taskFound) {
-          client.sendMessage(roomId, {
+          queueMessage(roomId, {
             msgtype: "m.text",
             body: `Task ${taskNumber} not found.`,
           });
@@ -210,13 +211,13 @@ client.on("room.message", async (roomId, event) => {
 
         fs.writeFile("TASKS.md", lines.join("\n"), (err) => {
           if (err) {
-            client.sendMessage(roomId, {
+            queueMessage(roomId, {
               msgtype: "m.text",
               body: `Error writing to TASKS.md: ${err.message}`,
             });
             return;
           }
-          client.sendMessage(roomId, {
+          queueMessage(roomId, {
             msgtype: "m.text",
             body: `Successfully updated task ${taskNumber}`,
           });
@@ -231,6 +232,7 @@ client.on("room.message", async (roomId, event) => {
 // And now we can start the client.
 initialize().then((config) => {
   geminiConfig = config;
+  startMessageQueue(client);
   client.start().then(() => {
     console.log("Morpheum Bot started!");
   });
