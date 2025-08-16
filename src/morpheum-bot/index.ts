@@ -109,11 +109,11 @@ client.on("room.message", async (roomId, event) => {
         body = `Requesting tool: ${message.request.name}`;
         break;
       case "tool_result":
-        const args = message.request.args as { absolute_path?: string };
+        const toolArgs = message.request.args as { absolute_path?: string, command?: string };
         if (
           message.request.name === "read_file" &&
-          typeof args?.absolute_path === "string" &&
-          args.absolute_path.endsWith(".md")
+          typeof toolArgs?.absolute_path === "string" &&
+          toolArgs.absolute_path.endsWith(".md")
         ) {
           const html = formatMarkdown(message.result.result as string);
           queueMessage(roomId, {
@@ -122,8 +122,22 @@ client.on("room.message", async (roomId, event) => {
             format: "org.matrix.custom.html",
             formatted_body: html,
           });
+          body = `${message.request.name} succeeded.`;
+        } else if (message.request.name === "run_shell_command") {
+          const command = toolArgs.command || 'Unknown command';
+          const output = message.result.result as string;
+          const formattedOutput = `\`$ ${command}\`\n\`\`\`\n${output}\n\`\`\``;
+          const html = formatMarkdown(formattedOutput);
+          queueMessage(roomId, {
+            msgtype: "m.text",
+            body: formattedOutput,
+            format: "org.matrix.custom.html",
+            formatted_body: html,
+          });
+          // No need to set body here as we've already queued the message
+        } else {
+          body = `${message.request.name} succeeded.`;
         }
-        body = `${message.request.name} succeeded.`;
         break;
       case "error":
         body = `Error: ${message.error}`;
