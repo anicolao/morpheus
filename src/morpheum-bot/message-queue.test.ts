@@ -44,4 +44,19 @@ describe('message-queue', () => {
     // Second attempt
     expect(client.sendMessage).toHaveBeenCalledTimes(2);
   });
+
+  it('should batch multiple messages into a single request', async () => {
+    startMessageQueue(client);
+
+    queueMessage('room1', { msgtype: 'm.text', body: 'Hello' });
+    queueMessage('room1', { msgtype: 'm.text', body: 'World' });
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(client.sendMessage).toHaveBeenCalledTimes(1);
+    expect(client.sendMessage).toHaveBeenCalledWith('room1', {
+      msgtype: 'm.text',
+      body: 'Hello\nWorld',
+    });
+  });
 });

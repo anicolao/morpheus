@@ -11,28 +11,17 @@ to work around them.
 
 ---
 
-### 2025-08-16: Refine Ollama Model Prompts for TDD
+### 2025-08-16: Implement Message Batching in Queue
 
 - **Actions Taken:**
-  - Updated the `SYSTEM` prompt in `gpt-oss-120b.ollama` and `gpt-oss-small.ollama` to be more specific to a Test-Driven Development (TDD) approach.
-  - Reduced the `num_ctx` parameter in `gpt-oss-120b.ollama` to `65536`.
-  - Added `bun.lock` and `opencode.json` to the repository.
+  - Modified the message queue to batch multiple messages into a single request, reducing the number of requests sent to the Matrix server.
+  - Added a failing test case for message batching, then implemented the logic to make the test pass.
 - **Friction/Success Points:**
-  - The previous prompts were too generic. The new prompts should provide better guidance to the models.
+  - The previous implementation of the message queue was not efficient enough and was still at risk of hitting rate limits.
+  - The new batching system is more robust and should significantly reduce the number of requests sent to the server.
 - **Lessons Learned:**
-  - Clear and specific prompts are crucial for getting the desired behavior from LLMs.
-
----
-
-### 2025-08-16: Fix missing message-queue files
-
-- **Actions Taken:**
-  - Added `src/morpheum-bot/message-queue.ts` and `src/morpheum-bot/message-queue.test.ts` to the commit. These files were missed in the previous commit.
-  - Replaced all instances of `client.sendMessage` with `queueMessage` in `src/morpheum-bot/index.ts` to use the new message queue.
-- **Friction/Success Points:**
-  - The files were untracked and not included in the previous commit.
-- **Lessons Learned:**
-  - It's important to double-check the git status before committing to ensure all intended files are included.
+  - It's important to not just handle errors, but to also design systems that are less likely to cause them in the first place.
+  - Test-driven development is a great way to ensure that new features are implemented correctly.
 
 ---
 
