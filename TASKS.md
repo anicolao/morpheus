@@ -210,6 +210,9 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Modify the `formatMarkdown` function to replace the `<input>` tags with Unicode characters.
   - [x] Ensure all tests pass.
 
+- [ ] **Task 33: Suppress Bullets from Task Lists (Abandoned)**
+  - [ ] This task was abandoned because the Matrix client's HTML sanitizer strips the `style` attribute, making it impossible to suppress the bullets using inline styles.
+
 - [x] **Task 28: Fix missing message-queue files**
   - [x] Add `src/morpheum-bot/message-queue.ts` and `src/morpheum-bot/message-queue.test.ts` to the commit.
   - [x] Replace all instances of `client.sendMessage` with `queueMessage` in `src/morpheum-bot/index.ts` to use the new message queue.
