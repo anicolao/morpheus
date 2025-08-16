@@ -11,6 +11,18 @@ to work around them.
 
 ---
 
+### 2025-08-16: Improve Pre-commit Hook
+
+- **Actions Taken:**
+  - Updated the pre-commit hook to check for unstaged changes in `src/morpheum-bot`.
+- **Friction/Success Points:**
+  - I made a mistake and forgot to stage all the files in a commit.
+  - The new pre-commit hook will prevent this from happening in the future.
+- **Lessons Learned:**
+  - It's important to have robust checks in place to prevent common mistakes.
+
+---
+
 ### 2025-08-16: Implement Message Batching in Queue
 
 - **Actions Taken:**

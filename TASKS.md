@@ -196,6 +196,9 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 - [x] **Task 28: Batch Messages in Queue**
   - [x] Modify the message queue to batch multiple messages into a single request.
 
+- [x] **Task 29: Improve Pre-commit Hook**
+  - [x] Add a check to the pre-commit hook to prevent commits with unstaged changes in `src/morpheum-bot`.
+
 - [x] **Task 28: Fix missing message-queue files**
   - [x] Add `src/morpheum-bot/message-queue.ts` and `src/morpheum-bot/message-queue.test.ts` to the commit.
   - [x] Replace all instances of `client.sendMessage` with `queueMessage` in `src/morpheum-bot/index.ts` to use the new message queue.

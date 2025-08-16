@@ -26,4 +26,13 @@ if [ "$(git rev-parse @)" != "$(git rev-parse @{u})" ]; then
 fi
 cd ../.. || exit 1
 
+# Check for unstaged changes in src/morpheum-bot
+UNSTAGED_CHANGES=$(git diff --name-only src/morpheum-bot)
+if [ -n "$UNSTAGED_CHANGES" ]; then
+  echo "Error: There are unstaged changes in src/morpheum-bot:" >&2
+  echo "$UNSTAGED_CHANGES" >&2
+  echo "Please stage these files before committing." >&2
+  exit 1
+fi
+
 exit 0
