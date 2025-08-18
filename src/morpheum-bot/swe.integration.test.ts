@@ -30,6 +30,7 @@ describe("Matrix Bot SWE Integration", () => {
 
     await handleMessage("!room:localhost", "!swe test task");
 
-    assert.isTrue(runSpy.calledOnceWith("test task"));
+    assert.isTrue(runSpy.mock.calls.length === 1);
+    assert.deepEqual(runSpy.mock.calls[0], ["test task"]);
   });
 });
