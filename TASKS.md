@@ -313,3 +313,32 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Write a basic integration in `src/ollama` with an interactive test
   - [x] Create a design doc for a jail system, and an overview of Gemini's
         architecture
+
+## Phase 1: Implement the Jailed Agent Environment
+
+The goal of this phase is to automate the setup and management of the jailed agent environment described in `JAIL_PROTOTYPE.md`. All scripts and configurations will be placed in a new `jail/` directory.
+
+- [ ] **Task 1: Create the `jail` directory structure.**
+  - Create a new top-level directory named `jail`.
+
+- [ ] **Task 2: Implement `jail/flake.nix`**
+  - Create a `flake.nix` file inside the `jail` directory.
+  - Copy the Nix code from `JAIL_PROTOTYPE.md` into this file.
+
+- [ ] **Task 3: Create `jail/start-vm.sh` script**
+  - Create a shell script that automates the `colima start` command with the specified port forwarding logic for multiple agent and monitoring ports.
+
+- [ ] **Task 4: Create `jail/build.sh` script**
+  - Create a shell script that runs `nix build .#default` (relative to the `jail` directory) and `docker load < result` to build the image and load it into the Docker daemon.
+
+- [ ] **Task 5: Create `jail/run.sh` script**
+  - Create a shell script that automates the `docker run` command.
+  - The script should accept arguments for the container name (e.g., `jail-1`) and the port numbers to map, making it easy to launch multiple, distinct jails.
+
+- [ ] **Task 6: Create `jail/agent.ts` client**
+  - Create the TypeScript agent client as `jail/agent.ts`.
+  - Copy the TypeScript code from `JAIL_PROTOTYPE.md` into this file.
+
+- [ ] **Task 7: Create `jail/README.md`**
+  - Create a `README.md` file inside the `jail` directory.
+  - Document how to use the new scripts (`start-vm.sh`, `build.sh`, `run.sh`, and `agent.ts`) to set up and interact with the jailed environment. This will replace the manual instructions in the original prototype document.
