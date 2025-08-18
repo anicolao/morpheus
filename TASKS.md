@@ -130,7 +130,8 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 
 - [x] **Task 13: Fix DEVLOG.md Entry Order for Qwen3-Code Investigation**
 
-  - [x] Move the entry for the Qwen3-Code investigation to the top of the changelog in `DEVLOG.md`.
+  - [x] Move the entry for the Qwen3-Code investigation to the top of the
+        changelog in `DEVLOG.md`.
   - [x] Ensure the entry is in the correct chronological order.
 
 ### 4. New Investigation
@@ -154,83 +155,155 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 ### 6. Local LLM Development Workflow
 
 - [x] **Task 19: Define and Build Local Tool-Capable Models**
-  - [x] Create a `Modelfile` to make a base model (e.g., Qwen2) compatible with the Gemini CLI tool-use format.
+
+  - [x] Create a `Modelfile` to make a base model (e.g., Qwen2) compatible with
+        the Gemini CLI tool-use format.
   - [x] Create a `Modelfile` for the `qwen3-coder` model.
-  - [x] Add `ollama` to the `flake.nix` development environment to ensure the tool is available.
+  - [x] Add `ollama` to the `flake.nix` development environment to ensure the
+        tool is available.
 
 - [x] **Task 20: Automate Model Building with a Generic Makefile**
+
   - [x] Establish a `<model-name>.ollama` convention for model definition files.
-  - [x] Implement a `Makefile` that uses Ollama's internal manifest files for dependency tracking.
-  - [x] Use a generic pattern rule in the `Makefile` to automatically discover and build any `*.ollama` file.
+  - [x] Implement a `Makefile` that uses Ollama's internal manifest files for
+        dependency tracking.
+  - [x] Use a generic pattern rule in the `Makefile` to automatically discover
+        and build any `*.ollama` file.
 
 - [x] **Task 21: Refine Local Model Prompts**
-  - [x] Update the prompt templates in `morpheum-local.ollama` and `qwen3-coder-local.ollama` to improve tool-use instructions.
+
+  - [x] Update the prompt templates in `morpheum-local.ollama` and
+        `qwen3-coder-local.ollama` to improve tool-use instructions.
   - [x] Add untracked local models to the repository.
 
 - [x] **Task 22: Enhance Markdown Task List Rendering**
-  - [x] Update `format-markdown.ts` to correctly render GitHub-flavored markdown task lists.
-  - [x] Add tests to `format-markdown.test.ts` to verify that checked and unchecked task list items are rendered correctly.
+
+  - [x] Update `format-markdown.ts` to correctly render GitHub-flavored markdown
+        task lists.
+  - [x] Add tests to `format-markdown.test.ts` to verify that checked and
+        unchecked task list items are rendered correctly.
 
 - [x] **Task 23: Fix Markdown Checkbox Rendering**
-  - [x] Modify `format-markdown.ts` to use Unicode characters for checkboxes to prevent them from being stripped by the Matrix client's HTML sanitizer.
-  - [x] Update `format-markdown.test.ts` to reflect the new Unicode character output.
+
+  - [x] Modify `format-markdown.ts` to use Unicode characters for checkboxes to
+        prevent them from being stripped by the Matrix client's HTML sanitizer.
+  - [x] Update `format-markdown.test.ts` to reflect the new Unicode character
+        output.
 
 - [ ] **Task 24: Suppress Bullets from Task Lists**
-  - [ ] Modify `format-markdown.ts` to suppress the bullets from task list items.
+
+  - [ ] Modify `format-markdown.ts` to suppress the bullets from task list
+        items.
 
 - [ ] **Task 27: Investigate incorrect commit**
+
   - [ ] `AGENTS.md` was checked in incorrectly.
   - [ ] A change to the bot's source was missed.
   - [ ] Investigate what went wrong and document it.
 
 - [x] **Task 25: Fix `gemini-cli` Submodule Build and Crash**
-  - [x] Investigate and fix a crash in the `gemini-cli` submodule's `shellExecutionService.ts`.
+
+  - [x] Investigate and fix a crash in the `gemini-cli` submodule's
+        `shellExecutionService.ts`.
   - [x] Fix the `gemini-cli` submodule's build.
 
 - [x] **Task 26: Handle Matrix Rate-Limiting**
-  - [x] Implement a retry mechanism to handle `M_LIMIT_EXCEEDED` errors from the Matrix server.
+
+  - [x] Implement a retry mechanism to handle `M_LIMIT_EXCEEDED` errors from the
+        Matrix server.
 
 - [x] **Task 27: Implement Message Queue and Throttling**
-  - [x] Implement a message queue and throttling system to prevent rate-limiting errors.
+
+  - [x] Implement a message queue and throttling system to prevent rate-limiting
+        errors.
 
 - [x] **Task 28: Batch Messages in Queue**
-  - [x] Modify the message queue to batch multiple messages into a single request.
+
+  - [x] Modify the message queue to batch multiple messages into a single
+        request.
 
 - [x] **Task 29: Improve Pre-commit Hook**
-  - [x] Add a check to the pre-commit hook to prevent commits with unstaged changes in `src/morpheum-bot`.
+
+  - [x] Add a check to the pre-commit hook to prevent commits with unstaged
+        changes in `src/morpheum-bot`.
 
 - [x] **Task 30: Improve `run_shell_command` Output**
-  - [x] Modify the bot to show the command and its output for `run_shell_command`.
+
+  - [x] Modify the bot to show the command and its output for
+        `run_shell_command`.
 
 - [x] **Task 31: Fix Message Queue Mixed-Type Concatenation**
-  - [x] Fix a bug in the message queue where text and HTML messages were being improperly concatenated.
+
+  - [x] Fix a bug in the message queue where text and HTML messages were being
+        improperly concatenated.
 
 - [x] **Task 32: Replace Checkbox Input Tags with Unicode Characters**
-  - [x] Write a failing test case to assert that the HTML output contains Unicode checkboxes instead of `<input>` tags.
-  - [x] Modify the `formatMarkdown` function to replace the `<input>` tags with Unicode characters.
+
+  - [x] Write a failing test case to assert that the HTML output contains
+        Unicode checkboxes instead of `<input>` tags.
+  - [x] Modify the `formatMarkdown` function to replace the `<input>` tags with
+        Unicode characters.
   - [x] Ensure all tests pass.
 
 - [ ] **Task 33: Suppress Bullets from Task Lists (Abandoned)**
-  - [ ] This task was abandoned because the Matrix client's HTML sanitizer strips the `style` attribute, making it impossible to suppress the bullets using inline styles.
+
+  - [ ] This task was abandoned because the Matrix client's HTML sanitizer
+        strips the `style` attribute, making it impossible to suppress the
+        bullets using inline styles.
+
+- [ ] **Task 34: Add OpenAI API Compatibility**
+
+  - [ ] **Subtask 1: Create Failing Test for OpenAI Integration**
+    - [ ] Create a new test file `src/morpheum-bot/openai.test.ts`.
+    - [ ] Write a test that attempts to send a prompt to a mock OpenAI server
+          and asserts that a valid response is received. This test should fail
+          initially as the implementation won't exist.
+  - [ ] **Subtask 2: Implement OpenAI API Client**
+    - [ ] Create a new file `src/morpheum-bot/openai.ts`.
+    - [ ] Implement a function that takes a prompt and an OpenAI API key and
+          sends a request to the OpenAI API.
+    - [ ] This function should handle the response and return it in a structured
+          format.
+  - [ ] **Subtask 3: Integrate OpenAI Client into Bot**
+    - [ ] Modify `src/morpheum-bot/index.ts` to add a new `!openai` command.
+    - [ ] This command should take a prompt, call the new OpenAI client, and
+          send the response to the Matrix room.
+    - [ ] Ensure all tests, including the new integration test, pass.
 
 - [x] **Task 28: Fix missing message-queue files**
-  - [x] Add `src/morpheum-bot/message-queue.ts` and `src/morpheum-bot/message-queue.test.ts` to the commit.
-  - [x] Replace all instances of `client.sendMessage` with `queueMessage` in `src/morpheum-bot/index.ts` to use the new message queue.
+
+  - [x] Add `src/morpheum-bot/message-queue.ts` and
+        `src/morpheum-bot/message-queue.test.ts` to the commit.
+  - [x] Replace all instances of `client.sendMessage` with `queueMessage` in
+        `src/morpheum-bot/index.ts` to use the new message queue.
 
 - [x] **Task 29: Refine Ollama Model Prompts for TDD**
-  - [x] Update the `SYSTEM` prompt in `gpt-oss-120b.ollama` and `gpt-oss-small.ollama` to be more specific to a Test-Driven Development (TDD) approach.
+
+  - [x] Update the `SYSTEM` prompt in `gpt-oss-120b.ollama` and
+        `gpt-oss-small.ollama` to be more specific to a Test-Driven Development
+        (TDD) approach.
   - [x] Reduce the `num_ctx` parameter in `gpt-oss-120b.ollama` to `65536`.
   - [x] Add `bun.lock` and `opencode.json` to the repository.
 
 - [x] **Task 30: Fix Message Queue Mixed-Type Concatenation**
-  - [x] Fixed a bug in the message queue where text and HTML messages were being improperly concatenated.
-  - [x] Modified the batching logic to group messages by both `roomId` and `msgtype`.
-  - [x] Added a new test case to ensure that messages of different types are not batched together.
+
+  - [x] Fixed a bug in the message queue where text and HTML messages were being
+        improperly concatenated.
+  - [x] Modified the batching logic to group messages by both `roomId` and
+        `msgtype`.
+  - [x] Added a new test case to ensure that messages of different types are not
+        batched together.
 
 - [x] **Task 31: Refactor Message Queue Logic**
-  - [x] Refactored the message queue to slow down message sending to at most 1 per second.
+  - [x] Refactored the message queue to slow down message sending to at most 1
+        per second.
   - [x] Implemented new batching logic:
     - Consecutive text messages are concatenated and sent as a single message.
     - HTML messages are sent individually.
-  - [x] The queue now only processes one "batch" (either a single HTML message or a group of text messages) per interval.
-  - [x] Updated the unit tests to reflect the new logic and fixed a bug related to shared state between tests.
+  - [x] The queue now only processes one "batch" (either a single HTML message
+        or a group of text messages) per interval.
+  - [x] Updated the unit tests to reflect the new logic and fixed a bug related
+        to shared state between tests.
+- [x] ** Task 35: Fix up errors made by local LLMs**
+  - [x] Revert CONTRIBUTING.md and ROADMAP.md hallucinations
+  - [x] Commit work in progress on `opencode.json` and ollama models

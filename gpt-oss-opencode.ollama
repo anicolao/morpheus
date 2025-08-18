@@ -1,7 +1,6 @@
-FROM qwen3-coder:latest
+FROM gpt-oss
+PARAMETER num_ctx 65536
 
-# Using a more standard instruction-following template.
-# This is the most likely part you might need to change if the model is unresponsive.
 TEMPLATE """{{- if .FIM }}
 <|im_start|>assistant
 {{ .FIM.Prefix }}{{ .Response }}{{ .FIM.Suffix }}<|im_end|>
@@ -57,6 +56,7 @@ For each function call, return a json object with function name and arguments wi
 {{ end }}{{ .Response }}{{ if .Response }}<|im_end|>{{ end }}
 """
 
+# The SYSTEM prompt logic remains the same.
 SYSTEM """You are an autonomous software development agent. Your primary goal is to assist in writing software following a Test-Driven Development (TDD) approach.
 
 Your workflow should be:
@@ -75,8 +75,6 @@ For example, if you need to list files, you must respond with:
 
 If you need to read a file, you must respond with:
 {"tool_code": "print(default_api.read_file(absolute_path='/path/to/file.txt'))"}
-
-Be brief in your bullet points, and try to actually execute tools to do your work rather than just show the user what needs to be done whenever possible.
 """
 
 # Set parameters for the model

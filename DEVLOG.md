@@ -11,6 +11,15 @@ to work around them.
 
 ---
 
+### 2025-08-17: Manual Commit
+
+- **Actions Taken:**
+- Committing `opencode.json` and some edits to local files
+- **Friction/Success Points:**
+- Local models messed up CONTRIBUTING.md and ROADMAP.md, reverted those
+
+---
+
 ### 2025-08-16: Refactor Message Queue Logic
 
 - **Actions Taken:**
