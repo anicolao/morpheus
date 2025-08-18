@@ -1,5 +1,23 @@
 #!/bin/sh
 
+# Check for any unstaged changes in tracked files
+MODIFIED_UNSTAGED_FILES=$(git diff --name-only)
+if [ -n "$MODIFIED_UNSTAGED_FILES" ]; then
+  echo "Error: There are unstaged changes in tracked files:" >&2
+  echo "$MODIFIED_UNSTAGED_FILES" >&2
+  echo "Please stage all relevant files before committing." >&2
+  exit 1
+fi
+
+# Check for any new, untracked files (that are not ignored)
+NEW_UNTRACKED_FILES=$(git ls-files --others --exclude-standard)
+if [ -n "$NEW_UNTRACKED_FILES" ]; then
+  echo "Error: There are new untracked files:" >&2
+  echo "$NEW_UNTRACKED_FILES" >&2
+  echo "Please stage or gitignore these files before committing." >&2
+  exit 1
+fi
+
 # Staged files
 STAGED_FILES=$(git diff --cached --name-only)
 
@@ -25,14 +43,5 @@ if [ "$(git rev-parse @)" != "$(git rev-parse @{u})" ]; then
   exit 1
 fi
 cd ../.. || exit 1
-
-# Check for unstaged changes in src/morpheum-bot
-UNSTAGED_CHANGES=$(git diff --name-only src/morpheum-bot)
-if [ -n "$UNSTAGED_CHANGES" ]; then
-  echo "Error: There are unstaged changes in src/morpheum-bot:" >&2
-  echo "$UNSTAGED_CHANGES" >&2
-  echo "Please stage these files before committing." >&2
-  exit 1
-fi
 
 exit 0
