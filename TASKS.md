@@ -245,17 +245,17 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
         Unicode characters.
   - [x] Ensure all tests pass.
 
-- [ ] **Task 33: Suppress Bullets from Task Lists (Abandoned)**
+- [x] **Task 33: Suppress Bullets from Task Lists (Abandoned)**
 
-  - [ ] This task was abandoned because the Matrix client's HTML sanitizer
+  - [x] This task was abandoned because the Matrix client's HTML sanitizer
         strips the `style` attribute, making it impossible to suppress the
         bullets using inline styles.
 
 - [ ] **Task 34: Add OpenAI API Compatibility**
 
-  - [ ] **Subtask 1: Create Failing Test for OpenAI Integration**
-    - [ ] Create a new test file `src/morpheum-bot/openai.test.ts`.
-    - [ ] Write a test that attempts to send a prompt to a mock OpenAI server
+  - [x] **Subtask 1: Create Failing Test for OpenAI Integration**
+    - [x] Create a new test file `src/morpheum-bot/openai.test.ts`.
+    - [x] Write a test that attempts to send a prompt to a mock OpenAI server
           and asserts that a valid response is received. This test should fail
           initially as the implementation won't exist.
   - [ ] **Subtask 2: Implement OpenAI API Client**
@@ -305,5 +305,11 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Updated the unit tests to reflect the new logic and fixed a bug related
         to shared state between tests.
 - [x] ** Task 35: Fix up errors made by local LLMs**
+
   - [x] Revert CONTRIBUTING.md and ROADMAP.md hallucinations
   - [x] Commit work in progress on `opencode.json` and ollama models
+
+- [x] ** Task 36: Switch gears to integrating directly with Ollama API**
+  - [x] Write a basic integration in `src/ollama` with an interactive test
+  - [x] Create a design doc for a jail system, and an overview of Gemini's
+        architecture
