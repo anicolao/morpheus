@@ -98,9 +98,44 @@ client.on("room.event", (roomId, event) => {
 });
 client.on("room.message", async (roomId, event) => {
   console.log(`MESSAGE from ${event.sender}:`, event.content?.body?.substring(0, 30));
-  if (event.sender === await client.getUserId()) return;
+  const userId = await client.getUserId();
+  if (event.sender === userId) return;
   const body = event.content?.body;
   if (!body) return;
+
+  try {
+    const members = await client.getJoinedRoomMembersWithProfiles(roomId);
+    const self = members[userId];
+    const displayName = self?.display_name;
+    const localpart = userId.split(':')[0].substring(1); // from @user:server.com -> user
+
+    const mentionNames = [displayName, localpart, userId].filter(Boolean).map(n => n!.toLowerCase());
+
+    for (const name of mentionNames) {
+      if (body.toLowerCase().startsWith(name)) {
+        let task = body.substring(name.length).trim();
+        if (task.startsWith(':')) {
+          task = task.substring(1).trim();
+        }
+        
+        if (task) {
+          queueMessage(roomId, {
+            msgtype: "m.text",
+            body: `Working on: "${task}"...`,
+          });
+          const result = await sweAgent.run(task);
+          queueMessage(roomId, {
+            msgtype: "m.text",
+            body: result,
+          });
+          return;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Error handling mention:", e);
+  }
+
 
   if (body.startsWith("!")) {
     if (body.startsWith("!help")) {
@@ -145,7 +180,7 @@ client.on("room.message", async (roomId, event) => {
 
         const lines = data.split("\n");
         const taskRegex = new RegExp(
-          `^\*\s+\[[\\s\\w]\]\s+\**Task ${taskNumber}:`,
+          `^\*\s+\[[\\s\\w]\]\s+\*\*Task ${taskNumber}:`,
         );
         let taskFound = false;
         for (let i = 0; i < lines.length; i++) {

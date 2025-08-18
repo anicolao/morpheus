@@ -190,9 +190,9 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [x] Update `format-markdown.test.ts` to reflect the new Unicode character
         output.
 
-- [ ] **Task 24: Suppress Bullets from Task Lists**
+- [x] **Task 24: Suppress Bullets from Task Lists (Abandoned)**
 
-  - [ ] Modify `format-markdown.ts` to suppress the bullets from task list
+  - [x] Modify `src/morpheum-bot/format-markdown.ts` to suppress the bullets from task list
         items.
 
 - [ ] **Task 27: Investigate incorrect commit**
@@ -400,3 +400,7 @@ The goal is to replace the bot's current Gemini CLI integration with a new, self
     - [x] Correct mock assertions in `vitest`.
     - [x] Install missing dependencies.
     - [x] Skip incomplete tests.
+- [x] **Task 47: Bot Self-Sufficiency**
+    - [x] Implement mention-based interaction for the bot.
+    - [x] Add detailed logging for Ollama and Jail clients.
+    - [x] Correct bugs related to user profile fetching.
