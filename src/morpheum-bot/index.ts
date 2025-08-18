@@ -8,14 +8,20 @@ import {
   LogService,
 } from "matrix-bot-sdk";
 import * as fs from "fs";
-import { initialize, streamQuery, BotMessage } from "../gemini-cli/packages/cli/src/library.js";
-import { Config } from "@google/gemini-cli-core";
 import { formatMarkdown } from "./format-markdown";
 import { startMessageQueue, queueMessage } from "./message-queue";
+
+import { SWEAgent } from "./sweAgent";
+import { OllamaClient } from "./ollamaClient";
+import { JailClient } from "./jailClient";
 
 // read environment variables
 const homeserverUrl = process.env.HOMESERVER_URL;
 const accessToken = process.env.ACCESS_TOKEN;
+const ollamaApiUrl = process.env.OLLAMA_API_URL || "http://localhost:11434";
+const ollamaModel = process.env.OLLAMA_MODEL || "morpheum-local";
+const jailHost = process.env.JAIL_HOST || "localhost";
+const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
 
 if (!homeserverUrl || !accessToken) {
   console.error(
@@ -24,7 +30,10 @@ if (!homeserverUrl || !accessToken) {
   process.exit(1);
 }
 
-let geminiConfig: Config;
+const ollamaClient = new OllamaClient(ollamaApiUrl, ollamaModel);
+const jailClient = new JailClient(jailHost, jailPort);
+const sweAgent = new SWEAgent(ollamaClient, jailClient);
+
 
 // We'll want to make sure the bot doesn't have to do an initial sync every
 // time it restarts, so we need to prepare a storage provider. Here we use
@@ -92,74 +101,6 @@ client.on("room.message", async (roomId, event) => {
   if (event.sender === await client.getUserId()) return;
   const body = event.content?.body;
   if (!body) return;
-
-  const callback = (message: BotMessage) => {
-    let body = "";
-    switch (message.type) {
-      case "content":
-        body = message.content;
-        break;
-      case "thought":
-        // Only show thoughts that have text content.
-        if (message.thought && message.thought.thought) {
-          body = `Thinking: ${message.thought.thought}`;
-        }
-        break;
-      case "tool_call_request":
-        body = `Requesting tool: ${message.request.name}`;
-        break;
-      case "tool_result":
-        const toolArgs = message.request.args as { absolute_path?: string, command?: string };
-        if (
-          message.request.name === "read_file" &&
-          typeof toolArgs?.absolute_path === "string" &&
-          toolArgs.absolute_path.endsWith(".md")
-        ) {
-          const html = formatMarkdown(message.result.result as string);
-          queueMessage(roomId, {
-            msgtype: "m.text",
-            body: message.result.result as string,
-            format: "org.matrix.custom.html",
-            formatted_body: html,
-          });
-          body = `${message.request.name} succeeded.`;
-        } else if (message.request.name === "run_shell_command") {
-          const command = toolArgs.command || 'Unknown command';
-          const output = message.result.result as string;
-          const formattedOutput = `\`$ ${command}\`\n\`\`\`\n${output}\n\`\`\``;
-          const html = formatMarkdown(formattedOutput);
-          queueMessage(roomId, {
-            msgtype: "m.text",
-            body: formattedOutput,
-            format: "org.matrix.custom.html",
-            formatted_body: html,
-          });
-          // No need to set body here as we've already queued the message
-        } else {
-          body = `${message.request.name} succeeded.`;
-        }
-        break;
-      case "error":
-        body = `Error: ${message.error}`;
-        break;
-      case "info":
-        body = `Info: ${message.message}`;
-        break;
-      case "finished":
-        // Don't show the user the boring STOP reason.
-        if (message.reason !== 'STOP') {
-          body = `Finished with reason: ${message.reason}`;
-        }
-        break;
-    }
-    // Only send a message if there's something to say.
-    if (body.trim()) {
-      queueMessage(roomId, {
-        msgtype: "m.text",
-        body: body,
-      });
-    }
-  };
 
   if (body.startsWith("!")) {
     if (body.startsWith("!help")) {
@@ -238,16 +179,11 @@ client.on("room.message", async (roomId, event) => {
         });
       });
     }
-  } else {
-    streamQuery(geminiConfig, body, callback);
   }
 });
 
 // And now we can start the client.
-initialize().then((config) => {
-  geminiConfig = config;
-  startMessageQueue(client);
-  client.start().then(() => {
-    console.log("Morpheum Bot started!");
-  });
+startMessageQueue(client);
+client.start().then(() => {
+  console.log("Morpheum Bot started!");
 });

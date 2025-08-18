@@ -342,7 +342,56 @@ The goal of this phase is to automate the setup and management of the jailed age
 - [x] **Task 7: Create `jail/README.md`**
   - Create a `README.md` file inside the `jail` directory.
   - Document how to use the new scripts (`start-vm.sh`, `build.sh`, `run.sh`, and `agent.ts`) to set up and interact with the jailed environment. This will replace the manual instructions in the original prototype document.
-
 - [x] **Task 37: Improve Pre-commit Hook**
     - [x] Add a check to the pre-commit hook to prevent commits with unstaged changes.
     - [x] Add a check to the pre-commit hook to prevent commits with untracked files.
+
+## Phase 2: TypeScript SWE-Agent
+
+The goal is to replace the bot's current Gemini CLI integration with a new, self-contained agentic workflow inspired by `mini-swe-agent`. This new agent will use local Ollama models and the `jail` environment to execute tasks, with the Matrix bot serving as its primary user interface.
+
+### Foundational Modules (TDD Approach)
+
+- [x] **Task 38: Ollama API Client**
+    - [x] Create a test file: `src/morpheum-bot/ollamaClient.test.ts`. Write a failing test that attempts to send a prompt to a mock Ollama API endpoint.
+    - [x] Create the client module: `src/morpheum-bot/ollamaClient.ts`.
+    - [x] Implement a function to send a system prompt and conversation history to a specified model via the Ollama API.
+    - [x] Make the test pass.
+
+- [x] **Task 39: Jailed Shell Client**
+    - [x] Create a test file: `src/morpheum-bot/jailClient.test.ts`. Write a failing test that attempts to send a command to a mock TCP server and receive a response.
+    - [x] Create the client module: `src/morpheum-bot/jailClient.ts`.
+    - [x] **Reimplement** the TCP socket logic from `jail/agent.ts` directly within this module, creating a clean programmatic interface.
+    - [x] Make the test pass.
+
+- [x] **Task 40: Response Parser Utility**
+    - [x] Create a test file: `src/morpheum-bot/responseParser.test.ts`. Write failing tests for extracting bash commands from various markdown-formatted strings.
+    - [x] Create the utility module: `src/morpheum-bot/responseParser.ts`.
+    - [x] Implement a function to reliably parse `bash ... ` blocks from the model's text output.
+    - [x] Make all tests pass.
+
+### Agent Logic and Bot Integration
+
+- [x] **Task 41: System Prompt Definition**
+    - [x] Create a new file, `src/morpheum-bot/prompts.ts`, to store the core system prompt.
+    - [x] Draft a system prompt inspired by `mini-swe-agent`, instructing the model to think step-by-step and use bash commands to solve software engineering tasks.
+
+- [x] **Task 42: Core Agent Logic**
+    - [x] Create a test file: `src/morpheum-bot/sweAgent.test.ts`. Write failing tests for the agent's main loop, mocking the Ollama and Jail clients.
+    - [x] Create the agent module: `src/morpheum-bot/sweAgent.ts`.
+    - [x] Implement the main agent loop, which will manage the conversation history and orchestrate calls to the Ollama client, parser, and jail client.
+
+- [x] **Task 43: Matrix Bot Integration**
+    - [x] Modify `src/morpheum-bot/index.ts` to add a new command, `!swe <task>`.
+    - [x] When triggered, this command will initialize and run the `sweAgent` loop with the provided task.
+    - [x] The agent's intermediate "thoughts," commands, and tool outputs will be formatted and sent as messages to the Matrix room.
+    - [x] Add a corresponding integration test for the `!swe` command.
+
+### Configuration and Cleanup
+
+- [x] **Task 44: Configuration**
+    - [x] Integrate necessary settings (e.g., Ollama model name, API URL, default jail port) into the bot's existing configuration system (using environment variables).
+
+- [x] **Task 45: Deprecate Old Integration**
+    - [x] Once the new `!swe` command is stable, remove the old Gemini CLI integration code and the `!gemini` command from `src/morpheum-bot/index.ts`.
+    - [x] Remove any other now-unused files or dependencies related to the old implementation.
