@@ -11,6 +11,14 @@ to work around them.
 
 ---
 
+### 2025-08-17: Correct Jailed Environment Documentation
+
+- **Actions Taken:**
+  - Corrected the `jail/README.md` and `jail/agent.ts` to use `localhost` for connections, removing the final incorrect debugging steps related to the Colima IP address.
+  - The documentation now reflects the final, simplified, and fully working setup.
+
+---
+
 ### 2025-08-17: Fix Pre-commit Hook and Add Missing File
 
 - **Actions Taken:**
@@ -1231,7 +1239,7 @@ more reliable and efficient development assistant.
 ### 2025-08-01: Project Context Setup
 
 - **Actions Taken:**
-  - We started by setting up the development environment and giving the
+  - We started by setting up the development environment and and giving the
     `morpheus` CLI its current context.
 
 ## Tools Used

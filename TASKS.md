@@ -342,3 +342,7 @@ The goal of this phase is to automate the setup and management of the jailed age
 - [x] **Task 7: Create `jail/README.md`**
   - Create a `README.md` file inside the `jail` directory.
   - Document how to use the new scripts (`start-vm.sh`, `build.sh`, `run.sh`, and `agent.ts`) to set up and interact with the jailed environment. This will replace the manual instructions in the original prototype document.
+
+- [x] **Task 37: Improve Pre-commit Hook**
+    - [x] Add a check to the pre-commit hook to prevent commits with unstaged changes.
+    - [x] Add a check to the pre-commit hook to prevent commits with untracked files.
