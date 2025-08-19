@@ -21,7 +21,6 @@ export class JailClient {
 
       client.on("data", (data) => {
         const chunk = data.toString();
-        console.log(`Received chunk: [${chunk}]`);
         if (chunk.includes(EOC_MARKER)) {
           output += chunk.substring(0, chunk.indexOf(EOC_MARKER));
           client.end();

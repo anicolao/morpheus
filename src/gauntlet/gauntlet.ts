@@ -187,7 +187,7 @@ async function checkContainerReadiness(port: number, host: string): Promise<bool
     try {
       const jailClient = new JailClient(host, port);
       const response = await jailClient.execute('echo "Ready"');
-      if (response.trim() === "Ready") {
+      if (response.includes("Ready")) {
         console.log("Container is ready.");
         return true;
       }

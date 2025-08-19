@@ -32,12 +32,12 @@ mkfifo $FIFO
 
 # --- Service 1: Monitoring Port ---
 echo "   -> Monitoring service starting on port $MONITOR_PORT"
-dtach -n /tmp/mysession.dtach bash -c "tail -f $FIFO | bash"
+dtach -n /tmp/mysession.dtach bash -c "tail -f $FIFO | bash -li 2>&1"
 socat TCP-LISTEN:$MONITOR_PORT,fork,reuseaddr FILE:$FIFO,create &
 
 # --- Service 2: Agent Port ---
 echo "   -> Agent service starting on port $AGENT_PORT"
-exec socat TCP-LISTEN:$AGENT_PORT,fork,reuseaddr EXEC:"bash -l"
+exec socat TCP-LISTEN:$AGENT_PORT,fork,reuseaddr SYSTEM:"bash -li 2>&1"
 EOF
 )
 
