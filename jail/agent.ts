@@ -1,19 +1,19 @@
-import * as net from 'net';
+import * as net from "net";
 
 async function runCommand(port: number, command: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const client = new net.Socket();
-    let output = '';
+    let output = "";
     // A unique string to signal the end of command output
-    const EOC_MARKER = 'COMMAND_ENDED_EOC';
+    const EOC_MARKER = "COMMAND_ENDED_EOC";
 
-    client.connect(port, 'localhost', () => {
+    client.connect(port, "localhost", () => {
       console.log(`[Agent] Connected to jail at localhost:${port}.`);
       // Append a marker to detect when the command is finished
-      client.write(`${command}; echo "${EOC_MARKER}"\n`);
+      client.write(`${command}\necho '${EOC_MARKER}'\n`);
     });
 
-    client.on('data', (data) => {
+    client.on("data", (data) => {
       const chunk = data.toString();
       if (chunk.includes(EOC_MARKER)) {
         // Command is done, clean up the output and resolve
@@ -24,13 +24,13 @@ async function runCommand(port: number, command: string): Promise<string> {
       }
     });
 
-    client.on('close', () => {
-      console.log('[Agent] Connection closed.');
+    client.on("close", () => {
+      console.log("[Agent] Connection closed.");
       // With a non-interactive shell, we just need to trim the final output.
       resolve(output.trim());
     });
 
-    client.on('error', (err) => {
+    client.on("error", (err) => {
       reject(err);
     });
   });
@@ -49,11 +49,11 @@ async function main() {
   try {
     console.log(`[Agent] Sending command: "${command}"`);
     const result = await runCommand(port, command);
-    console.log('--- Command Output ---');
+    console.log("--- Command Output ---");
     console.log(result);
-    console.log('----------------------');
+    console.log("----------------------");
   } catch (error) {
-    console.error('An error occurred:', error);
+    console.error("An error occurred:", error);
   }
 }
 

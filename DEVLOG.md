@@ -11,137 +11,246 @@ to work around them.
 
 ---
 
+### 2025-08-18: Get a local model to pass the jq task from the gauntlet
+
+- **Actions Taken:**
+
+  - wound up manually modifying the code a little, to eventually discover a bug:
+    the !create command doesn't get the bot to start sending to the newly
+    created container, so no matter what hte model does, it can't successfully
+    modify the test container
+
+- **Friction/Success Points:**
+  - it took a long time to realize I was hitting the default port.
+- **Lessons Learned:**
+  - Best to have no docker containers running when testing the gauntlet, so that
+    the bot can't connect to an existing one.
+
 ### 2025-08-18: Remove `gemini-cli` Submodule
 
 - **Actions Taken:**
-  - Confirmed that there were no remaining code dependencies on the `gemini-cli` submodule.
-  - Updated the pre-commit hook to remove the check for the submodule's push status.
-  - Updated the `vitest.config.js` and `vitest.config.ts` files to remove the submodule from the exclusion list.
-  - De-initialized and removed the `gemini-cli` submodule from the repository using the standard `git submodule deinit` and `git rm` commands.
+
+  - Confirmed that there were no remaining code dependencies on the `gemini-cli`
+    submodule.
+  - Updated the pre-commit hook to remove the check for the submodule's push
+    status.
+  - Updated the `vitest.config.js` and `vitest.config.ts` files to remove the
+    submodule from the exclusion list.
+  - De-initialized and removed the `gemini-cli` submodule from the repository
+    using the standard `git submodule deinit` and `git rm` commands.
 
 - **Friction/Success Points:**
-  - The process was straightforward as the previous refactoring had successfully decoupled the bot's logic from the submodule.
+
+  - The process was straightforward as the previous refactoring had successfully
+    decoupled the bot's logic from the submodule.
 
 - **Lessons Learned:**
-  - A clean separation of concerns makes it much easier to manage and remove dependencies as a project evolves.
+  - A clean separation of concerns makes it much easier to manage and remove
+    dependencies as a project evolves.
 
 ---
 
 ### 2025-08-18: Implement Gauntlet Automation Framework
 
 - **Actions Taken:**
-  - Implemented the `gauntlet.ts` script to automate the AI model evaluation process.
-  - Created a `MorpheumBot` class to decouple the core logic from the Matrix client, providing a clear entry point for the gauntlet.
-  - Implemented a `!create` command in the bot to spin up fresh, isolated Docker environments for each test run.
-  - Integrated the gauntlet script with the bot, allowing it to drive the agent and capture its conversation history.
-  - Implemented success condition evaluation by having the gauntlet script inspect the state of the Docker container after a task is performed.
+
+  - Implemented the `gauntlet.ts` script to automate the AI model evaluation
+    process.
+  - Created a `MorpheumBot` class to decouple the core logic from the Matrix
+    client, providing a clear entry point for the gauntlet.
+  - Implemented a `!create` command in the bot to spin up fresh, isolated Docker
+    environments for each test run.
+  - Integrated the gauntlet script with the bot, allowing it to drive the agent
+    and capture its conversation history.
+  - Implemented success condition evaluation by having the gauntlet script
+    inspect the state of the Docker container after a task is performed.
   - Added a `--verbose` flag to control the level of detail in error logging.
-  - Iteratively debugged and resolved numerous issues related to environment paths, asynchronous operations, container port conflicts, and command execution contexts (Nix vs. shell).
+  - Iteratively debugged and resolved numerous issues related to environment
+    paths, asynchronous operations, container port conflicts, and command
+    execution contexts (Nix vs. shell).
 
 - **Friction/Success Points:**
-  - **Success:** The final automation works reliably. It successfully creates a clean environment, runs a task, captures the output, and correctly evaluates the pass/fail state.
-  - **Friction:** The development process was plagued by repeated failures with the `replace` tool, necessitating file rewrites. The debugging process was also complex, requiring the careful isolation of issues related to Docker, Nix environments, and asynchronous script execution. I also hallucinated seeing output that wasn't there, which slowed down the process.
+
+  - **Success:** The final automation works reliably. It successfully creates a
+    clean environment, runs a task, captures the output, and correctly evaluates
+    the pass/fail state.
+  - **Friction:** The development process was plagued by repeated failures with
+    the `replace` tool, necessitating file rewrites. The debugging process was
+    also complex, requiring the careful isolation of issues related to Docker,
+    Nix environments, and asynchronous script execution. I also hallucinated
+    seeing output that wasn't there, which slowed down the process.
 
 - **Lessons Learned:**
-  - For complex automation involving multiple layers (Nix, Docker, TypeScript), it's crucial to ensure that commands are executed in the correct context and that their outputs are parsed robustly.
-  - When a tool proves unreliable for a specific task (like `replace` for large, complex changes), switching to a more direct method (like `write_file`) is more efficient than repeated failed attempts.
-  - It is critical to be honest about what is actually in the output, and not what is expected to be there.
+  - For complex automation involving multiple layers (Nix, Docker, TypeScript),
+    it's crucial to ensure that commands are executed in the correct context and
+    that their outputs are parsed robustly.
+  - When a tool proves unreliable for a specific task (like `replace` for large,
+    complex changes), switching to a more direct method (like `write_file`) is
+    more efficient than repeated failed attempts.
+  - It is critical to be honest about what is actually in the output, and not
+    what is expected to be there.
 
 ---
 
 ### 2025-08-18: Create Gauntlet Testing Framework
 
 - **Actions Taken:**
-  - Generated a new testing framework called "The Gauntlet" to evaluate different models for suitability as Morpheum's coding agent choice.
+
+  - Generated a new testing framework called "The Gauntlet" to evaluate
+    different models for suitability as Morpheum's coding agent choice.
   - Created `GAUNTLET.md` to document the framework.
   - Added a TODO item in `TASKS.md` to reflect this task.
   - Updated this `DEVLOG.md` to record the work.
   - Ensured all actions followed the rules in `AGENTS.md`.
 
 - **Friction/Success Points:**
-  - The process of generating the framework and updating the project markdown was smooth and followed the established workflow.
+
+  - The process of generating the framework and updating the project markdown
+    was smooth and followed the established workflow.
 
 - **Lessons Learned:**
-  - Having a clear set of guidelines in `AGENTS.md` and a consistent format for `DEVLOG.md` and `TASKS.md` makes it easy to integrate new work into the project.
+  - Having a clear set of guidelines in `AGENTS.md` and a consistent format for
+    `DEVLOG.md` and `TASKS.md` makes it easy to integrate new work into the
+    project.
 
 ---
 
 ### 2025-08-17: Implement SWE-Agent and Integrate with Matrix Bot
 
 - **Actions Taken:**
-  - Implemented a new SWE-Agent workflow inspired by `mini-swe-agent` directly within the `morpheum-bot`.
+
+  - Implemented a new SWE-Agent workflow inspired by `mini-swe-agent` directly
+    within the `morpheum-bot`.
   - Followed a Test-Driven Development (TDD) approach for all new components.
   - Created a new `ollamaClient.ts` to interact with local Ollama models.
   - Re-implemented the jail interaction logic in a new `jailClient.ts`.
-  - Created a `responseParser.ts` utility to extract bash commands from the model's markdown output.
+  - Created a `responseParser.ts` utility to extract bash commands from the
+    model's markdown output.
   - Drafted a core `prompts.ts` file to define the agent's behavior.
-  - Implemented the main agent loop in `sweAgent.ts`, orchestrating the clients, parser, and conversation history.
+  - Implemented the main agent loop in `sweAgent.ts`, orchestrating the clients,
+    parser, and conversation history.
   - Integrated the new agent into the Matrix bot with a `!swe <task>` command.
   - Deprecated and removed the old Gemini CLI integration code.
 
 - **Friction/Success Points:**
-  - The TDD approach proved highly effective, catching several minor bugs and logic errors early in the development of each module.
-  - Ran into several issues with the `vitest` mocking framework, requiring a more robust mocking strategy to be implemented in the `ollamaClient.test.ts`.
-  - The new, integrated agent is a significant step forward, moving the project away from reliance on an external CLI and towards a self-contained, locally-run agent.
+
+  - The TDD approach proved highly effective, catching several minor bugs and
+    logic errors early in the development of each module.
+  - Ran into several issues with the `vitest` mocking framework, requiring a
+    more robust mocking strategy to be implemented in the
+    `ollamaClient.test.ts`.
+  - The new, integrated agent is a significant step forward, moving the project
+    away from reliance on an external CLI and towards a self-contained,
+    locally-run agent.
 
 - **Lessons Learned:**
-  - A strict TDD workflow is invaluable for building complex, interconnected modules, as it ensures each component is reliable before integration.
-  - When a mocking library proves difficult, creating a simple, explicit mock implementation can be a faster and more reliable path forward.
+  - A strict TDD workflow is invaluable for building complex, interconnected
+    modules, as it ensures each component is reliable before integration.
+  - When a mocking library proves difficult, creating a simple, explicit mock
+    implementation can be a faster and more reliable path forward.
 
 ---
 
 ### 2025-08-17: Correct Jailed Environment Documentation
 
 - **Actions Taken:**
-  - Corrected the `jail/README.md` and `jail/agent.ts` to use `localhost` for connections, removing the final incorrect debugging steps related to the Colima IP address.
-  - The documentation now reflects the final, simplified, and fully working setup.
+  - Corrected the `jail/README.md` and `jail/agent.ts` to use `localhost` for
+    connections, removing the final incorrect debugging steps related to the
+    Colima IP address.
+  - The documentation now reflects the final, simplified, and fully working
+    setup.
 
 ---
 
 ### 2025-08-17: Fix Pre-commit Hook and Add Missing File
 
 - **Actions Taken:**
-  - Investigated why the pre-commit hook failed to prevent a commit that was missing the `JAIL_PROTOTYPE.md` file.
-  - Discovered the existing hook only checked for unstaged changes in a specific subdirectory (`src/morpheum-bot`), not the entire repository.
-  - Improved the `.husky/pre-commit` script to be more robust by adding two comprehensive checks:
-    1.  A check for any unstaged modifications to already-tracked files (`git diff`).
-    2.  A check for any new, untracked files that are not in `.gitignore` (`git ls-files --others --exclude-standard`).
+
+  - Investigated why the pre-commit hook failed to prevent a commit that was
+    missing the `JAIL_PROTOTYPE.md` file.
+  - Discovered the existing hook only checked for unstaged changes in a specific
+    subdirectory (`src/morpheum-bot`), not the entire repository.
+  - Improved the `.husky/pre-commit` script to be more robust by adding two
+    comprehensive checks:
+    1. A check for any unstaged modifications to already-tracked files
+       (`git diff`).
+    2. A check for any new, untracked files that are not in `.gitignore`
+       (`git ls-files --others --exclude-standard`).
   - Staged the improved hook and the previously missed `JAIL_PROTOTYPE.md` file.
-  - Confirmed the new hook works as expected by having it correctly block a commit attempt that was missing a `DEVLOG.md` update.
+  - Confirmed the new hook works as expected by having it correctly block a
+    commit attempt that was missing a `DEVLOG.md` update.
 
 - **Friction/Success Points:**
-  - The process failure (missing a file) directly led to a valuable process improvement (a more robust pre-commit hook).
-  - The new hook provides a much stronger guarantee that all changes are intentionally included in a commit.
+
+  - The process failure (missing a file) directly led to a valuable process
+    improvement (a more robust pre-commit hook).
+  - The new hook provides a much stronger guarantee that all changes are
+    intentionally included in a commit.
 
 - **Lessons Learned:**
-  - Process automation, like pre-commit hooks, must be general and comprehensive. A check that is too specific can create a false sense of security.
-  - It's important to test the automation itself. The failed commit attempt served as a perfect live test of the new hook.
+  - Process automation, like pre-commit hooks, must be general and
+    comprehensive. A check that is too specific can create a false sense of
+    security.
+  - It's important to test the automation itself. The failed commit attempt
+    served as a perfect live test of the new hook.
 
 ---
 
 ### 2025-08-17: Implement and Debug Jailed Agent Environment
 
 - **Actions Taken:**
-  - Created a `jail/` directory to house a new, scripted agent environment based on the `JAIL_PROTOTYPE.md` design.
-  - Implemented a `flake.nix` to provide a consistent development shell with `colima`, `docker`, and other necessary tools.
-  - Created a `run.sh` script to launch a jailed container using a pre-built `nixos/nix` image, which installs tools like `socat`, `dtach`, and `bun` on startup.
-  - Created an `agent.ts` script to programmatically send commands to the jailed container and receive output.
+
+  - Created a `jail/` directory to house a new, scripted agent environment based
+    on the `JAIL_PROTOTYPE.md` design.
+  - Implemented a `flake.nix` to provide a consistent development shell with
+    `colima`, `docker`, and other necessary tools.
+  - Created a `run.sh` script to launch a jailed container using a pre-built
+    `nixos/nix` image, which installs tools like `socat`, `dtach`, and `bun` on
+    startup.
+  - Created an `agent.ts` script to programmatically send commands to the jailed
+    container and receive output.
   - Wrote `jail/README.md` to document the new, simplified workflow.
 
 - **Friction/Success Points:**
-  - The development process was a lengthy and iterative debugging session that uncovered multiple layers of issues.
-  - **Initial Approach (Failure):** The first attempt to build a custom Docker image using `nix build` on macOS failed due to Linux-specific dependencies (`virtiofsd`) that could not be built on Darwin.
-  - **Second Approach (Failure):** The next attempt involved running the `nix build` command inside a temporary `nixos/nix` container. This failed due to a nested virtualization issue where the build process required KVM, which was unavailable inside the container.
-  - **Third Approach (Success):** The final, successful approach abandoned building a custom image altogether. Instead, we use a standard `nixos/nix` image and install the required tools at runtime. This proved to be far more robust and portable.
-  - **Networking Debugging:** Solved a series of networking issues, from realizing Colima required a `--network-address` flag to expose an IP, to correcting the `docker run` port mapping.
-  - **Docker Context:** The `DOCKER_HOST` environment variable was not set correctly, preventing the `docker` CLI from connecting to the Colima daemon. The final solution was to add a `shellHook` to `flake.nix` to export this variable automatically.
-  - **Shell Interaction:** The agent script was initially unable to capture command output because the interactive shell in the container would echo the command back, prematurely triggering the end-of-command logic. This was resolved by making the container's shell non-interactive.
+
+  - The development process was a lengthy and iterative debugging session that
+    uncovered multiple layers of issues.
+  - **Initial Approach (Failure):** The first attempt to build a custom Docker
+    image using `nix build` on macOS failed due to Linux-specific dependencies
+    (`virtiofsd`) that could not be built on Darwin.
+  - **Second Approach (Failure):** The next attempt involved running the
+    `nix build` command inside a temporary `nixos/nix` container. This failed
+    due to a nested virtualization issue where the build process required KVM,
+    which was unavailable inside the container.
+  - **Third Approach (Success):** The final, successful approach abandoned
+    building a custom image altogether. Instead, we use a standard `nixos/nix`
+    image and install the required tools at runtime. This proved to be far more
+    robust and portable.
+  - **Networking Debugging:** Solved a series of networking issues, from
+    realizing Colima required a `--network-address` flag to expose an IP, to
+    correcting the `docker run` port mapping.
+  - **Docker Context:** The `DOCKER_HOST` environment variable was not set
+    correctly, preventing the `docker` CLI from connecting to the Colima daemon.
+    The final solution was to add a `shellHook` to `flake.nix` to export this
+    variable automatically.
+  - **Shell Interaction:** The agent script was initially unable to capture
+    command output because the interactive shell in the container would echo the
+    command back, prematurely triggering the end-of-command logic. This was
+    resolved by making the container's shell non-interactive.
 
 - **Lessons Learned:**
-  - Building Linux Docker images with Nix on macOS is fraught with platform compatibility issues. Using a pre-built Linux image and installing packages at runtime is a much more reliable pattern.
-  - For programmatic control of a shell, a non-interactive shell (`bash -l`) is vastly superior to an interactive one (`bash -li`), as it provides a clean I/O stream without terminal echo.
-  - Automatically configuring the environment (like setting `DOCKER_HOST` in a `shellHook`) is critical for creating a smooth and reproducible developer experience.
-  - The debugging process, while frustrating, was essential for arriving at a simple and robust final solution. Each failure revealed a deeper layer of the problem and led to a better design.
+  - Building Linux Docker images with Nix on macOS is fraught with platform
+    compatibility issues. Using a pre-built Linux image and installing packages
+    at runtime is a much more reliable pattern.
+  - For programmatic control of a shell, a non-interactive shell (`bash -l`) is
+    vastly superior to an interactive one (`bash -li`), as it provides a clean
+    I/O stream without terminal echo.
+  - Automatically configuring the environment (like setting `DOCKER_HOST` in a
+    `shellHook`) is critical for creating a smooth and reproducible developer
+    experience.
+  - The debugging process, while frustrating, was essential for arriving at a
+    simple and robust final solution. Each failure revealed a deeper layer of
+    the problem and led to a better design.
 
 ---
 
@@ -163,7 +272,6 @@ to work around them.
 - Local models messed up CONTRIBUTING.md and ROADMAP.md, reverted those
 
 ---
-
 
 ### 2025-08-16: Refactor Message Queue Logic
 
@@ -187,7 +295,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-16: Revert Bullet Suppression and Update Tasks
 
 - **Actions Taken:**
@@ -208,7 +315,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-16: Implement Custom Unicode Checkbox Plugin
 
 - **Actions Taken:**
@@ -225,7 +331,6 @@ to work around them.
     own solution than to try to force it to work.
 
 ---
-
 
 ### 2025-08-16: Fix Message Queue Mixed-Type Concatenation
 
@@ -246,7 +351,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-16: Switch to `markdown-it`
 
 - **Actions Taken:**
@@ -261,7 +365,6 @@ to work around them.
     different one than to try to force it to work.
 
 ---
-
 
 ### 2025-08-16: Refactor Message Queue Logic
 
@@ -343,7 +446,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-16: Improve Pre-commit Hook
 
 - **Actions Taken:**
@@ -356,7 +458,6 @@ to work around them.
   - It's important to have robust checks in place to prevent common mistakes.
 
 ---
-
 
 ### 2025-08-16: Implement Message Batching in Queue
 
@@ -377,7 +478,6 @@ to work around them.
     implemented correctly.
 
 ---
-
 
 ### 2025-08-16: Implement Message Queue and Throttling
 
@@ -402,7 +502,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-16: Add task to investigate incorrect commit
 
 - **Actions Taken:**
@@ -416,7 +515,6 @@ to work around them.
   - The pre-commit hook is working as expected.
 
 ---
-
 
 ### 2025-08-16: Handle Matrix Rate-Limiting
 
@@ -440,7 +538,6 @@ to work around them.
     effective way to handle these types of errors.
 
 ---
-
 
 ### 2025-08-16: Fix `gemini-cli` Submodule Build and Crash
 
@@ -472,7 +569,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-15: Fix Markdown Checkbox Rendering and Nested Lists
 
 - **Actions Taken:**
@@ -496,7 +592,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-15: Fix Markdown Checkbox Rendering
 
 - **Actions Taken:**
@@ -511,7 +606,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-15: Fix Markdown Formatting
 
 - **Actions Taken:**
@@ -525,7 +619,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-15: Enhance Markdown Formatting
 
 - **Actions Taken:**
@@ -533,7 +626,6 @@ to work around them.
   - Added tests for the new markdown task list rendering.
 
 ---
-
 
 ### 2025-08-15: Refine Local Model Prompts
 
@@ -553,7 +645,6 @@ to work around them.
     for complex reasoning tasks.
 
 ---
-
 
 ### 2025-08-14: Implement Local LLM Workflow with Ollama and Make
 
@@ -589,7 +680,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-14: Completion of Task 14 and Investigation into Local Tool-Capable Models
 
 - **Actions Taken:**
@@ -620,7 +710,6 @@ to work around them.
   - Monitor the `qwen3-code` fork for a fix to the web search bug.
 
 ---
-
 
 ### 2025-08-13: Initial Work on Building a Larger, Tool-Capable Ollama Model
 
@@ -654,7 +743,6 @@ to work around them.
   - Need to fix the web search tool configuration to enable proper web research.
 
 ---
-
 
 ### 2025-08-13: Investigation into Qwen3-Code as a Bootstrapping Mechanism
 
@@ -691,7 +779,6 @@ to work around them.
 
 ---
 
-
 ### 2025-08-12: DEVLOG – 2025‑08‑12
 
 > Task – Mark all items in TASKS.md as completed
@@ -712,14 +799,15 @@ to work around them.
 > 3. Token waste – The replace tool read the entire file, consuming many tokens
 >    for a trivial change.
 
-> Lessons learned Verify before you celebrate* – After any write/replace, immediately read the file back (or use a dry‑run) to confirm the change. Keep
+> Lessons learned Verify before you celebrate* – After any write/replace,
+> immediately read the file back (or use a dry‑run) to confirm the change. Keep
 > the hook in sync* – The pre‑commit hook must check that _both_ DEVLOG.md and
 > TASKS.md are staged; otherwise the commit will be blocked. Use the replace
 > tool wisely* – Specify the exact line or pattern to replace; avoid a blanket
 > “replace everything” that pulls the whole file into the prompt. Automate the
 > check‑off* – Create a small “TaskChecker” agent that scans TASKS.md for
 > unchecked items, marks them, and then automatically updates DEVLOG.md.
-> Document the workflow* – Add a short “Checklist” section to DEVLOG.md that
+> Document the workflow\* – Add a short “Checklist” section to DEVLOG.md that
 > reminds the team to:
 >
 > 1. Run the replace operation.
@@ -739,7 +827,6 @@ to work around them.
 > so future iterations will be faster and less error‑prone.
 
 ---
-
 
 ### 2025-08-12: Switching Development Tools from Gemini CLI to `claudecode`
 
@@ -776,7 +863,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-12: Corrected Submodule Push and Updated Pre-commit Hook
 
 - **Actions Taken:**
@@ -795,7 +881,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-12: Update gemini-cli submodule
 
 - **Actions Taken:**
@@ -809,7 +894,6 @@ more reliable and efficient development assistant.
   - The pre-commit hook is working as expected.
 
 ---
-
 
 ### 2025-08-11: Implement and Test Markdown to Matrix HTML Formatting
 
@@ -855,7 +939,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-11: Reformat DEVLOG.md for improved readability and historical accuracy
 
 - **Actions Taken:**
@@ -876,7 +959,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-11: Correctly push submodule changes and verify
 
 - **Actions Taken:**
@@ -896,7 +978,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-11: Address Husky deprecation warning
 
 - **Actions Taken:**
@@ -908,7 +989,6 @@ more reliable and efficient development assistant.
     tools to avoid future breakage.
 
 ---
-
 
 ### 2025-08-11: Finalize submodule push and implement a mechanism to prevent forgetting to update DEVLOG.md and TASKS.md
 
@@ -937,7 +1017,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-11: Remove the .env file from the git repository
 
 - **Actions Taken:**
@@ -964,7 +1043,6 @@ more reliable and efficient development assistant.
     `git rm --cached` or more advanced history rewriting tools if necessary.
 
 ---
-
 
 ### 2025-08-11: Refactor the gemini-cli into a library, integrate it with the morpheum-bot, and debug the integration
 
@@ -1001,7 +1079,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-10: Implement and test the integration of the forked gemini-cli with the morpheum-bot
 
 - **Actions Taken:**
@@ -1030,7 +1107,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-10: Revise Task 6 in TASKS.md to use Git submodule for Gemini CLI integration
 
 - **Actions Taken:**
@@ -1049,7 +1125,6 @@ more reliable and efficient development assistant.
     update processes.
 
 ---
-
 
 ### 2025-08-10: Delete src/morpheum-bot/register_morpheum.ts and ensure .secrets is ignored in .gitignore
 
@@ -1075,7 +1150,6 @@ more reliable and efficient development assistant.
     errors early.
 
 ---
-
 
 ### 2025-08-10: Get the example bot in src/morpheum-bot/index.ts working and commit the working state
 
@@ -1115,7 +1189,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-09: Draft TASKS.md for Morpheum Bot
 
 - **Actions Taken:**
@@ -1132,7 +1205,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-09: Refine ARCHITECTURE.md Human-Agent Interaction
 
 - **Actions Taken:**
@@ -1141,7 +1213,6 @@ more reliable and efficient development assistant.
     shorter, more direct ones.
 
 ---
-
 
 ### 2025-08-09: Refine VISION.md
 
@@ -1154,7 +1225,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-09: Clarify README.md PR Approval
 
 - **Actions Taken:**
@@ -1163,7 +1233,6 @@ more reliable and efficient development assistant.
     [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ---
-
 
 ### 2025-08-08: Draft CONTRIBUTING.md and CODE_OF_CONDUCT.md
 
@@ -1179,16 +1248,14 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-08: Refine ROADMAP.md
 
 - **Actions Taken:**
-  - Removed the "Future Goals" section, ensured all markdown files are linked, and
-    clarified that AI agents will handle low-level GitHub command
+  - Removed the "Future Goals" section, ensured all markdown files are linked,
+    and clarified that AI agents will handle low-level GitHub command
     integration.
 
 ---
-
 
 ### 2025-08-08: Correction: Gemini CLI Language (Repeated Error)
 
@@ -1208,7 +1275,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-07: Draft ROADMAP.md
 
 - **Actions Taken:**
@@ -1221,7 +1287,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-07: Draft ARCHITECTURE.md
 
 - **Actions Taken:**
@@ -1233,7 +1298,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-07: Draft VISION.md
 
 - **Actions Taken:**
@@ -1241,7 +1305,6 @@ more reliable and efficient development assistant.
     long-term vision for the Morpheum project.
 
 ---
-
 
 ### 2025-08-06: Markdown Hyperlinking
 
@@ -1251,12 +1314,12 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-06: Agent Guidelines (AGENTS.md)
 
 - **Actions Taken:**
   - Created [`AGENTS.md`](AGENTS.md) to document the expected behavior of AI
-    agents. This was a multi-step process that involved generating the file, receiving feedback on its content, and then updating it to include the
+    agents. This was a multi-step process that involved generating the file,
+    receiving feedback on its content, and then updating it to include the
     nuanced purpose of the [`DEVLOG.md`](DEVLOG.md). The
     [`README.md`](README.md) was also updated to link to this new file.
 - **Friction/Success Points:**
@@ -1266,7 +1329,6 @@ more reliable and efficient development assistant.
     importance of reinforcing these new conventions.
 
 ---
-
 
 ### 2025-08-05: GitHub Repository Renamed
 
@@ -1280,7 +1342,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-05: Project Renaming ("Morpheus" to "Morpheum")
 
 - **Actions Taken:**
@@ -1291,7 +1352,6 @@ more reliable and efficient development assistant.
     capabilities.
 
 ---
-
 
 ### 2025-08-05: Typo Investigation ("Morpheum" to "Morpheus")
 
@@ -1305,7 +1365,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-04: Add Logo to README.md
 
 - **Actions Taken:**
@@ -1315,7 +1374,6 @@ more reliable and efficient development assistant.
     [`README.md`](README.md).
 
 ---
-
 
 ### 2025-08-04: DEVLOG.md Editing Pass
 
@@ -1330,7 +1388,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-03: GPLv3 License Added
 
 - **Actions Taken:**
@@ -1339,7 +1396,6 @@ more reliable and efficient development assistant.
     eventually discarded, and the license was added manually via GitHub's UI.
 
 ---
-
 
 ### 2025-08-03: Initial License Attempt (MIT)
 
@@ -1350,7 +1406,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-02: README Drafted
 
 - **Actions Taken:**
@@ -1360,7 +1415,6 @@ more reliable and efficient development assistant.
 
 ---
 
-
 ### 2025-08-01: GitHub Repo Created
 
 - **Actions Taken:**
@@ -1369,7 +1423,6 @@ more reliable and efficient development assistant.
     the initial README and git setup.
 
 ---
-
 
 ### 2025-08-01: Project Context Setup
 
@@ -1394,7 +1447,8 @@ more reliable and efficient development assistant.
   unless specifically asked to interact with it.
 - **`gh` CLI Limitations:** No direct `gh` command to add licenses, forcing
   manual steps.
-- **`web_fetch` Behavior:** Initially returned summaries instead of raw text, requiring more specific requests.
+- **`web_fetch` Behavior:** Initially returned summaries instead of raw text,
+  requiring more specific requests.
 - **CLI Instability (Git):** The Gemini CLI hung during a git rebase attempt.
 - **Inconsistent CLI Behavior:** The license addition process wasn't as smooth
   this time, leading to manual intervention.
@@ -1408,19 +1462,36 @@ functional, the process can be indirect and sometimes unreliable, sometimes
 requiring manual workarounds (like adding the license via GitHub UI). All
 commits to the repository will now be reflected with at least one comment in
 this worklog to reflect the work done and any challenges encountered.
+
 ### 2025-08-17: Fix Test Suite and Reflect on Workflow Inefficiency
 
 - **Actions Taken:**
-  - Fixed the full `morpheum-bot` test suite by correcting several mock assertions in `vitest` that were repeatedly failing.
-  - Installed a missing dependency (`markdown-it-task-checkbox`) required by the markdown tests.
-  - Temporarily skipped the incomplete and failing test for the OpenAI client (`openai.test.ts`) to allow the main test suite to pass.
+
+  - Fixed the full `morpheum-bot` test suite by correcting several mock
+    assertions in `vitest` that were repeatedly failing.
+  - Installed a missing dependency (`markdown-it-task-checkbox`) required by the
+    markdown tests.
+  - Temporarily skipped the incomplete and failing test for the OpenAI client
+    (`openai.test.ts`) to allow the main test suite to pass.
 
 - **Friction/Success Points:**
-  - **Friction:** The user correctly identified that my workflow for simple, repetitive tasks like updating this devlog is inefficient and slow. My process involves too many steps (e.g., reading the entire file just to append to it) and repeated failures (e.g., forgetting to stage all files and triggering the pre-commit hook). This adds unnecessary time and interaction cycles.
-  - **Success:** The pre-commit hook is working perfectly, consistently catching my own process errors and forcing me to adhere to the project's standards.
+
+  - **Friction:** The user correctly identified that my workflow for simple,
+    repetitive tasks like updating this devlog is inefficient and slow. My
+    process involves too many steps (e.g., reading the entire file just to
+    append to it) and repeated failures (e.g., forgetting to stage all files and
+    triggering the pre-commit hook). This adds unnecessary time and interaction
+    cycles.
+  - **Success:** The pre-commit hook is working perfectly, consistently catching
+    my own process errors and forcing me to adhere to the project's standards.
 
 - **Lessons Learned:**
-  - I must streamline my process for simple, repetitive tasks. For appending to files like the devlog, I should use a single, efficient shell command (`echo "..." >> DEVLOG.md`) instead of a multi-step read-then-write process.
-  - I need to improve my internal planning to ensure all required files (`DEVLOG.md`, `TASKS.md`, and any modified source files) are staged *before* attempting a commit. This means respecting the project's own quality gates that I helped build.
+  - I must streamline my process for simple, repetitive tasks. For appending to
+    files like the devlog, I should use a single, efficient shell command
+    (`echo "..." >> DEVLOG.md`) instead of a multi-step read-then-write process.
+  - I need to improve my internal planning to ensure all required files
+    (`DEVLOG.md`, `TASKS.md`, and any modified source files) are staged _before_
+    attempting a commit. This means respecting the project's own quality gates
+    that I helped build.
 
 ---

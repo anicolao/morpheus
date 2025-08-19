@@ -8,12 +8,7 @@ export class JailClient {
 
   execute(command: string): Promise<string> {
     console.log(`--- JAIL REQUEST (${this.address}:${this.port}) ---`);
-    console.log(
-      command
-        .split("\n")
-        .map((line) => `  ${line}`)
-        .join("\n"),
-    );
+    console.log(command);
     console.log("-------------------- ");
     return new Promise((resolve, reject) => {
       const client = new net.Socket();
@@ -21,11 +16,12 @@ export class JailClient {
       const EOC_MARKER = "COMMAND_ENDED_EOC";
 
       client.connect(this.port, this.address, () => {
-        client.write(`${command}; echo "${EOC_MARKER}"\n`);
+        client.write(`${command}\necho "${EOC_MARKER}"\n`);
       });
 
       client.on("data", (data) => {
         const chunk = data.toString();
+        console.log(`Received chunk: [${chunk}]`);
         if (chunk.includes(EOC_MARKER)) {
           output += chunk.substring(0, chunk.indexOf(EOC_MARKER));
           client.end();
