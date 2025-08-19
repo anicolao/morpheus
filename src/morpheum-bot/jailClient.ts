@@ -44,6 +44,7 @@ export class JailClient {
       });
 
       client.on("error", (err) => {
+        console.error(`Error in jail client: ${err.message}`);
         reject(err);
       });
     });

@@ -471,3 +471,4 @@ the Matrix bot serving as its primary user interface.
   - [x] De-initialize and remove the submodule from the repository.
 \n- [x] Fix !create command bug
 \n- [x] Fix agent executing thinking commands
+\n- [x] Fix jail communication
