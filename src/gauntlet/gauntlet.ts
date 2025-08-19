@@ -28,7 +28,16 @@ const tasks: GauntletTask[] = [
     successCondition: async (containerName) => {
       const { stdout } = await execa(
         "nix",
-        ["develop", "-c", "docker", "exec", containerName, "which", "jq"],
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          "cd /project && nix develop -c which jq",
+        ],
         { cwd: "./jail" },
       );
       return stdout.includes("/nix/store");
@@ -63,8 +72,9 @@ const tasks: GauntletTask[] = [
           "docker",
           "exec",
           containerName,
-          "which",
-          "xmlstarlet",
+          "sh",
+          "-c",
+          "cd /project && nix develop -c which xmlstarlet",
         ],
         { cwd: "./jail" },
       );
@@ -86,9 +96,9 @@ const tasks: GauntletTask[] = [
           "docker",
           "exec",
           containerName,
-          "python",
+          "sh",
           "-c",
-          "import requests",
+          "cd /project && nix develop -c python -c 'import requests'",
         ],
         { cwd: "./jail" },
       );
