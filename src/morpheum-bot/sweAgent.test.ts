@@ -16,7 +16,9 @@ describe('SWEAgent', () => {
     const agent = new SWEAgent(ollamaClient, jailClient);
     const finalResult = await agent.run('list all files');
 
-    assert.equal(finalResult, 'total 0');
+    const lastMessage = finalResult[finalResult.length - 1];
+    assert.equal(lastMessage.role, 'tool');
+    assert.equal(lastMessage.content, 'total 0');
     assert.lengthOf(ollamaMock.mock.calls, 1);
     assert.lengthOf(jailMock.mock.calls, 1);
   });

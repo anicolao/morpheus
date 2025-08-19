@@ -9,6 +9,7 @@ type MessageSender = (message: string, html?: string) => Promise<void>;
 
 export class MorpheumBot {
   private sweAgent: SWEAgent;
+  private ollamaClient: OllamaClient;
 
   constructor() {
     const ollamaApiUrl = process.env.OLLAMA_API_URL || "http://localhost:11434";
@@ -16,9 +17,9 @@ export class MorpheumBot {
     const jailHost = process.env.JAIL_HOST || "localhost";
     const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
 
-    const ollamaClient = new OllamaClient(ollamaApiUrl, ollamaModel);
+    this.ollamaClient = new OllamaClient(ollamaApiUrl, ollamaModel);
     const jailClient = new JailClient(jailHost, jailPort);
-    this.sweAgent = new SWEAgent(ollamaClient, jailClient);
+    this.sweAgent = new SWEAgent(this.ollamaClient, jailClient);
   }
 
   public async processMessage(
@@ -47,6 +48,12 @@ export class MorpheumBot {
       );
       await sendMessage(
         `Successfully created container: ${containerName}\nStdout:\n${stdout}\nStderr:\n${stderr}`,
+      );
+      const jailHost = process.env.JAIL_HOST || "localhost";
+      const newJailClient = new JailClient(jailHost, parseInt(port, 10));
+      this.sweAgent = new SWEAgent(this.ollamaClient, newJailClient);
+      await sendMessage(
+        `Agent reset to talk to the new container on port ${port}`,
       );
       return containerName;
     } catch (error) {

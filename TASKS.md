@@ -469,3 +469,4 @@ the Matrix bot serving as its primary user interface.
   - [x] Verify that there are no remaining code dependencies on the submodule.
   - [x] Update configuration files to remove references to the submodule.
   - [x] De-initialize and remove the submodule from the repository.
+\n- [x] Fix !create command bug

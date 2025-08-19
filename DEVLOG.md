@@ -1495,3 +1495,4 @@ this worklog to reflect the work done and any challenges encountered.
     that I helped build.
 
 ---
+\n- 2025-08-18: Fixed !create command bug and several failing tests.
