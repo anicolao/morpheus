@@ -474,3 +474,4 @@ the Matrix bot serving as its primary user interface.
 \n- [x] Fix jail communication
 \n- [x] Update gauntlet tasks
 \n- [x] Fix jail communication
+\n- [x] Finalize jail communication

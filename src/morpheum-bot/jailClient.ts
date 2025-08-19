@@ -16,7 +16,7 @@ export class JailClient {
       const EOC_MARKER = "COMMAND_ENDED_EOC";
 
       client.connect(this.port, this.address, () => {
-        client.write(`${command}\necho "${EOC_MARKER}"\n`);
+        client.write(`${command}\necho \"${EOC_MARKER}\"\n`);
       });
 
       client.on("data", (data) => {

@@ -1500,3 +1500,4 @@ this worklog to reflect the work done and any challenges encountered.
 \n- 2025-08-18: Fixed jail communication by implementing a readiness poll.
 \n- 2025-08-18: Updated gauntlet tasks to use nix develop.
 \n- 2025-08-18: Fixed jail communication with socat SYSTEM.
+\n- 2025-08-18: Finalized stable jail communication with stderr.
