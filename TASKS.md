@@ -413,3 +413,8 @@ The goal is to replace the bot's current Gemini CLI integration with a new, self
   - [x] Check in the new `GAUNTLET.md` file.
   - [x] Create a `DEVLOG.md` entry for this task.
   - [x] Follow the rules in `AGENTS.md`.
+
+- [x] **Task 49: Remove `gemini-cli` Submodule**
+  - [x] Verify that there are no remaining code dependencies on the submodule.
+  - [x] Update configuration files to remove references to the submodule.
+  - [x] De-initialize and remove the submodule from the repository.

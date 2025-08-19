@@ -21,27 +21,22 @@ fi
 # Staged files
 STAGED_FILES=$(git diff --cached --name-only)
 
-# Check if DEVLOG.md is staged for commit
-if ! echo "$STAGED_FILES" | grep -q "DEVLOG.md"; then
-  echo "Error: DEVLOG.md has not been updated or staged." >&2
-  echo "Please update the devlog and stage it before committing." >&2
+# Check if either DEVLOG.md or TASKS.md has staged changes
+devlog_staged=$(echo "$STAGED_FILES" | grep -c "DEVLOG.md")
+tasks_staged=$(echo "$STAGED_FILES" | grep -c "TASKS.md")
+
+# If one is staged but not the other, exit with an error
+if [ "$devlog_staged" -ne "$tasks_staged" ]; then
+  echo "Error: DEVLOG.md and TASKS.md must be staged or unstaged together." >&2
   exit 1
 fi
 
-# Check if TASKS.md is staged for commit
-if ! echo "$STAGED_FILES" | grep -q "TASKS.md"; then
-  echo "Error: TASKS.md has not been updated or staged." >&2
-  echo "Please update the tasks list and stage it before committing." >&2
-  exit 1
+# If both are unstaged, but there are other staged files, require them to be updated.
+if [ "$devlog_staged" -eq 0 ] && [ -n "$STAGED_FILES" ]; then
+    echo "Error: DEVLOG.md and TASKS.md have not been updated or staged." >&2
+    echo "Please update them and stage them before committing." >&2
+    exit 1
 fi
 
-# Check if src/gemini-cli submodule is pushed
-cd src/gemini-cli || exit 1
-if [ "$(git rev-parse @)" != "$(git rev-parse @{u})" ]; then
-  echo "Error: src/gemini-cli submodule is not pushed to its remote." >&2
-  echo "Please cd into src/gemini-cli and run 'git push' before committing." >&2
-  exit 1
-fi
-cd ../.. || exit 1
 
 exit 0
