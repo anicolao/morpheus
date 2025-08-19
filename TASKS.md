@@ -470,3 +470,4 @@ the Matrix bot serving as its primary user interface.
   - [x] Update configuration files to remove references to the submodule.
   - [x] De-initialize and remove the submodule from the repository.
 \n- [x] Fix !create command bug
+\n- [x] Fix agent executing thinking commands

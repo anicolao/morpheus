@@ -7,6 +7,10 @@ export function parseBashCommands(text: string): string[] {
     commands.push(match[1].trim());
   }
 
-  return commands;
+  if (commands.length > 0) {
+    return [commands[commands.length - 1]];
+  }
+
+  return [];
 }
 

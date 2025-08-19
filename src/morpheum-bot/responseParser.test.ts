@@ -9,10 +9,10 @@ describe('responseParser', () => {
     assert.deepEqual(commands, ['ls -la']);
   });
 
-  it('should extract multiple bash commands', () => {
+  it('should extract only the last bash command when multiple are present', () => {
     const input = 'First, do this:\n```bash\necho "hello"\n```\nThen, do this:\n```bash\ncd /tmp\n```';
     const commands = parseBashCommands(input);
-    assert.deepEqual(commands, ['echo "hello"', 'cd /tmp']);
+    assert.deepEqual(commands, ['cd /tmp']);
   });
 
   it('should return an empty array if no commands are found', () => {
