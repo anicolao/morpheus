@@ -3,6 +3,8 @@ import { JailClient } from './jailClient';
 import { parseBashCommands } from './responseParser';
 import { SYSTEM_PROMPT } from './prompts';
 
+const MAX_ITERATIONS = 10;
+
 export class SWEAgent {
   private conversationHistory: { role: string; content: string }[] = [];
 
@@ -16,14 +18,19 @@ export class SWEAgent {
   async run(task: string): Promise<{ role: string; content: string }[]> {
     this.conversationHistory.push({ role: 'user', content: task });
 
-    const modelResponse = await this.ollamaClient.send(this.getPrompt());
-    this.conversationHistory.push({ role: 'assistant', content: modelResponse });
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
+      const modelResponse = await this.ollamaClient.send(this.getPrompt());
+      this.conversationHistory.push({ role: 'assistant', content: modelResponse });
 
-    const commands = parseBashCommands(modelResponse);
+      const commands = parseBashCommands(modelResponse);
 
-    if (commands.length > 0) {
-      const commandOutput = await this.jailClient.execute(commands[0]);
-      this.conversationHistory.push({ role: 'tool', content: commandOutput });
+      if (commands.length > 0) {
+        const commandOutput = await this.jailClient.execute(commands[0]);
+        this.conversationHistory.push({ role: 'tool', content: commandOutput });
+      } else {
+        // If the model doesn't return a command, we assume it's done.
+        break;
+      }
     }
 
     return this.conversationHistory;
