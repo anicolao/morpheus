@@ -469,10 +469,18 @@ the Matrix bot serving as its primary user interface.
   - [x] Verify that there are no remaining code dependencies on the submodule.
   - [x] Update configuration files to remove references to the submodule.
   - [x] De-initialize and remove the submodule from the repository.
-\n- [x] Fix !create command bug
-\n- [x] Fix agent executing thinking commands
-\n- [x] Fix jail communication
-\n- [x] Update gauntlet tasks
-\n- [x] Fix jail communication
-\n- [x] Finalize jail communication
-\n- [x] Update morpheum-local model
+
+## Phase 3: Agent and Workflow Refinement
+
+- [x] **Task 50: Implement Iterative Agent Loop**
+  - [x] Refactor the `sweAgent` to loop, feeding back command output to the LLM.
+  - [x] The loop terminates when the LLM responds without a command.
+- [x] **Task 51: Simplify and Improve System Prompt**
+  - [x] Distill the system prompt to be clearer, more concise, and plan-oriented.
+- [x] **Task 52: Stabilize Jail Communication**
+  - [x] Fix `socat` configuration to reliably capture both `stdout` and `stderr`.
+  - [x] Implement a robust readiness probe in the gauntlet to prevent race conditions.
+- [x] **Task 53: Update Gauntlet for Nix Workflow**
+  - [x] Modify gauntlet success conditions to check for tools within the `nix develop` environment.
+- [x] **Task 54: Update Local Model**
+  - [x] Update the `morpheum-local` model to use `qwen`.
