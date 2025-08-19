@@ -3,6 +3,8 @@
     "@matrix-org/olm": "^3.2.15",
     "@types/markdown-it": "^14.1.2",
     "@types/marked": "^5.0.2",
+    "commander": "^14.0.0",
+    "execa": "^9.6.0",
     "markdown-it": "^14.1.0",
     "markdown-it-task-checkbox": "^1.0.6",
     "marked": "^16.1.2",

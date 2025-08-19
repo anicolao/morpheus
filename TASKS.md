@@ -405,11 +405,11 @@ The goal is to replace the bot's current Gemini CLI integration with a new, self
     - [x] Add detailed logging for Ollama and Jail clients.
     - [x] Correct bugs related to user profile fetching.
 
-- [ ] **Task 48: Gauntlet Testing Framework**
+- [x] **Task 48: Gauntlet Testing Framework**
+  - [x] Create a `gauntlet.ts` script to automate the evaluation process.
+  - [x] Implement a scoring system to rank models based on performance.
+  - [x] Run the gauntlet on various models and document the results.
   - [x] Add a TODO item in `TASKS.md` for this task.
   - [x] Check in the new `GAUNTLET.md` file.
   - [x] Create a `DEVLOG.md` entry for this task.
   - [x] Follow the rules in `AGENTS.md`.
-  - [ ] Create a `gauntlet.ts` script to automate the evaluation process.
-  - [ ] Implement a scoring system to rank models based on performance.
-  - [ ] Run the gauntlet on various models and document the results.

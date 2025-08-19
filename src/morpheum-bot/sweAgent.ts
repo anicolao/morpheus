@@ -13,7 +13,7 @@ export class SWEAgent {
     this.conversationHistory.push({ role: 'system', content: SYSTEM_PROMPT });
   }
 
-  async run(task: string): Promise<string> {
+  async run(task: string): Promise<{ role: string; content: string }[]> {
     this.conversationHistory.push({ role: 'user', content: task });
 
     const modelResponse = await this.ollamaClient.send(this.getPrompt());
@@ -24,10 +24,9 @@ export class SWEAgent {
     if (commands.length > 0) {
       const commandOutput = await this.jailClient.execute(commands[0]);
       this.conversationHistory.push({ role: 'tool', content: commandOutput });
-      return commandOutput;
     }
 
-    return 'No commands were executed.';
+    return this.conversationHistory;
   }
 
   private getPrompt(): string {
