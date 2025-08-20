@@ -317,7 +317,7 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 ## Phase 1: Implement the Jailed Agent Environment
 
 The goal of this phase is to automate the setup and management of the jailed
-agent environment described in `JAIL_PROTOTYPE.md`. All scripts and
+agent environment described in `JAIL_PROTOTYPE.md` (now deprecated - see current implementation in `jail/` directory). All scripts and
 configurations will be placed in a new `jail/` directory.
 
 - [x] **Task 1: Create the `jail` directory structure.**
@@ -327,7 +327,7 @@ configurations will be placed in a new `jail/` directory.
 - [x] **Task 2: Implement `jail/flake.nix`**
 
   - Create a `flake.nix` file inside the `jail` directory.
-  - Copy the Nix code from `JAIL_PROTOTYPE.md` into this file.
+  - Copy the Nix code from `JAIL_PROTOTYPE.md` into this file (now implemented).
 
 - [x] **Task 3: Create `jail/start-vm.sh` script**
 
@@ -350,13 +350,13 @@ configurations will be placed in a new `jail/` directory.
 - [x] **Task 6: Create `jail/agent.ts` client**
 
   - Create the TypeScript agent client as `jail/agent.ts`.
-  - Copy the TypeScript code from `JAIL_PROTOTYPE.md` into this file.
+  - Copy the TypeScript code from `JAIL_PROTOTYPE.md` into this file (now implemented).
 
 - [x] **Task 7: Create `jail/README.md`**
   - Create a `README.md` file inside the `jail` directory.
   - Document how to use the new scripts (`start-vm.sh`, `build.sh`, `run.sh`,
     and `agent.ts`) to set up and interact with the jailed environment. This
-    will replace the manual instructions in the original prototype document.
+    replaces the manual instructions in the original prototype document.
 - [x] **Task 37: Improve Pre-commit Hook**
   - [x] Add a check to the pre-commit hook to prevent commits with unstaged
         changes.
