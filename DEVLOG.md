@@ -11,6 +11,31 @@ to work around them.
 
 ---
 
+### 2025-01-18: Improve Bot User Feedback with Structured Progress Messages
+
+- **Actions Taken:**
+  - Identified issue where raw LLM streaming chunks were being sent to users during task processing, creating verbose and repetitive output
+  - Modified `runSWEAgentWithStreaming()` in `src/morpheum-bot/bot.ts` to provide structured progress messages instead of raw LLM chunks
+  - Changed "Thinking..." message to "Analyzing and planning..." for better clarity
+  - Added "Analysis complete. Processing response..." message after LLM finishes processing
+  - Implemented command output truncation (2000 characters) to prevent overwhelming users with very long outputs
+  - Updated test expectations in `src/morpheum-bot/bot.test.ts` to match new message format
+  - Verified all 50 tests continue to pass
+
+- **Friction/Success Points:**
+  - **Success:** Users now receive clear, structured updates showing exactly what the bot is doing at each step
+  - **Success:** Eliminated verbose LLM thinking output while maintaining all functionality
+  - **Success:** Each message provides new, meaningful information without repetition
+  - **Friction:** Had to update test expectations to match new message format, but this was straightforward
+
+- **Technical Learnings:**
+  - **User Experience:** Structured progress messages (🧠 → 💭 → ⚡ → 📋 → ✅) provide better feedback than raw LLM streams
+  - **Message Flow:** Users see: Working on task → Analyzing → Analysis complete → Command execution → Results → Task completed
+  - **Output Management:** Truncating very long command outputs (>2000 chars) prevents chat flooding while preserving full data in conversation history
+  - **Direct Commands:** Kept streaming behavior for `!openai` and `!ollama` commands since users expect to see raw LLM output for debugging
+
+---
+
 ### 2025-01-18: Implement Streaming Capabilities for LLM Clients
 
 - **Actions Taken:**

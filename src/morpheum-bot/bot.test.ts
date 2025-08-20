@@ -262,11 +262,14 @@ describe('MorpheumBot', () => {
         expect.stringContaining('Working on: "Create a simple hello world program" using openai (gpt-4-test)...')
       );
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('Iteration 1/10: Thinking...')
+        expect.stringContaining('Iteration 1/10: Analyzing and planning...')
       );
-      // Check that we receive streaming chunks
-      expect(mockSendMessage).toHaveBeenCalledWith('OpenAI ');
-      expect(mockSendMessage).toHaveBeenCalledWith('response');
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('Analysis complete. Processing response...')
+      );
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('Task completed!')
+      );
     });
   });
 

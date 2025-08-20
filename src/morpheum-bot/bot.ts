@@ -263,16 +263,16 @@ Configuration:
     conversationHistory.push({ role: 'user', content: task });
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
-      await sendMessage(`🧠 Iteration ${i + 1}/${MAX_ITERATIONS}: Thinking...`);
+      await sendMessage(`🧠 Iteration ${i + 1}/${MAX_ITERATIONS}: Analyzing and planning...`);
       
       const prompt = conversationHistory.map((msg) => `${msg.role}: ${msg.content}`).join('\n\n');
       
-      // Use streaming to show the LLM's thinking process
-      const modelResponse = await this.currentLLMClient.sendStreaming(prompt, (chunk) => {
-        // Let the message queue handle batching - just send raw chunks
-        sendMessage(chunk).catch(console.error);
+      // Call LLM without streaming chunks to user - we'll show structured progress instead
+      const modelResponse = await this.currentLLMClient.sendStreaming(prompt, () => {
+        // Don't send chunks to user to avoid verbose output
       });
       
+      await sendMessage(`💭 Analysis complete. Processing response...`);
       conversationHistory.push({ role: 'assistant', content: modelResponse });
 
       // Parse bash commands from response
@@ -289,7 +289,14 @@ Configuration:
         
         const commandOutput = await jailClient.execute(commands[0]);
         conversationHistory.push({ role: 'tool', content: commandOutput });
-        await sendMessage(`📋 Command output:\n\`\`\`\n${commandOutput}\n\`\`\``);
+        
+        // Truncate very long outputs for display to avoid overwhelming the user
+        const maxDisplayLength = 2000;
+        const displayOutput = commandOutput.length > maxDisplayLength 
+          ? commandOutput.slice(0, maxDisplayLength) + '\n...(output truncated)'
+          : commandOutput;
+          
+        await sendMessage(`📋 Command output:\n\`\`\`\n${displayOutput}\n\`\`\``);
       } else {
         // If the model doesn't return a command, we assume it's done.
         await sendMessage(`✅ Task completed!`);
