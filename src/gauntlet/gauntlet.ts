@@ -62,23 +62,68 @@ const tasks: GauntletTask[] = [
     skill: "Environment Management & Tooling",
     difficulty: "Medium",
     prompt:
-      "This project requires converting XML data to JSON. Find and add a command-line tool suitable for this task.",
+      "This project requires converting XML data to JSON. Write an xml2json script in /project that can convert XML files to JSON format.",
     successCondition: async (containerName) => {
-      const { stdout } = await execa(
+      // First, copy test XML file to the container
+      await execa(
         "nix",
         [
           "develop",
           "-c",
           "docker",
-          "exec",
-          containerName,
-          "sh",
-          "-c",
-          "cd /project && nix develop -c which xmlstarlet",
+          "cp",
+          "./test.xml",
+          `${containerName}:/project/test.xml`,
         ],
         { cwd: "./jail" },
       );
-      return stdout.includes("/nix/store");
+      
+      // Test if the xml2json script exists and works
+      try {
+        const { stdout } = await execa(
+          "nix",
+          [
+            "develop",
+            "-c",
+            "docker",
+            "exec",
+            containerName,
+            "sh",
+            "-c",
+            "cd /project && nix develop -c ./xml2json test.xml",
+          ],
+          { cwd: "./jail" },
+        );
+        
+        // Check if output is valid JSON and contains expected data
+        const parsed = JSON.parse(stdout);
+        return parsed && typeof parsed === 'object' && 
+               (stdout.includes('John Doe') || stdout.includes('john@example.com'));
+      } catch (error) {
+        // Try alternative script name or execution method
+        try {
+          const { stdout } = await execa(
+            "nix",
+            [
+              "develop",
+              "-c",
+              "docker",
+              "exec",
+              containerName,
+              "sh",
+              "-c",
+              "cd /project && nix develop -c bash xml2json test.xml",
+            ],
+            { cwd: "./jail" },
+          );
+          
+          const parsed = JSON.parse(stdout);
+          return parsed && typeof parsed === 'object' && 
+                 (stdout.includes('John Doe') || stdout.includes('john@example.com'));
+        } catch (secondError) {
+          return false;
+        }
+      }
     },
   },
   {
@@ -114,7 +159,16 @@ const tasks: GauntletTask[] = [
     successCondition: async (containerName) => {
       const { stdout } = await execa(
         "nix",
-        ["develop", "-c", "docker", "exec", containerName, "cat", "server.js"],
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          "cd /project && cat server.js",
+        ],
         { cwd: "./jail" },
       );
       return stdout.includes("Hello, Morpheum!");
@@ -129,7 +183,16 @@ const tasks: GauntletTask[] = [
     successCondition: async (containerName) => {
       const { stdout } = await execa(
         "nix",
-        ["develop", "-c", "docker", "exec", containerName, "ls"],
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          "cd /project && ls",
+        ],
         { cwd: "./jail" },
       );
       return stdout.includes("MyAgentSite");
@@ -144,7 +207,16 @@ const tasks: GauntletTask[] = [
     successCondition: async (containerName) => {
       const { stdout } = await execa(
         "nix",
-        ["develop", "-c", "docker", "exec", containerName, "cat", "server.js"],
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          "cd /project && cat server.js",
+        ],
         { cwd: "./jail" },
       );
       return stdout.includes("/api/v1/status");

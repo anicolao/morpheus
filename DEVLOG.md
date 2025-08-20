@@ -11,6 +11,22 @@ to work around them.
 
 ---
 
+### 2025-01-04: Fix Gauntlet Validation Issues
+
+- **Actions Taken:**
+  - Fixed validation patterns in gauntlet tasks to ensure consistent use of `/project` directory context
+  - Updated XML converter task to be more flexible - now asks agents to write a script instead of installing specific tools
+  - Created test XML file for validating XML to JSON conversion functionality
+  - Modified file-checking tasks to properly use `cd /project &&` for correct working directory context
+  - Ensured all tests continue to pass after changes
+
+- **Friction/Success Points:**
+  - **Success:** The XML task validation is now much more practical - agents can use any approach (yq, jq, custom scripts, etc.) as long as they produce working XML to JSON conversion
+  - **Success:** Fixed directory context issues that could cause false negatives when agents create files in the correct `/project` directory
+  - **Lesson:** Pre-commit hooks enforce documentation updates, which helps maintain project coherence
+
+---
+
 ### 2025-01-04: Fix Failing Tests in bot.test.ts
 
 - **Actions Taken:**

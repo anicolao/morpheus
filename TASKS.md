@@ -498,3 +498,4 @@ the Matrix bot serving as its primary user interface.
   - [x] Updated test script configuration for better compatibility.
   - [x] Enhanced bot status messages to include model information (PR #2 feedback).
   - [x] Ensured all changes maintain existing functionality while improving user experience.
+
