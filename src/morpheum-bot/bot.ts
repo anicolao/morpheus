@@ -305,7 +305,11 @@ ${nextStep}`;
       const commands = parseBashCommands(modelResponse);
 
       if (commands.length > 0) {
-        const executingCommandMarkdown = `⚡ **Executing command:** \`${commands[0]}\``;
+        const isMultiline = commands[0].includes('\n');
+        const formattedCommand = isMultiline 
+          ? `\n\`\`\`\n${commands[0]}\n\`\`\``
+          : `\`${commands[0]}\``;
+        const executingCommandMarkdown = `⚡ **Executing command:** ${formattedCommand}`;
         await sendMarkdownMessage(executingCommandMarkdown, sendMessage);
         
         const jailHost = process.env.JAIL_HOST || "localhost";

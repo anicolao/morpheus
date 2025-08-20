@@ -1,6 +1,6 @@
 # Tasks
 
-This file tracks the current and upcoming tasks for the Morpheum project.
+This file tracks the current and upcoming tasks for the Morpheum project. 
 
 ## Morpheum v0.1: The "Matrix Milestone"
 
