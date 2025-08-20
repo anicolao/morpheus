@@ -6,7 +6,14 @@ global.fetch = vi.fn();
 // Mock the modules using vi.hoisted for better mock hoisting
 const mockFs = vi.hoisted(() => ({
   promises: {
-    readFile: vi.fn().mockResolvedValue('# Test Content\nThis is test content.'),
+    readFile: vi.fn().mockImplementation((filename: string) => {
+      if (filename === 'TASKS.md') {
+        return Promise.resolve('# Tasks\n\nThis file tracks the current and upcoming tasks for the Morpheum project.');
+      } else if (filename === 'DEVLOG.md') {
+        return Promise.resolve('# DEVLOG\n\n## Morpheum Development Log\n\nThis log tracks the development of morpheum.');
+      }
+      return Promise.resolve('# Test Content\nThis is test content.');
+    }),
   },
 }));
 
@@ -52,6 +59,10 @@ vi.mock('./format-markdown', () => ({
     // Simple mock that converts the test content to expected HTML
     if (content === '# Test Content\nThis is test content.') {
       return '<h1>Test Content</h1>\n<p>This is test content.</p>\n';
+    } else if (content.startsWith('# Tasks')) {
+      return '<h1>Tasks</h1>\n<p>This file tracks the current and upcoming tasks for the Morpheum project.</p>\n';
+    } else if (content.startsWith('# DEVLOG')) {
+      return '<h1>DEVLOG</h1>\n<h2>Morpheum Development Log</h2>\n<p>This log tracks the development of morpheum.</p>\n';
     }
     return '<p>Formatted markdown</p>';
   }),
