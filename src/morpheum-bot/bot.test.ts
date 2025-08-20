@@ -29,12 +29,24 @@ vi.mock('execa', () => ({
 vi.mock('./ollamaClient', () => ({
   OllamaClient: vi.fn(() => ({
     send: vi.fn().mockResolvedValue('Ollama response'),
+    sendStreaming: vi.fn().mockImplementation((prompt, onChunk) => {
+      // Simulate streaming by calling onChunk with parts of the response
+      onChunk('Ollama ');
+      onChunk('response');
+      return Promise.resolve('Ollama response');
+    }),
   })),
 }));
 
 vi.mock('./openai', () => ({
   OpenAIClient: vi.fn(() => ({
     send: vi.fn().mockResolvedValue('OpenAI response'),
+    sendStreaming: vi.fn().mockImplementation((prompt, onChunk) => {
+      // Simulate streaming by calling onChunk with parts of the response
+      onChunk('OpenAI ');
+      onChunk('response');
+      return Promise.resolve('OpenAI response');
+    }),
   })),
 }));
 
@@ -202,7 +214,7 @@ describe('MorpheumBot', () => {
       await bot.processMessage('!openai Hello, how are you?', 'user', mockSendMessage);
       
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('OpenAI Response:\nOpenAI response')
+        expect.stringContaining('✅ OpenAI Response:\nOpenAI response')
       );
     });
 
@@ -229,7 +241,7 @@ describe('MorpheumBot', () => {
       await bot.processMessage('!ollama Hello, how are you?', 'user', mockSendMessage);
       
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('Ollama Response:\nOllama response')
+        expect.stringContaining('✅ Ollama Response:\nOllama response')
       );
     });
 

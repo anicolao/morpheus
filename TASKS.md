@@ -2,6 +2,10 @@
 
 This file tracks the current and upcoming tasks for the Morpheum project.
 
+## Recent Improvements
+
+- **Streaming API Support**: Implemented real-time feedback for OpenAI and Ollama clients (2025-01-18)
+
 ## Morpheum v0.1: The "Matrix Milestone"
 
 ### 1. Matrix Bot Development (Morpheum Bot)

@@ -204,8 +204,19 @@ Configuration:
         this.llmConfig.openai.model,
         this.llmConfig.openai.baseUrl
       );
-      const response = await client.send(prompt);
-      await sendMessage(`OpenAI Response:\n${response}`);
+      
+      await sendMessage(`🤖 OpenAI is thinking...`);
+      let streamedResponse = '';
+      
+      const response = await client.sendStreaming(prompt, (chunk) => {
+        streamedResponse += chunk;
+        // Send updates every few chunks to avoid overwhelming the message queue
+        if (streamedResponse.length % 100 < chunk.length) {
+          sendMessage(`🤖 OpenAI (streaming): ${streamedResponse}...`).catch(console.error);
+        }
+      });
+      
+      await sendMessage(`✅ OpenAI Response:\n${response}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       await sendMessage(`Error calling OpenAI: ${errorMessage}`);
@@ -224,8 +235,19 @@ Configuration:
         this.llmConfig.ollama.baseUrl,
         this.llmConfig.ollama.model
       );
-      const response = await client.send(prompt);
-      await sendMessage(`Ollama Response:\n${response}`);
+      
+      await sendMessage(`🤖 Ollama is thinking...`);
+      let streamedResponse = '';
+      
+      const response = await client.sendStreaming(prompt, (chunk) => {
+        streamedResponse += chunk;
+        // Send updates every few chunks to avoid overwhelming the message queue
+        if (streamedResponse.length % 100 < chunk.length) {
+          sendMessage(`🤖 Ollama (streaming): ${streamedResponse}...`).catch(console.error);
+        }
+      });
+      
+      await sendMessage(`✅ Ollama Response:\n${response}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       await sendMessage(`Error calling Ollama: ${errorMessage}`);
@@ -233,10 +255,63 @@ Configuration:
   }
 
   private async handleTask(task: string, sendMessage: MessageSender) {
-    await sendMessage(`Working on: "${task}" using ${this.currentLLMProvider} (${this.llmConfig[this.currentLLMProvider].model})...`);
-    const history = await this.sweAgent.run(task);
-    const result = history.map((h) => `${h.role}: ${h.content}`).join("\n\n");
-    await sendMessage(result);
-    return history;
+    await sendMessage(`🚀 Working on: "${task}" using ${this.currentLLMProvider} (${this.llmConfig[this.currentLLMProvider].model})...`);
+    
+    // Create a streaming version of the SWE agent run
+    await this.runSWEAgentWithStreaming(task, sendMessage);
+  }
+
+  private async runSWEAgentWithStreaming(task: string, sendMessage: MessageSender): Promise<{ role: string; content: string }[]> {
+    const MAX_ITERATIONS = 10;
+    const conversationHistory: { role: string; content: string }[] = [];
+    
+    // Add system prompt and user task
+    const { SYSTEM_PROMPT } = await import('./prompts');
+    conversationHistory.push({ role: 'system', content: SYSTEM_PROMPT });
+    conversationHistory.push({ role: 'user', content: task });
+
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
+      await sendMessage(`🧠 Iteration ${i + 1}/${MAX_ITERATIONS}: Thinking...`);
+      
+      const prompt = conversationHistory.map((msg) => `${msg.role}: ${msg.content}`).join('\n\n');
+      let streamedResponse = '';
+      
+      // Use streaming to show the LLM's thinking process
+      const modelResponse = await this.currentLLMClient.sendStreaming(prompt, (chunk) => {
+        streamedResponse += chunk;
+        // Send periodic updates to show progress
+        if (streamedResponse.length % 150 < chunk.length) {
+          sendMessage(`🧠 LLM is thinking: "${streamedResponse.slice(-100)}..."`).catch(console.error);
+        }
+      });
+      
+      conversationHistory.push({ role: 'assistant', content: modelResponse });
+      await sendMessage(`🤖 LLM Response:\n${modelResponse}`);
+
+      // Parse bash commands from response
+      const { parseBashCommands } = await import('./responseParser');
+      const commands = parseBashCommands(modelResponse);
+
+      if (commands.length > 0) {
+        await sendMessage(`⚡ Executing command: \`${commands[0]}\``);
+        
+        const jailHost = process.env.JAIL_HOST || "localhost";
+        const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
+        const { JailClient } = await import('./jailClient');
+        const jailClient = new JailClient(jailHost, jailPort);
+        
+        const commandOutput = await jailClient.execute(commands[0]);
+        conversationHistory.push({ role: 'tool', content: commandOutput });
+        await sendMessage(`📋 Command output:\n\`\`\`\n${commandOutput}\n\`\`\``);
+      } else {
+        // If the model doesn't return a command, we assume it's done.
+        await sendMessage(`✅ Task completed!`);
+        break;
+      }
+    }
+
+    const result = conversationHistory.map((h) => `${h.role}: ${h.content}`).join("\n\n");
+    await sendMessage(`📊 Full conversation history:\n${result}`);
+    return conversationHistory;
   }
 }

@@ -147,5 +147,78 @@ describe('OpenAI', () => {
       
       expect(response).toEqual('');
     });
+
+    it('should handle streaming responses', async () => {
+      const streamingData = [
+        'data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n',
+        'data: {"choices":[{"delta":{"content":" from"}}]}\n\n',
+        'data: {"choices":[{"delta":{"content":" OpenAI!"}}]}\n\n',
+        'data: [DONE]\n\n'
+      ];
+
+      const mockResponse = {
+        ok: true,
+        body: {
+          getReader: () => {
+            let index = 0;
+            return {
+              read: async () => {
+                if (index >= streamingData.length) {
+                  return { done: true, value: undefined };
+                }
+                const chunk = new TextEncoder().encode(streamingData[index++]);
+                return { done: false, value: chunk };
+              },
+              releaseLock: () => {}
+            };
+          }
+        }
+      };
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+      const client = new OpenAIClient('test-api-key');
+      const chunks: string[] = [];
+      const response = await client.sendStreaming('Test prompt', (chunk) => {
+        chunks.push(chunk);
+      });
+      
+      expect(response).toEqual('Hello from OpenAI!');
+      expect(chunks).toEqual(['Hello', ' from', ' OpenAI!']);
+      expect(fetch).toHaveBeenCalledWith(
+        'https://api.openai.com/v1/chat/completions',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer test-api-key',
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+              {
+                role: 'user',
+                content: 'Test prompt',
+              },
+            ],
+            stream: true,
+          }),
+        })
+      );
+    });
+
+    it('should handle streaming API errors', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        text: () => Promise.resolve('Unauthorized'),
+      });
+
+      const client = new OpenAIClient('invalid-key');
+      
+      await expect(client.sendStreaming('Test prompt', () => {})).rejects.toThrow(
+        'OpenAI API request failed with status 401: Unauthorized'
+      );
+    });
   });
 });

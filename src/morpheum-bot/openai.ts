@@ -44,6 +44,84 @@ export class OpenAIClient implements LLMClient {
     
     return content;
   }
+
+  async sendStreaming(prompt: string, onChunk: (chunk: string) => void): Promise<string> {
+    console.log(`--- OPENAI STREAMING REQUEST (${this.model} @ ${this.baseUrl}) ---`);
+    console.log(prompt.split('\n').map(line => `  ${line}`).join('\n'));
+    console.log("----------------------");
+    
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`OpenAI API request failed with status ${response.status}: ${errorData}`);
+    }
+
+    let fullContent = '';
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+
+    if (!reader) {
+      throw new Error('Response body is not readable');
+    }
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+            
+            if (data === '[DONE]') {
+              break;
+            }
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              
+              if (content) {
+                fullContent += content;
+                onChunk(content);
+              }
+            } catch (e) {
+              // Skip invalid JSON lines
+              console.warn('Failed to parse OpenAI streaming response line:', data);
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    
+    console.log(`--- OPENAI STREAMING RESPONSE COMPLETE (${this.model} @ ${this.baseUrl}) ---`);
+    console.log(fullContent.split('\n').map(line => `  ${line}`).join('\n'));
+    console.log("-----------------------");
+    
+    return fullContent;
+  }
 }
 
 // Legacy function for backward compatibility
