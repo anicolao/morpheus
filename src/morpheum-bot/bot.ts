@@ -206,17 +206,13 @@ Configuration:
       );
       
       await sendMessage(`🤖 OpenAI is thinking...`);
-      let streamedResponse = '';
       
       const response = await client.sendStreaming(prompt, (chunk) => {
-        streamedResponse += chunk;
-        // Send updates every few chunks to avoid overwhelming the message queue
-        if (streamedResponse.length % 100 < chunk.length) {
-          sendMessage(`🤖 OpenAI (streaming): ${streamedResponse}...`).catch(console.error);
-        }
+        // Let the message queue handle batching - just send raw chunks
+        sendMessage(chunk).catch(console.error);
       });
       
-      await sendMessage(`✅ OpenAI Response:\n${response}`);
+      await sendMessage(`\n✅ OpenAI completed.`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       await sendMessage(`Error calling OpenAI: ${errorMessage}`);
@@ -237,17 +233,13 @@ Configuration:
       );
       
       await sendMessage(`🤖 Ollama is thinking...`);
-      let streamedResponse = '';
       
       const response = await client.sendStreaming(prompt, (chunk) => {
-        streamedResponse += chunk;
-        // Send updates every few chunks to avoid overwhelming the message queue
-        if (streamedResponse.length % 100 < chunk.length) {
-          sendMessage(`🤖 Ollama (streaming): ${streamedResponse}...`).catch(console.error);
-        }
+        // Let the message queue handle batching - just send raw chunks
+        sendMessage(chunk).catch(console.error);
       });
       
-      await sendMessage(`✅ Ollama Response:\n${response}`);
+      await sendMessage(`\n✅ Ollama completed.`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       await sendMessage(`Error calling Ollama: ${errorMessage}`);
@@ -274,19 +266,14 @@ Configuration:
       await sendMessage(`🧠 Iteration ${i + 1}/${MAX_ITERATIONS}: Thinking...`);
       
       const prompt = conversationHistory.map((msg) => `${msg.role}: ${msg.content}`).join('\n\n');
-      let streamedResponse = '';
       
       // Use streaming to show the LLM's thinking process
       const modelResponse = await this.currentLLMClient.sendStreaming(prompt, (chunk) => {
-        streamedResponse += chunk;
-        // Send periodic updates to show progress
-        if (streamedResponse.length % 150 < chunk.length) {
-          sendMessage(`🧠 LLM is thinking: "${streamedResponse.slice(-100)}..."`).catch(console.error);
-        }
+        // Let the message queue handle batching - just send raw chunks
+        sendMessage(chunk).catch(console.error);
       });
       
       conversationHistory.push({ role: 'assistant', content: modelResponse });
-      await sendMessage(`🤖 LLM Response:\n${modelResponse}`);
 
       // Parse bash commands from response
       const { parseBashCommands } = await import('./responseParser');
@@ -310,8 +297,6 @@ Configuration:
       }
     }
 
-    const result = conversationHistory.map((h) => `${h.role}: ${h.content}`).join("\n\n");
-    await sendMessage(`📊 Full conversation history:\n${result}`);
     return conversationHistory;
   }
 }

@@ -124,7 +124,7 @@ describe('MorpheumBot', () => {
     process.env.OPENAI_MODEL = 'gpt-4-test';
     process.env.OPENAI_BASE_URL = 'https://test-openai.com/v1';
     
-    mockSendMessage = vi.fn();
+    mockSendMessage = vi.fn().mockResolvedValue(undefined);
     bot = new MorpheumBot();
   });
 
@@ -213,9 +213,10 @@ describe('MorpheumBot', () => {
     it('should send prompt directly to OpenAI', async () => {
       await bot.processMessage('!openai Hello, how are you?', 'user', mockSendMessage);
       
-      expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('✅ OpenAI Response:\nOpenAI response')
-      );
+      expect(mockSendMessage).toHaveBeenCalledWith('🤖 OpenAI is thinking...');
+      expect(mockSendMessage).toHaveBeenCalledWith('OpenAI ');
+      expect(mockSendMessage).toHaveBeenCalledWith('response');
+      expect(mockSendMessage).toHaveBeenCalledWith('\n✅ OpenAI completed.');
     });
 
     it('should show usage for empty prompt', async () => {
@@ -240,9 +241,10 @@ describe('MorpheumBot', () => {
     it('should send prompt directly to Ollama', async () => {
       await bot.processMessage('!ollama Hello, how are you?', 'user', mockSendMessage);
       
-      expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('✅ Ollama Response:\nOllama response')
-      );
+      expect(mockSendMessage).toHaveBeenCalledWith('🤖 Ollama is thinking...');
+      expect(mockSendMessage).toHaveBeenCalledWith('Ollama ');
+      expect(mockSendMessage).toHaveBeenCalledWith('response');
+      expect(mockSendMessage).toHaveBeenCalledWith('\n✅ Ollama completed.');
     });
 
     it('should show usage for empty prompt', async () => {
@@ -259,10 +261,12 @@ describe('MorpheumBot', () => {
       expect(mockSendMessage).toHaveBeenCalledWith(
         expect.stringContaining('Working on: "Create a simple hello world program" using openai (gpt-4-test)...')
       );
-      // The second call should contain the system prompt (either mocked or real)
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('system:')
+        expect.stringContaining('Iteration 1/10: Thinking...')
       );
+      // Check that we receive streaming chunks
+      expect(mockSendMessage).toHaveBeenCalledWith('OpenAI ');
+      expect(mockSendMessage).toHaveBeenCalledWith('response');
     });
   });
 
