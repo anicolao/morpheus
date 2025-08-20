@@ -11,6 +11,7 @@ type MessageSender = (message: string, html?: string) => Promise<void>;
 
 export class MorpheumBot {
   private sweAgent: SWEAgent;
+
   private currentLLMClient: LLMClient;
   private currentLLMProvider: 'openai' | 'ollama';
   private llmConfig: {
