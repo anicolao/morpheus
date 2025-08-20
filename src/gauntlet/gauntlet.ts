@@ -157,21 +157,49 @@ const tasks: GauntletTask[] = [
     prompt:
       "Using Bun, create a simple web server in a file named 'server.js' that responds with 'Hello, Morpheum!' on port 3000.",
     successCondition: async (containerName) => {
-      const { stdout } = await execa(
-        "nix",
-        [
-          "develop",
-          "-c",
-          "docker",
-          "exec",
-          containerName,
-          "sh",
-          "-c",
-          "cd /project && cat server.js",
-        ],
-        { cwd: "./jail" },
-      );
-      return stdout.includes("Hello, Morpheum!");
+      try {
+        // Start the server in the background without awaiting
+        const serverProcess = execa(
+          "nix",
+          [
+            "develop",
+            "-c",
+            "docker",
+            "exec",
+            containerName,
+            "sh",
+            "-c",
+            "cd /project && nix develop -c bun run server.js",
+          ],
+          { cwd: "./jail" },
+        );
+
+        // Wait for server to start
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Test the server endpoint
+        const { stdout } = await execa(
+          "nix",
+          [
+            "develop",
+            "-c",
+            "docker",
+            "exec",
+            containerName,
+            "sh",
+            "-c",
+            "curl -s localhost:3000",
+          ],
+          { cwd: "./jail" },
+        );
+
+        // Kill the server process
+        serverProcess.kill();
+
+        return stdout.includes("Hello, Morpheum!");
+      } catch (error) {
+        return false;
+      }
     },
   },
   {
@@ -203,23 +231,84 @@ const tasks: GauntletTask[] = [
     skill: "Software Development & Refinement",
     difficulty: "Hard",
     prompt:
-      'Modify the existing web server. Add a new API endpoint at "/api/v1/status" that responds with the JSON object: {"status": "ok", "timestamp": "CURRENT_ISO_TIMESTAMP"}.',
+      'Here is a basic web server file in /project/server.js:\n\n```javascript\nimport Bun from "bun";\n\nBun.serve({\n  port: 3000,\n  fetch(request) {\n    return new Response("Hello, Morpheum!");\n  },\n});\n\nconsole.log("Server running on http://localhost:3000");\n```\n\nModify the existing web server. Add a new API endpoint at "/api/v1/status" that responds with the JSON object: {"status": "ok", "timestamp": "CURRENT_ISO_TIMESTAMP"}.',
     successCondition: async (containerName) => {
-      const { stdout } = await execa(
-        "nix",
-        [
-          "develop",
-          "-c",
-          "docker",
-          "exec",
-          containerName,
-          "sh",
-          "-c",
-          "cd /project && cat server.js",
-        ],
-        { cwd: "./jail" },
-      );
-      return stdout.includes("/api/v1/status");
+      try {
+        // First, create the initial server.js file
+        await execa(
+          "nix",
+          [
+            "develop",
+            "-c",
+            "docker",
+            "exec",
+            containerName,
+            "sh",
+            "-c",
+            `cd /project && cat > server.js << 'EOF'
+import Bun from "bun";
+
+Bun.serve({
+  port: 3000,
+  fetch(request) {
+    return new Response("Hello, Morpheum!");
+  },
+});
+
+console.log("Server running on http://localhost:3000");
+EOF`,
+          ],
+          { cwd: "./jail" },
+        );
+
+        // Start the modified server in the background
+        const serverProcess = execa(
+          "nix",
+          [
+            "develop",
+            "-c",
+            "docker",
+            "exec",
+            containerName,
+            "sh",
+            "-c",
+            "cd /project && nix develop -c bun run server.js",
+          ],
+          { cwd: "./jail" },
+        );
+
+        // Wait for server to start
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Test the /api/v1/status endpoint
+        const { stdout } = await execa(
+          "nix",
+          [
+            "develop",
+            "-c",
+            "docker",
+            "exec",
+            containerName,
+            "sh",
+            "-c",
+            "curl -s localhost:3000/api/v1/status",
+          ],
+          { cwd: "./jail" },
+        );
+
+        // Kill the server process
+        serverProcess.kill();
+
+        // Check if response is valid JSON with expected fields
+        try {
+          const response = JSON.parse(stdout);
+          return response.status === "ok" && response.timestamp;
+        } catch {
+          return false;
+        }
+      } catch (error) {
+        return false;
+      }
     },
   },
 ];
