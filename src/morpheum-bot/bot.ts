@@ -394,10 +394,15 @@ Configuration:
   }
 
   private async runSWEAgentWithStreaming(task: string, sendMessage: MessageSender): Promise<{ role: string; content: string }[]> {
+    // Special handling for Copilot - it doesn't use the iterative SWE agent pattern
+    if (this.currentLLMProvider === 'copilot') {
+      return this.runCopilotSession(task, sendMessage);
+    }
+
     const MAX_ITERATIONS = 10;
     const conversationHistory: { role: string; content: string }[] = [];
     
-    // Add system prompt and user task
+    // For non-Copilot providers, we include the system prompt for proper context
     const { SYSTEM_PROMPT } = await import('./prompts');
     conversationHistory.push({ role: 'system', content: SYSTEM_PROMPT });
     conversationHistory.push({ role: 'user', content: task });
@@ -522,6 +527,25 @@ ${spoilerContent}
       }
     }
 
+    return conversationHistory;
+  }
+
+  /**
+   * Handle Copilot sessions with a simplified workflow focused on issue resolution
+   */
+  private async runCopilotSession(task: string, sendMessage: MessageSender): Promise<{ role: string; content: string }[]> {
+    const conversationHistory: { role: string; content: string }[] = [];
+    conversationHistory.push({ role: 'user', content: task });
+
+    await sendMessage(`🤖 Creating GitHub issue for: "${task}"`);
+    
+    // For Copilot, we send just the user's task without system prompts
+    // since Copilot already understands repository context
+    const response = await this.currentLLMClient.sendStreaming(task, async (chunk) => {
+      await sendMessage(chunk);
+    });
+    
+    conversationHistory.push({ role: 'assistant', content: response });
     return conversationHistory;
   }
 }

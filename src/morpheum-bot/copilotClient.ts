@@ -130,13 +130,13 @@ export class CopilotClient implements LLMClient {
     const issue = await this.octokit.rest.issues.create({
       owner: this.owner,
       repo: this.repo,
-      title: `Copilot Task: ${prompt.slice(0, 100)}${prompt.length > 100 ? '...' : ''}`,
-      body: `GitHub Copilot task request:\n\n${prompt}`,
-      labels: ['copilot-session'],
+      title: `[DEMO] Copilot Task: ${prompt.slice(0, 80)}${prompt.length > 80 ? '...' : ''}`,
+      body: `**GitHub Copilot Integration Demo**\n\nThis is a demonstration of how GitHub Copilot integration would work once the actual API is available.\n\n**Task Request:**\n${prompt}\n\n*Note: This issue was created as part of a Copilot integration demo. No actual automated code changes will be made.*`,
+      labels: ['copilot-session', 'demo'],
     });
 
     // TODO: Start actual GitHub Copilot session via API
-    // For now, we'll simulate a session by creating a mock session ID
+    // DEMO MODE: For now, we'll simulate a session by creating a mock session ID
     const sessionId = `cop_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     const session: CopilotSession = {
@@ -152,7 +152,7 @@ export class CopilotClient implements LLMClient {
       owner: this.owner,
       repo: this.repo,
       issue_number: issue.data.number,
-      body: `🤖 GitHub Copilot session started\nSession ID: ${sessionId}\nStatus: ${session.status}`,
+      body: `🤖 **GitHub Copilot Integration Demo**\n\nSession ID: ${sessionId}\nStatus: ${session.status}\n\n*This is a simulation demonstrating how GitHub Copilot sessions would work with the actual API.*`,
     });
 
     return session;
@@ -163,7 +163,7 @@ export class CopilotClient implements LLMClient {
    */
   private async getSessionStatus(sessionId: string): Promise<CopilotSession> {
     // TODO: Implement actual GitHub Copilot API status polling
-    // For now, we'll simulate status progression
+    // DEMO MODE: This is a simulation of how GitHub Copilot sessions would work
     
     // This is a mock implementation that simulates a session lifecycle
     const sessionAge = Date.now() - parseInt(sessionId.split('_')[1]);
@@ -178,10 +178,11 @@ export class CopilotClient implements LLMClient {
     } else {
       status = 'completed';
       result = {
-        summary: 'GitHub Copilot has analyzed the request and generated a solution.',
-        pullRequestUrl: `https://github.com/${this.repository}/pull/${Date.now() % 1000}`,
-        commitSha: Math.random().toString(36).substr(2, 8),
-        filesChanged: ['src/example.ts', 'tests/example.test.ts'],
+        summary: 'DEMO: GitHub Copilot simulation completed. This is a mock response showing how the integration would work with real GitHub Copilot API.',
+        // Remove fake PR URL to avoid confusion
+        pullRequestUrl: undefined,
+        commitSha: undefined,
+        filesChanged: ['[simulated] src/example.ts', '[simulated] tests/example.test.ts'],
         confidence: 0.85,
       };
     }
@@ -257,6 +258,7 @@ export class CopilotClient implements LLMClient {
       message += `🔧 Files changed: ${result.filesChanged.join(', ')}\n`;
     }
     
+    // Only show PR and commit info if they exist (not in demo mode)
     if (result.pullRequestUrl) {
       message += `🔗 Pull Request: ${result.pullRequestUrl}\n`;
     }
