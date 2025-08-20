@@ -8,6 +8,14 @@ export interface LLMClient {
    * @returns Promise that resolves to the LLM's response
    */
   send(prompt: string): Promise<string>;
+
+  /**
+   * Send a prompt to the LLM with streaming support
+   * @param prompt The text prompt to send
+   * @param onChunk Callback function called for each chunk of the response
+   * @returns Promise that resolves to the complete LLM response
+   */
+  sendStreaming(prompt: string, onChunk: (chunk: string) => void): Promise<string>;
 }
 
 /**
