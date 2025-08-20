@@ -14,3 +14,23 @@ export function parseBashCommands(text: string): string[] {
   return [];
 }
 
+export function parsePlanAndNextStep(text: string): { plan?: string; nextStep?: string } {
+  const result: { plan?: string; nextStep?: string } = {};
+  
+  // Extract plan block
+  const planRegex = /<plan>\s*([\s\S]*?)\s*<\/plan>/i;
+  const planMatch = text.match(planRegex);
+  if (planMatch) {
+    result.plan = planMatch[1].trim();
+  }
+  
+  // Extract next_step block
+  const nextStepRegex = /<next_step>\s*([\s\S]*?)\s*<\/next_step>/i;
+  const nextStepMatch = text.match(nextStepRegex);
+  if (nextStepMatch) {
+    result.nextStep = nextStepMatch[1].trim();
+  }
+  
+  return result;
+}
+

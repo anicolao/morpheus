@@ -9,6 +9,12 @@ import { formatMarkdown } from "./format-markdown";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
+// Helper function to send markdown messages with proper HTML formatting
+function sendMarkdownMessage(markdown: string, sendMessage: MessageSender): Promise<void> {
+  const html = formatMarkdown(markdown);
+  return sendMessage(markdown, html);
+}
+
 export class MorpheumBot {
   private sweAgent: SWEAgent;
 
@@ -263,24 +269,48 @@ Configuration:
     conversationHistory.push({ role: 'user', content: task });
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
-      await sendMessage(`🧠 Iteration ${i + 1}/${MAX_ITERATIONS}: Thinking...`);
+      await sendMessage(`🧠 Iteration ${i + 1}: Analyzing and planning...`);
       
       const prompt = conversationHistory.map((msg) => `${msg.role}: ${msg.content}`).join('\n\n');
       
-      // Use streaming to show the LLM's thinking process
-      const modelResponse = await this.currentLLMClient.sendStreaming(prompt, (chunk) => {
-        // Let the message queue handle batching - just send raw chunks
-        sendMessage(chunk).catch(console.error);
+      // Call LLM without streaming chunks to user - we'll show structured progress instead
+      const modelResponse = await this.currentLLMClient.sendStreaming(prompt, () => {
+        // Don't send chunks to user to avoid verbose output
       });
       
+      await sendMessage(`💭 Analysis complete. Processing response...`);
       conversationHistory.push({ role: 'assistant', content: modelResponse });
 
+      // Parse and display plan and next step from response
+      const { parseBashCommands, parsePlanAndNextStep } = await import('./responseParser');
+      const { plan, nextStep } = parsePlanAndNextStep(modelResponse);
+      
+      // Display plan if found (typically on first iteration)
+      if (plan) {
+        const planMarkdown = `📋 **Plan:**
+
+${plan}`;
+        await sendMarkdownMessage(planMarkdown, sendMessage);
+      }
+      
+      // Display next step if found
+      if (nextStep) {
+        const nextStepMarkdown = `🎯 **Next Step:**
+
+${nextStep}`;
+        await sendMarkdownMessage(nextStepMarkdown, sendMessage);
+      }
+
       // Parse bash commands from response
-      const { parseBashCommands } = await import('./responseParser');
       const commands = parseBashCommands(modelResponse);
 
       if (commands.length > 0) {
-        await sendMessage(`⚡ Executing command: \`${commands[0]}\``);
+        const isMultiline = commands[0].includes('\n');
+        const formattedCommand = isMultiline 
+          ? `\n\`\`\`\n${commands[0]}\n\`\`\``
+          : `\`${commands[0]}\``;
+        const executingCommandMarkdown = `⚡ **Executing command:** ${formattedCommand}`;
+        await sendMarkdownMessage(executingCommandMarkdown, sendMessage);
         
         const jailHost = process.env.JAIL_HOST || "localhost";
         const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
@@ -289,10 +319,71 @@ Configuration:
         
         const commandOutput = await jailClient.execute(commands[0]);
         conversationHistory.push({ role: 'tool', content: commandOutput });
-        await sendMessage(`📋 Command output:\n\`\`\`\n${commandOutput}\n\`\`\``);
+        
+        // Smart output display: show small outputs directly, large outputs with prefix + spoiler
+        const lines = commandOutput.split('\n');
+        const lineCount = lines.length;
+        const charCount = commandOutput.length;
+        
+        // Thresholds for direct display
+        const maxDirectLines = 50;
+        const maxDirectChars = 5000;
+        
+        if (lineCount < maxDirectLines && charCount < maxDirectChars) {
+          // Small output: display directly
+          const directOutputMarkdown = `📋 **Command output:**
+
+\`\`\`
+${commandOutput}
+\`\`\``;
+          await sendMarkdownMessage(directOutputMarkdown, sendMessage);
+        } else {
+          // Large output: show prefix + spoiler
+          const maxPrefixLines = 15;
+          const maxPrefixChars = 1500;
+          
+          // Get prefix (either first 15 lines or first 1500 chars, whichever comes first)
+          let prefixLines = lines.slice(0, maxPrefixLines);
+          let prefix = prefixLines.join('\n');
+          
+          if (prefix.length > maxPrefixChars) {
+            // If 15 lines exceed 1500 chars, truncate to 1500 chars
+            prefix = commandOutput.slice(0, maxPrefixChars);
+            // Try to end at a line boundary if possible
+            const lastNewline = prefix.lastIndexOf('\n');
+            if (lastNewline > maxPrefixChars * 0.8) { // Only if we're not losing too much
+              prefix = prefix.slice(0, lastNewline);
+            }
+          }
+          
+          // Prepare spoiler content (truncate to 64k if needed)
+          const maxSpoilerLength = 64000;
+          const spoilerContent = commandOutput.length > maxSpoilerLength 
+            ? commandOutput.slice(0, maxSpoilerLength) + '\n...(output truncated due to size limit)'
+            : commandOutput;
+          
+          const prefixWithSpoilerMarkdown = `📋 **Command output:**
+
+\`\`\`
+${prefix}
+${prefix.length < commandOutput.length ? '\n...(showing first ' + prefix.length + ' characters)' : ''}
+\`\`\`
+
+\`\`\`
+${spoilerContent}
+\`\`\``;
+          
+          await sendMarkdownMessage(prefixWithSpoilerMarkdown, sendMessage);
+        }
+        
+        // Check for early termination phrase
+        if (commandOutput.includes("Job's done!")) {
+          await sendMessage("✓ Job's done!");
+          break;
+        }
       } else {
         // If the model doesn't return a command, we assume it's done.
-        await sendMessage(`✅ Task completed!`);
+        await sendMessage("✓ Job's done!");
         break;
       }
     }
