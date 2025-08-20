@@ -281,8 +281,27 @@ Configuration:
       await sendMessage(`💭 Analysis complete. Processing response...`);
       conversationHistory.push({ role: 'assistant', content: modelResponse });
 
+      // Parse and display plan and next step from response
+      const { parseBashCommands, parsePlanAndNextStep } = await import('./responseParser');
+      const { plan, nextStep } = parsePlanAndNextStep(modelResponse);
+      
+      // Display plan if found (typically on first iteration)
+      if (plan) {
+        const planMarkdown = `📋 **Plan:**
+
+${plan}`;
+        await sendMarkdownMessage(planMarkdown, sendMessage);
+      }
+      
+      // Display next step if found
+      if (nextStep) {
+        const nextStepMarkdown = `🎯 **Next Step:**
+
+${nextStep}`;
+        await sendMarkdownMessage(nextStepMarkdown, sendMessage);
+      }
+
       // Parse bash commands from response
-      const { parseBashCommands } = await import('./responseParser');
       const commands = parseBashCommands(modelResponse);
 
       if (commands.length > 0) {
