@@ -22,10 +22,11 @@ export interface LLMClient {
  * Configuration for different LLM providers
  */
 export interface LLMConfig {
-  provider: 'openai' | 'ollama';
+  provider: 'openai' | 'ollama' | 'copilot';
   apiKey?: string;
   model?: string;
   baseUrl?: string;
+  repository?: string; // New field for GitHub repo (required for copilot)
 }
 
 /**
@@ -49,6 +50,20 @@ export async function createLLMClient(config: LLMConfig): Promise<LLMClient> {
       return new OllamaClient(
         config.baseUrl || 'http://localhost:11434',
         config.model || 'morpheum-local'
+      );
+    
+    case 'copilot':
+      const { CopilotClient } = await import('./copilotClient');
+      if (!config.apiKey) {
+        throw new Error('GitHub token is required for Copilot integration');
+      }
+      if (!config.repository) {
+        throw new Error('Repository name is required for Copilot integration');
+      }
+      return new CopilotClient(
+        config.apiKey,
+        config.repository,
+        config.baseUrl || 'https://api.github.com'
       );
     
     default:

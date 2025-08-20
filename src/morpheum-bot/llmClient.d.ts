@@ -20,10 +20,11 @@ export interface LLMClient {
  * Configuration for different LLM providers
  */
 export interface LLMConfig {
-    provider: 'openai' | 'ollama';
+    provider: 'openai' | 'ollama' | 'copilot';
     apiKey?: string;
     model?: string;
     baseUrl?: string;
+    repository?: string;
 }
 /**
  * Factory function to create LLM clients based on configuration
