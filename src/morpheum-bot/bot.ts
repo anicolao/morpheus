@@ -10,14 +10,15 @@ type MessageSender = (message: string, html?: string) => Promise<void>;
 export class MorpheumBot {
   private sweAgent: SWEAgent;
   private ollamaClient: OllamaClient;
+  private ollamaModel: string;
 
   constructor() {
     const ollamaApiUrl = process.env.OLLAMA_API_URL || "http://localhost:11434";
-    const ollamaModel = process.env.OLLAMA_MODEL || "morpheum-local";
+    this.ollamaModel = process.env.OLLAMA_MODEL || "morpheum-local";
     const jailHost = process.env.JAIL_HOST || "localhost";
     const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
 
-    this.ollamaClient = new OllamaClient(ollamaApiUrl, ollamaModel);
+    this.ollamaClient = new OllamaClient(ollamaApiUrl, this.ollamaModel);
     const jailClient = new JailClient(jailHost, jailPort);
     this.sweAgent = new SWEAgent(this.ollamaClient, jailClient);
   }
@@ -78,7 +79,7 @@ export class MorpheumBot {
   }
 
   private async handleTask(task: string, sendMessage: MessageSender) {
-    await sendMessage(`Working on: "${task}"...`);
+    await sendMessage(`Working on: "${task}" using ${this.ollamaModel}...`);
     const history = await this.sweAgent.run(task);
     const result = history.map((h) => `${h.role}: ${h.content}`).join("\n\n");
     await sendMessage(result);

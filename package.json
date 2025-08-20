@@ -21,6 +21,6 @@
   },
   "scripts": {
     "prepare": "husky",
-    "test": "vitest"
+    "test": "npx vitest"
   }
 }
