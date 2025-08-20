@@ -296,25 +296,66 @@ Configuration:
         const commandOutput = await jailClient.execute(commands[0]);
         conversationHistory.push({ role: 'tool', content: commandOutput });
         
-        // Use spoiler sections for command output to keep chat clean while allowing full access
-        const maxDisplayLength = 64000; // 64k limit for spoiler content
-        const truncatedOutput = commandOutput.length > maxDisplayLength 
-          ? commandOutput.slice(0, maxDisplayLength) + '\n...(output truncated due to size limit)'
-          : commandOutput;
-          
-        // Create markdown with spoiler section using HTML details/summary tags
-        const spoilerMarkdown = `📋 **Command output:**
-
-<details>
-<summary>Click to expand command output (${commandOutput.length} characters)</summary>
+        // Smart output display: show small outputs directly, large outputs with prefix + spoiler
+        const lines = commandOutput.split('\n');
+        const lineCount = lines.length;
+        const charCount = commandOutput.length;
+        
+        // Thresholds for direct display
+        const maxDirectLines = 50;
+        const maxDirectChars = 5000;
+        
+        if (lineCount < maxDirectLines && charCount < maxDirectChars) {
+          // Small output: display directly
+          const directOutputMarkdown = `📋 **Command output:**
 
 \`\`\`
-${truncatedOutput}
+${commandOutput}
+\`\`\``;
+          await sendMarkdownMessage(directOutputMarkdown, sendMessage);
+        } else {
+          // Large output: show prefix + spoiler
+          const maxPrefixLines = 15;
+          const maxPrefixChars = 1500;
+          
+          // Get prefix (either first 15 lines or first 1500 chars, whichever comes first)
+          let prefixLines = lines.slice(0, maxPrefixLines);
+          let prefix = prefixLines.join('\n');
+          
+          if (prefix.length > maxPrefixChars) {
+            // If 15 lines exceed 1500 chars, truncate to 1500 chars
+            prefix = commandOutput.slice(0, maxPrefixChars);
+            // Try to end at a line boundary if possible
+            const lastNewline = prefix.lastIndexOf('\n');
+            if (lastNewline > maxPrefixChars * 0.8) { // Only if we're not losing too much
+              prefix = prefix.slice(0, lastNewline);
+            }
+          }
+          
+          // Prepare spoiler content (truncate to 64k if needed)
+          const maxSpoilerLength = 64000;
+          const spoilerContent = commandOutput.length > maxSpoilerLength 
+            ? commandOutput.slice(0, maxSpoilerLength) + '\n...(output truncated due to size limit)'
+            : commandOutput;
+          
+          const prefixWithSpoilerMarkdown = `📋 **Command output:**
+
+\`\`\`
+${prefix}
+${prefix.length < commandOutput.length ? '\n...(showing first ' + prefix.length + ' characters)' : ''}
+\`\`\`
+
+<details>
+<summary>Click to expand full command output (${commandOutput.length} characters)</summary>
+
+\`\`\`
+${spoilerContent}
 \`\`\`
 
 </details>`;
-        
-        await sendMarkdownMessage(spoilerMarkdown, sendMessage);
+          
+          await sendMarkdownMessage(prefixWithSpoilerMarkdown, sendMessage);
+        }
         
         // Check for early termination phrase
         if (commandOutput.includes("Job's done!")) {
