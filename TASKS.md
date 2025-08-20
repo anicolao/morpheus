@@ -511,3 +511,11 @@ the Matrix bot serving as its primary user interface.
   - [x] Cleaned up command output by switching from interactive (`bash -li`) to non-interactive (`bash -l`) shells
   - [x] Added comprehensive tests to validate clean output behavior (2025-01-20)
 
+- [x] **Task 59: Design GitHub Copilot Integration**
+  - [x] Created comprehensive design proposal for GitHub Copilot as third LLM provider
+  - [x] Designed CopilotClient following existing LLMClient interface patterns
+  - [x] Planned GitHub authentication and session management architecture
+  - [x] Specified real-time status update mechanisms using polling and streaming
+  - [x] Documented complete implementation plan with file-by-file changes
+  - [x] Created `COPILOT_PROPOSAL.md` with technical specifications and rollout strategy (2025-01-27)
+
