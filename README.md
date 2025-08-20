@@ -38,4 +38,4 @@ Morpheum has progressed beyond its initial conceptual phase and now has a workin
 - The project uses a Matrix-based workflow where AI agents handle GitHub operations
 - AI agents operate in a containerized "jail" environment using Nix
 - The bot is located in `src/morpheum-bot/` and uses local Ollama models
-- Tests can be run with `npm test`
+- Tests can be run with `bun test` (or npm if necessary)
