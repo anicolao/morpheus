@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <users>
+    <user id="1">
+      <name>John Doe</name>
+      <email>john@example.com</email>
+      <active>true</active>
+    </user>
+    <user id="2">
+      <name>Jane Smith</name>
+      <email>jane@example.com</email>
+      <active>false</active>
+    </user>
+  </users>
+  <settings>
+    <theme>dark</theme>
+    <notifications>enabled</notifications>
+  </settings>
+</root>
