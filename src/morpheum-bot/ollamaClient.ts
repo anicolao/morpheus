@@ -1,4 +1,6 @@
-export class OllamaClient {
+import { LLMClient } from './llmClient';
+
+export class OllamaClient implements LLMClient {
   constructor(private readonly apiUrl: string, private readonly model: string) {}
 
   async send(prompt: string): Promise<string> {
