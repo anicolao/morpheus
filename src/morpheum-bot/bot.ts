@@ -232,7 +232,7 @@ Configuration:
   }
 
   private async handleTask(task: string, sendMessage: MessageSender) {
-    await sendMessage(`Working on: "${task}" using ${this.currentLLMProvider}...`);
+    await sendMessage(`Working on: "${task}" using ${this.currentLLMProvider} (${this.llmConfig[this.currentLLMProvider].model})...`);
     const history = await this.sweAgent.run(task);
     const result = history.map((h) => `${h.role}: ${h.content}`).join("\n\n");
     await sendMessage(result);

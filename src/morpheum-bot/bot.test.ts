@@ -195,7 +195,7 @@ describe('MorpheumBot', () => {
       await bot.processMessage('Create a simple hello world program', 'user', mockSendMessage);
       
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('Working on: "Create a simple hello world program" using openai...')
+        expect.stringContaining('Working on: "Create a simple hello world program" using openai (gpt-4-test)...')
       );
       expect(mockSendMessage).toHaveBeenCalledWith(
         expect.stringContaining('system: System prompt')
