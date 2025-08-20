@@ -262,7 +262,7 @@ describe('MorpheumBot', () => {
         expect.stringContaining('Working on: "Create a simple hello world program" using openai (gpt-4-test)...')
       );
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('Iteration 1/10: Analyzing and planning...')
+        expect.stringContaining('Iteration 1: Analyzing and planning...')
       );
       expect(mockSendMessage).toHaveBeenCalledWith(
         expect.stringContaining('Analysis complete. Processing response...')

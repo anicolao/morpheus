@@ -9,6 +9,12 @@ import { formatMarkdown } from "./format-markdown";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
+// Helper function to send markdown messages with proper HTML formatting
+function sendMarkdownMessage(markdown: string, sendMessage: MessageSender): Promise<void> {
+  const html = formatMarkdown(markdown);
+  return sendMessage(markdown, html);
+}
+
 export class MorpheumBot {
   private sweAgent: SWEAgent;
 
@@ -263,7 +269,7 @@ Configuration:
     conversationHistory.push({ role: 'user', content: task });
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
-      await sendMessage(`🧠 Iteration ${i + 1}/${MAX_ITERATIONS}: Analyzing and planning...`);
+      await sendMessage(`🧠 Iteration ${i + 1}: Analyzing and planning...`);
       
       const prompt = conversationHistory.map((msg) => `${msg.role}: ${msg.content}`).join('\n\n');
       
@@ -290,13 +296,31 @@ Configuration:
         const commandOutput = await jailClient.execute(commands[0]);
         conversationHistory.push({ role: 'tool', content: commandOutput });
         
-        // Truncate very long outputs for display to avoid overwhelming the user
-        const maxDisplayLength = 2000;
-        const displayOutput = commandOutput.length > maxDisplayLength 
-          ? commandOutput.slice(0, maxDisplayLength) + '\n...(output truncated)'
+        // Use spoiler sections for command output to keep chat clean while allowing full access
+        const maxDisplayLength = 64000; // 64k limit for spoiler content
+        const truncatedOutput = commandOutput.length > maxDisplayLength 
+          ? commandOutput.slice(0, maxDisplayLength) + '\n...(output truncated due to size limit)'
           : commandOutput;
           
-        await sendMessage(`📋 Command output:\n\`\`\`\n${displayOutput}\n\`\`\``);
+        // Create markdown with spoiler section using HTML details/summary tags
+        const spoilerMarkdown = `📋 **Command output:**
+
+<details>
+<summary>Click to expand command output (${commandOutput.length} characters)</summary>
+
+\`\`\`
+${truncatedOutput}
+\`\`\`
+
+</details>`;
+        
+        await sendMarkdownMessage(spoilerMarkdown, sendMessage);
+        
+        // Check for early termination phrase
+        if (commandOutput.includes("Job's done!")) {
+          await sendMessage(`✅ Task completed early - detected completion signal!`);
+          break;
+        }
       } else {
         // If the model doesn't return a command, we assume it's done.
         await sendMessage(`✅ Task completed!`);
