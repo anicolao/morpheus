@@ -268,7 +268,7 @@ describe('MorpheumBot', () => {
         expect.stringContaining('Analysis complete. Processing response...')
       );
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('Task completed!')
+        expect.stringContaining("Job's done!")
       );
     });
   });

@@ -345,26 +345,21 @@ ${prefix}
 ${prefix.length < commandOutput.length ? '\n...(showing first ' + prefix.length + ' characters)' : ''}
 \`\`\`
 
-<details>
-<summary>Click to expand full command output (${commandOutput.length} characters)</summary>
-
 \`\`\`
 ${spoilerContent}
-\`\`\`
-
-</details>`;
+\`\`\``;
           
           await sendMarkdownMessage(prefixWithSpoilerMarkdown, sendMessage);
         }
         
         // Check for early termination phrase
         if (commandOutput.includes("Job's done!")) {
-          await sendMessage(`✅ Task completed early - detected completion signal!`);
+          await sendMessage("✓ Job's done!");
           break;
         }
       } else {
         // If the model doesn't return a command, we assume it's done.
-        await sendMessage(`✅ Task completed!`);
+        await sendMessage("✓ Job's done!");
         break;
       }
     }
