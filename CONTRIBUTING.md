@@ -16,13 +16,7 @@ Before you start, please familiarize yourself with the project's vision and arch
 
 ### 2. Development Environment
 
-**Current (Bootstrapping Phase):**
-
-In the immediate near term, human developers will use a local instance of the Gemini CLI to interact directly with the Morpheum repository, similar to how we are operating now. This is a temporary phase to bootstrap the project.
-
-**Future (Target State - Morpheum v0.1):**
-
-As soon as possible, the development environment will transition to a Matrix-driven workflow. All interactions, including code changes, will be initiated within the Matrix room. AI agents, each with their own GitHub accounts, will manage the forks and pull requests.
+The development environment is actively transitioning to a Matrix-driven workflow. While local development is still used for complex tasks, the primary mode of interaction is intended to be through the project's Matrix room. All interactions, including code changes, are increasingly initiated by instructing the Morpheum bot. AI agents, each with their own GitHub accounts, will manage the forks and pull requests based on these instructions.
 
 ### 3. Find and Define a Task
 

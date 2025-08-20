@@ -1,41 +1,63 @@
 # Roadmap
 
-This document outlines the development roadmap for Morpheum, focusing on the near-term tasks required to transition from a single-developer, local CLI-based workflow to a collaborative, Matrix-based workflow.
+This document outlines the development roadmap for Morpheum.
 
-## Morpheum v0.1: The "Matrix Milestone"
+## Morpheum v0.1: The "Matrix Milestone" (Completed)
 
-The primary goal for the near future is to establish the basic infrastructure for Matrix-based collaboration. This will involve the following tasks:
+This initial phase focused on bootstrapping the project and establishing the basic infrastructure for a collaborative, Matrix-based workflow.
 
-### 1. Matrix Room Setup
+### 1. Matrix Room Setup (Done)
 
-*   **Create a dedicated Matrix room for the Morpheum project.** This room will serve as the central hub for all project-related communication.
-*   **Invite the initial developer(s) to the room.**
+*   A dedicated Matrix room for the Morpheum project was created and serves as the central hub for all project-related communication.
 
-### 2. Bot Development: The "Morpheum Bot"
+### 2. Bot Development: The "Morpheum Bot" (In Progress)
 
-The core of the Matrix milestone is the development of a bot, tentatively named the "Morpheum Bot," that will act as the primary interface between the developers and the GitHub repository. This bot will be developed in TypeScript/JavaScript, leveraging the forked Gemini CLI.
+The core of this milestone was the development of the "Morpheum Bot" to act as the primary interface between developers and the GitHub repository.
 
-*   **Initial Proof of Concept:**
-    *   Fork the Gemini CLI (TypeScript/JavaScript-based) to create the initial version of the Morpheum Bot. This will allow the bot to directly be the Gemini CLI for an initial proof of concept, working within its native language environment.
+*   **Initial Proof of Concept (Done):**
+    *   The Gemini CLI was successfully forked and integrated as a library to bootstrap the bot's development. This allowed for an initial proof of concept and has since been replaced by a direct integration with local LLMs, marking this as a successful bootstrapping step.
 
-*   **Basic Bot Infrastructure (TypeScript/JavaScript):**
-    *   Set up a basic bot framework using appropriate TypeScript/JavaScript libraries for Matrix interaction (e.g., `matrix-bot-sdk` or similar).
-    *   Configure the bot to join the project's Matrix room.
-    *   Implement a simple command handler to respond to basic commands (e.g., `!help`).
+*   **Basic Bot Infrastructure (Done):**
+    *   A basic bot framework using TypeScript and the `matrix-bot-sdk` has been set up.
+    *   The bot is configured to join the project's Matrix room and respond to basic commands.
 
-*   **GitHub Integration (TypeScript/JavaScript):**
-    *   Each AI agent should have its own GitHub account, which it will use to fork repositories and create pull requests.
-    *   Human developers can then use an AI agent with their own accounts for the purposes of accepting pull requests into the project.
-    *   Implement OAuth or a similar mechanism to allow the bot to authenticate with GitHub on behalf of the user, using TypeScript/JavaScript libraries.
-    *   Develop a mechanism for instructing AI agents to perform GitHub-related actions (e.g., creating repositories, issues, pull requests, and managing their approval and merging).
+*   **GitHub Integration (To Do):**
+    *   A mechanism for instructing AI agents to perform GitHub-related actions (e.g., creating repositories, issues, pull requests, and managing their approval and merging) still needs to be implemented.
 
-*   **Agent Integration:**
-    *   Develop a mechanism for the bot to invoke AI agents (like the Gemini CLI) to perform tasks.
-    *   For example, a command like `!refactor-code <file> <instructions>` would trigger the bot to call the Gemini CLI with the appropriate prompts and context.
+*   **Agent Integration (To Do):**
+    *   The bot's agent is now invoked by mentioning the bot's name (`@botname: <prompt>`). The underlying logic to handle a wide range of commands is the current focus of development.
 
-### 3. Workflow Transition
+### 3. Workflow Transition (To Do)
 
-*   **Dogfooding:** As soon as the basic bot functionality is in place, we will begin "dogfooding" the new workflow. All project-related tasks will be initiated and managed through the Matrix room.
-*   **Documentation:** The [`README.md`](README.md) and other documentation will be updated to reflect the new Matrix-based workflow.
+*   **Dogfooding:** The project is actively using the bot for its own development ("dogfooding"), but this is an ongoing process.
+*   **Documentation:** Project documentation is continuously updated to reflect the latest workflow.
+
+## Morpheum v0.2: Agent Advancement (Current Focus)
+
+The primary goal for the current phase is to enhance the intelligence, reliability, and capabilities of the core SWE-Agent. This involves rigorous testing, targeted improvements, and integration with a wider range of tools.
+
+### 1. Agent Evaluation and Improvement
+
+*   **Gauntlet Testing:**
+    *   Systematically run the evaluation gauntlet ([`GAUNTLET.md`](GAUNTLET.md)) against a variety of local and proprietary models to establish performance benchmarks.
+    *   Analyze the results to identify common failure points and areas for improvement in the agent's planning and execution logic.
+*   **Prompt Engineering:**
+    *   Iteratively refine the system prompts in [`prompts.ts`](src/morpheum-bot/prompts.ts) based on gauntlet results to improve the agent's reasoning and tool-use capabilities.
+*   **Self-Correction and Learning:**
+    *   Investigate and implement mechanisms for the agent to learn from its mistakes. This could involve feeding back summaries of failed tasks into its context or developing a more sophisticated self-correction loop.
+
+### 2. Enhanced Tooling and Environment
+
+*   **OpenAI API Integration:**
+    *   Complete the integration with the OpenAI API, allowing the bot to leverage models like GPT-4 for tasks that require more advanced reasoning.
+*   **Jail Environment Enhancements:**
+    *   Improve the jailed development environment to support a wider range of project types and dependencies.
+
+### 3. Workflow and Usability
+
+*   **Matrix Interface:**
+    *   Improve the user experience in the Matrix room by providing more structured output, better error reporting, and more intuitive commands.
+*   **Multi-Agent Collaboration:**
+    *   Begin experimenting with multi-agent workflows, where different agents with specialized skills can collaborate on a single task.
 
 

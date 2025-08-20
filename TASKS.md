@@ -484,3 +484,7 @@ the Matrix bot serving as its primary user interface.
   - [x] Modify gauntlet success conditions to check for tools within the `nix develop` environment.
 - [x] **Task 54: Update Local Model**
   - [x] Update the `morpheum-local` model to use `qwen`.
+- [x] **Task 55: Correct Documentation Inconsistencies**
+  - [x] Analyzed all `.md` files for inconsistencies.
+  - [x] Updated `ROADMAP.md` to reflect the completion of v0.1 and the current focus on v0.2.
+  - [x] Updated `CONTRIBUTING.md` to describe the active Matrix-based workflow.
