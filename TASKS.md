@@ -1,6 +1,6 @@
 # Tasks
 
-This file tracks the current and upcoming tasks for the Morpheum project.
+This file tracks the current and upcoming tasks for the Morpheum project. 
 
 ## Morpheum v0.1: The "Matrix Milestone"
 
@@ -518,4 +518,13 @@ the Matrix bot serving as its primary user interface.
   - [x] Specified real-time status update mechanisms using polling and streaming
   - [x] Documented complete implementation plan with file-by-file changes
   - [x] Created `COPILOT_PROPOSAL.md` with technical specifications and rollout strategy (2025-01-27)
+
+- [x] **Task 59: Enhance Bot User Feedback with Plan and Next Step Display**
+  - [x] Added `parsePlanAndNextStep()` function to extract structured thinking from LLM responses
+  - [x] Implemented plan display with 📋 icon showing bot's strategy on first iteration
+  - [x] Implemented next step display with 🎯 icon showing bot's immediate action plan
+  - [x] Used existing `sendMarkdownMessage()` helper for proper HTML formatting in Matrix
+  - [x] Added comprehensive test coverage with 6 new test cases for parsing functionality
+  - [x] Enhanced user transparency by showing the bot's thinking process in structured format
+
 
