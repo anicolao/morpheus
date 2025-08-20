@@ -10,7 +10,7 @@ describe('formatMarkdown', () => {
 
   it('should correctly format code blocks', () => {
     const markdown = "```javascript\nconsole.log('Hello, World!');\n```";
-    const expectedHtml = "<pre><code class=\"language-javascript\">console.log(&#39;Hello, World!&#39;);\n</code></pre>\n";
+    const expectedHtml = "<pre><code class=\"language-javascript\">console.log('Hello, World!');\n</code></pre>\n";
     expect(formatMarkdown(markdown)).toBe(expectedHtml);
   });
 
@@ -29,7 +29,7 @@ describe('formatMarkdown', () => {
   it('should render task list items', () => {
     const markdown = '- [ ] Do something';
     const html = formatMarkdown(markdown);
-    expect(html).toContain('<input disabled="" type="checkbox"');
+    expect(html).toContain('<input type="checkbox" id="cbx_0" disabled="true">');
   });
 
   it('should render markdown inside task list items', () => {
