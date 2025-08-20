@@ -305,7 +305,8 @@ ${nextStep}`;
       const commands = parseBashCommands(modelResponse);
 
       if (commands.length > 0) {
-        await sendMessage(`⚡ Executing command: \`${commands[0]}\``);
+        const executingCommandMarkdown = `⚡ **Executing command:** \`${commands[0]}\``;
+        await sendMarkdownMessage(executingCommandMarkdown, sendMessage);
         
         const jailHost = process.env.JAIL_HOST || "localhost";
         const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
