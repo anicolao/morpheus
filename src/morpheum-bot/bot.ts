@@ -6,6 +6,7 @@ import { LLMClient, LLMConfig, createLLMClient } from "./llmClient";
 import { execa } from "execa";
 import * as fs from "fs";
 import { formatMarkdown } from "./format-markdown";
+import { CopilotClient } from "./copilotClient";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
@@ -49,7 +50,7 @@ export class MorpheumBot {
     // Default to Ollama if no OpenAI key is provided
     this.currentLLMProvider = this.llmConfig.openai.apiKey ? 'openai' : 'ollama';
     
-    // Initialize clients
+    // Initialize clients - this will be created lazily when needed
     this.currentLLMClient = this.createCurrentLLMClient();
     
     const jailHost = process.env.JAIL_HOST || "localhost";
@@ -94,7 +95,6 @@ export class MorpheumBot {
         this.llmConfig.openai.baseUrl
       );
     } else if (this.currentLLMProvider === 'copilot') {
-      const { CopilotClient } = require('./copilotClient');
       return new CopilotClient(
         this.llmConfig.copilot.apiKey!,
         this.llmConfig.copilot.repository!,
@@ -333,8 +333,7 @@ Configuration:
     }
 
     try {
-      const { CopilotClient } = require('./copilotClient');
-      const copilotClient = this.currentLLMClient as InstanceType<typeof CopilotClient>;
+      const copilotClient = this.currentLLMClient as CopilotClient;
 
       switch (subcommand) {
         case 'status':
