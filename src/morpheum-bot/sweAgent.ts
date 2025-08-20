@@ -1,4 +1,4 @@
-import { OllamaClient } from './ollamaClient';
+import { LLMClient } from './llmClient';
 import { JailClient } from './jailClient';
 import { parseBashCommands } from './responseParser';
 import { SYSTEM_PROMPT } from './prompts';
@@ -9,7 +9,7 @@ export class SWEAgent {
   private conversationHistory: { role: string; content: string }[] = [];
 
   constructor(
-    private readonly ollamaClient: OllamaClient,
+    private readonly llmClient: LLMClient,
     private readonly jailClient: JailClient
   ) {
     this.conversationHistory.push({ role: 'system', content: SYSTEM_PROMPT });
@@ -19,7 +19,7 @@ export class SWEAgent {
     this.conversationHistory.push({ role: 'user', content: task });
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
-      const modelResponse = await this.ollamaClient.send(this.getPrompt());
+      const modelResponse = await this.llmClient.send(this.getPrompt());
       this.conversationHistory.push({ role: 'assistant', content: modelResponse });
 
       const commands = parseBashCommands(modelResponse);

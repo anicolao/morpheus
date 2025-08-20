@@ -1,0 +1,63 @@
+import { describe, it, expect } from 'vitest';
+import { createLLMClient, LLMConfig } from './llmClient';
+import { OpenAIClient } from './openai';
+import { OllamaClient } from './ollamaClient';
+
+describe('LLM Client Factory', () => {
+  it('should create OpenAI client with valid config', async () => {
+    const config: LLMConfig = {
+      provider: 'openai',
+      apiKey: 'test-key',
+      model: 'gpt-4',
+      baseUrl: 'https://api.openai.com/v1',
+    };
+
+    const client = await createLLMClient(config);
+    expect(client).toBeInstanceOf(OpenAIClient);
+  });
+
+  it('should create Ollama client with valid config', async () => {
+    const config: LLMConfig = {
+      provider: 'ollama',
+      model: 'llama2',
+      baseUrl: 'http://localhost:11434',
+    };
+
+    const client = await createLLMClient(config);
+    expect(client).toBeInstanceOf(OllamaClient);
+  });
+
+  it('should throw error for OpenAI without API key', async () => {
+    const config: LLMConfig = {
+      provider: 'openai',
+      model: 'gpt-4',
+    };
+
+    await expect(createLLMClient(config)).rejects.toThrow('OpenAI API key is required');
+  });
+
+  it('should throw error for unsupported provider', async () => {
+    const config = {
+      provider: 'unsupported',
+    } as any;
+
+    await expect(createLLMClient(config)).rejects.toThrow('Unsupported LLM provider: unsupported');
+  });
+
+  it('should use default values for optional parameters', async () => {
+    const openaiConfig: LLMConfig = {
+      provider: 'openai',
+      apiKey: 'test-key',
+    };
+
+    const ollamaConfig: LLMConfig = {
+      provider: 'ollama',
+    };
+
+    const openaiClient = await createLLMClient(openaiConfig);
+    const ollamaClient = await createLLMClient(ollamaConfig);
+
+    expect(openaiClient).toBeInstanceOf(OpenAIClient);
+    expect(ollamaClient).toBeInstanceOf(OllamaClient);
+  });
+});
