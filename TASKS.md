@@ -251,24 +251,28 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
         strips the `style` attribute, making it impossible to suppress the
         bullets using inline styles.
 
-- [ ] **Task 34: Add OpenAI API Compatibility**
+- [x] **Task 34: Add OpenAI API Compatibility**
 
   - [x] **Subtask 1: Create Failing Test for OpenAI Integration**
     - [x] Create a new test file `src/morpheum-bot/openai.test.ts`.
     - [x] Write a test that attempts to send a prompt to a mock OpenAI server
           and asserts that a valid response is received. This test should fail
           initially as the implementation won't exist.
-  - [ ] **Subtask 2: Implement OpenAI API Client**
-    - [ ] Create a new file `src/morpheum-bot/openai.ts`.
-    - [ ] Implement a function that takes a prompt and an OpenAI API key and
+  - [x] **Subtask 2: Implement OpenAI API Client**
+    - [x] Create a new file `src/morpheum-bot/openai.ts`.
+    - [x] Implement a function that takes a prompt and an OpenAI API key and
           sends a request to the OpenAI API.
-    - [ ] This function should handle the response and return it in a structured
+    - [x] This function should handle the response and return it in a structured
           format.
-  - [ ] **Subtask 3: Integrate OpenAI Client into Bot**
-    - [ ] Modify `src/morpheum-bot/index.ts` to add a new `!openai` command.
-    - [ ] This command should take a prompt, call the new OpenAI client, and
-          send the response to the Matrix room.
-    - [ ] Ensure all tests, including the new integration test, pass.
+    - [x] Create `OpenAIClient` class implementing `LLMClient` interface.
+    - [x] Support custom base URLs for OpenAI-compatible APIs.
+  - [x] **Subtask 3: Integrate OpenAI Client into Bot**
+    - [x] Enhanced `src/morpheum-bot/bot.ts` to support both OpenAI and Ollama APIs.
+    - [x] Added new commands: `!openai`, `!ollama`, `!llm status`, `!llm switch`.
+    - [x] Created comprehensive test suite covering all new functionality.
+    - [x] Added common `LLMClient` interface and factory pattern.
+    - [x] Updated `SWEAgent` to use generic `LLMClient` interface.
+    - [x] All tests pass for new integration functionality.
 
 - [x] **Task 28: Fix missing message-queue files**
 
@@ -317,7 +321,7 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 ## Phase 1: Implement the Jailed Agent Environment
 
 The goal of this phase is to automate the setup and management of the jailed
-agent environment described in `JAIL_PROTOTYPE.md`. All scripts and
+agent environment described in `JAIL_PROTOTYPE.md` (now deprecated - see current implementation in `jail/` directory). All scripts and
 configurations will be placed in a new `jail/` directory.
 
 - [x] **Task 1: Create the `jail` directory structure.**
@@ -327,7 +331,7 @@ configurations will be placed in a new `jail/` directory.
 - [x] **Task 2: Implement `jail/flake.nix`**
 
   - Create a `flake.nix` file inside the `jail` directory.
-  - Copy the Nix code from `JAIL_PROTOTYPE.md` into this file.
+  - Copy the Nix code from `JAIL_PROTOTYPE.md` into this file (now implemented).
 
 - [x] **Task 3: Create `jail/start-vm.sh` script**
 
@@ -350,13 +354,13 @@ configurations will be placed in a new `jail/` directory.
 - [x] **Task 6: Create `jail/agent.ts` client**
 
   - Create the TypeScript agent client as `jail/agent.ts`.
-  - Copy the TypeScript code from `JAIL_PROTOTYPE.md` into this file.
+  - Copy the TypeScript code from `JAIL_PROTOTYPE.md` into this file (now implemented).
 
 - [x] **Task 7: Create `jail/README.md`**
   - Create a `README.md` file inside the `jail` directory.
   - Document how to use the new scripts (`start-vm.sh`, `build.sh`, `run.sh`,
     and `agent.ts`) to set up and interact with the jailed environment. This
-    will replace the manual instructions in the original prototype document.
+    replaces the manual instructions in the original prototype document.
 - [x] **Task 37: Improve Pre-commit Hook**
   - [x] Add a check to the pre-commit hook to prevent commits with unstaged
         changes.

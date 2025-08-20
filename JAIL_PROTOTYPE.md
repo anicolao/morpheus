@@ -1,4 +1,6 @@
-# Creating a Jailed Agentic Environment for the Morpheum Project
+# [DEPRECATED] Creating a Jailed Agentic Environment for the Morpheum Project
+
+> **⚠️ DEPRECATION NOTICE**: This document describes the prototype design for the jail system. The jail system has since been implemented and is now located in the `jail/` directory with proper automation scripts. This document is preserved for historical reference only. See `jail/README.md` for current usage instructions.
 
 ## Introduction
 

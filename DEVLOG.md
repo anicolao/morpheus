@@ -31,6 +31,69 @@ to work around them.
   - The pre-commit hook is an effective enforcement mechanism for maintaining project documentation standards.
   - Status messages benefit from including contextual information like which model is being used for tasks.
 
+### 2025-01-12: Implement OpenAI/Ollama Dual API Support for Morpheum Bot
+
+- **High-Level Request:**
+  - Extend the morpheum-bot to support both OpenAI API and Ollama API, allowing users to switch between different LLM providers based on their needs, with comprehensive testing and documentation.
+
+- **Actions Taken:**
+  - **OpenAI Integration:**
+    - Completed the existing Task 34 by implementing a full `OpenAIClient` class that follows the same patterns as `OllamaClient`.
+    - Created comprehensive test suite covering all OpenAI functionality including error handling, custom base URLs, and various response scenarios.
+    - Un-skipped the existing `openai.test.ts` and expanded it significantly.
+  - **Common Interface Design:**
+    - Created `LLMClient` interface to abstract differences between providers.
+    - Implemented factory pattern in `llmClient.ts` for creating appropriate clients based on configuration.
+    - Updated both `OpenAIClient` and `OllamaClient` to implement the common interface.
+  - **Bot Enhancement:**
+    - Major refactor of `MorpheumBot` to support dual APIs with automatic provider selection.
+    - Added new commands: `!llm status`, `!llm switch`, `!openai <prompt>`, `!ollama <prompt>`.
+    - Enhanced help system with comprehensive command documentation.
+    - Implemented configuration via environment variables for both providers.
+  - **Architecture Improvements:**
+    - Updated `SWEAgent` to use generic `LLMClient` interface instead of being tied to Ollama.
+    - Added support for OpenAI-compatible APIs via custom base URL configuration.
+    - Implemented robust error handling and validation throughout.
+  - **Testing & Documentation:**
+    - Created 46 passing tests across 5 new/updated test files.
+    - Added comprehensive documentation in `MORPHEUM_BOT_API.md` with usage examples.
+    - Updated `TASKS.md` to mark Task 34 as completed.
+
+- **Friction/Success Points:**
+  - **Success:** The existing codebase had excellent patterns to follow - the `OllamaClient` implementation provided a clear template for the `OpenAIClient`.
+  - **Success:** The test infrastructure was already well-established, making it easy to add comprehensive test coverage.
+  - **Success:** The bot's command structure was extensible, allowing seamless integration of new LLM commands.
+  - **Success:** Environment variable-based configuration made it easy to support both providers without breaking existing setups.
+  - **Friction:** Had to navigate some existing test failures (2 in format-markdown) that were unrelated to the changes, but successfully isolated the new functionality.
+  - **Success:** The interface-based approach made the integration very clean and maintainable.
+
+- **Lessons Learned:**
+  - **Interface Design:** Creating a common interface early (`LLMClient`) made it trivial to swap providers and will make future LLM integrations much easier.
+  - **Factory Pattern:** The factory pattern (`createLLMClient`) provides excellent extensibility for adding new providers in the future.
+  - **Environment-based Configuration:** Using environment variables for configuration provides flexibility while maintaining security (API keys aren't hardcoded).
+  - **Comprehensive Testing:** Having both unit tests and integration tests gives confidence that the dual-API approach works correctly.
+  - **Documentation-First:** Creating `MORPHEUM_BOT_API.md` with usage examples makes the new functionality immediately accessible to users.
+  - **Backward Compatibility:** Maintaining the original `sendOpenAIRequest` function ensures existing code won't break while providing the new class-based API.
+
+### 2025-08-20: Documentation Consistency Review
+
+- **Actions Taken:**
+  - Conducted comprehensive review of all markdown files for inconsistencies with current project state
+  - Added deprecation notices to `GEMINI_CLI_OVERVIEW.md` and `JAIL_PROTOTYPE.md` since Gemini CLI was removed and jail system is now implemented
+  - Updated `AGENTS.md` to reflect actual npm usage instead of preferred but unavailable bun
+  - Updated `README.md` "Getting Started" section to reflect current v0.2 project state rather than early conceptual phase
+  - Updated references in `TASKS.md` to clarify that jail prototype tasks have been completed
+  - Preserved historical context by marking outdated files as deprecated rather than deleting them
+
+- **Friction/Success Points:**
+  - **Success:** Following established pattern from previous DEVLOG entries to preserve history rather than delete outdated content
+  - **Success:** Identified clear inconsistencies between documented vs actual package management, project state, and implemented features
+  
+- **Lessons Learned:**
+  - Documentation consistency reviews are essential as projects evolve rapidly
+  - Deprecation notices are preferable to deletion for maintaining historical context
+  - Package manager preferences in documentation should match available tooling
+
 ---
 
 ### 2025-08-19: Align Documentation with Project State
@@ -456,8 +519,6 @@ to work around them.
 
 ---
 
-<<<<<<< HEAD
-
 ### 2025-08-16: Fix Message Queue Mixed-Type Concatenation
 
 - **Actions Taken:**
@@ -476,31 +537,6 @@ to work around them.
     not regress.
 
 ---
-
-||||||| parent of 12fff24 (fix: handle mixed-type messages in queue)
-
-### 2025-08-16: Fix Message Queue Mixed-Type Concatenation
-
-- **Actions Taken:**
-  - Fixed a bug in the message queue where text and HTML messages were being
-    improperly concatenated.
-  - Modified the batching logic to group messages by both `roomId` and
-    `msgtype`.
-  - Added a new test case to ensure that messages of different types are not
-    batched together.
-- **Friction/Success Points:**
-  - The pre-commit hook correctly prevented a commit without updating the
-    devlog.
-- **Lessons Learned:**
-  - It's important to consider all message types when designing a message queue.
-  - Test-driven development is a great way to ensure that bugs are fixed and do
-    not regress.
-
----
-
-=======
-
-> > > > > > > 12fff24 (fix: handle mixed-type messages in queue)
 
 ### 2025-08-16: Improve `run_shell_command` Output
 
