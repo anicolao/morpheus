@@ -1,4 +1,6 @@
-# Gemini CLI and Model: An Architectural Overview of Agentic Behavior
+# [DEPRECATED] Gemini CLI and Model: An Architectural Overview of Agentic Behavior
+
+> **⚠️ DEPRECATION NOTICE**: This document describes the Gemini CLI integration that was removed in Task 49 (see DEVLOG.md entry "2025-08-18: Remove `gemini-cli` Submodule"). The project now uses a direct SWE-Agent integration with Ollama models. This document is preserved for historical reference only.
 
 This document clarifies the distinct roles of the Gemini CLI and the underlying language model (e.g., Gemini Pro) in creating the "agentic" behaviors observed during its operation. The agent-like qualities, such as retrying failed steps or exploring different solutions, are not inherent to the model alone but emerge from the symbiotic relationship between the CLI and the model.
 

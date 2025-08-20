@@ -23,13 +23,19 @@ Morpheum will not feature a separate web interface. All interactions will occur 
 
 ## Getting Started
 
-This project is still in its early stages. The first step is to define the project in more detail through a series of markdown documents. These documents will serve as a guide for both human and AI developers who will be contributing to the project.
+Morpheum has progressed beyond its initial conceptual phase and now has a working Matrix bot with SWE-Agent capabilities. The project is currently in Phase v0.2 (Agent Advancement) focusing on improving agent intelligence and reliability.
 
-**Next Steps:**
+**To get started:**
 
-1.  Elaborate on the project vision in [`VISION.md`](VISION.md).
-2.  Detail the proposed architecture in [`ARCHITECTURE.md`](ARCHITECTURE.md).
-3.  Outline the development roadmap in [`ROADMAP.md`](ROADMAP.md).
-4.  Define contribution guidelines in [`CONTRIBUTING.md`](CONTRIBUTING.md).
-5.  Review the development log in [DEVLOG.md](DEVLOG.md).
+1.  Review the project vision in [`VISION.md`](VISION.md).
+2.  Understand the architecture in [`ARCHITECTURE.md`](ARCHITECTURE.md).  
+3.  Check the current development roadmap in [`ROADMAP.md`](ROADMAP.md).
+4.  Read the contribution guidelines in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+5.  Browse the development log in [DEVLOG.md](DEVLOG.md) for historical context.
 6.  Understand the expected behavior of AI agents in [AGENTS.md](AGENTS.md).
+
+**For Development:**
+- The project uses a Matrix-based workflow where AI agents handle GitHub operations
+- AI agents operate in a containerized "jail" environment using Nix
+- The bot is located in `src/morpheum-bot/` and uses local Ollama models
+- Tests can be run with `npm test`
