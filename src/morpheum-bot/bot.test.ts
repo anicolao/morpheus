@@ -75,6 +75,10 @@ vi.mock('./format-markdown', () => ({
       return '<h1>Tasks</h1>\n<p>This file tracks the current and upcoming tasks for the Morpheum project.</p>\n';
     } else if (content.startsWith('# DEVLOG')) {
       return '<h1>DEVLOG</h1>\n<h2>Morpheum Development Log</h2>\n<p>This log tracks the development of morpheum.</p>\n';
+    } else if (content.includes('🏆 **Gauntlet - AI Model Evaluation**')) {
+      return '<p>🏆 <strong>Gauntlet - AI Model Evaluation</strong></p>\n<p><strong>Usage:</strong></p>\n<ul>\n<li><code>!gauntlet run --model &lt;model&gt;</code> - Run gauntlet evaluation</li>\n</ul>\n<p><strong>Options:</strong></p>\n<p><code>--model &lt;model&gt;</code> - Required. The model name to evaluate</p>\n<p>⚠️ <strong>Note:</strong> Gauntlet only works with OpenAI and Ollama providers, not Copilot.</p>';
+    } else if (content.includes('📋 **Available Gauntlet Tasks:**')) {
+      return '<p>📋 <strong>Available Gauntlet Tasks:</strong></p>\n<p><strong>Environment Management &amp; Tooling:</strong></p>\n<ul>\n<li><code>add-jq</code> (Easy) - Add jq tool for JSON parsing</li>\n</ul>\n<p><strong>Software Development &amp; Refinement:</strong></p>\n<ul>\n<li><code>hello-world-server</code> (Easy) - Create simple web server</li>\n</ul>';
     }
     return '<p>Formatted markdown</p>';
   }),
@@ -123,6 +127,7 @@ describe('MorpheumBot', () => {
     process.env.OPENAI_API_KEY = 'test-openai-key';
     process.env.OPENAI_MODEL = 'gpt-4-test';
     process.env.OPENAI_BASE_URL = 'https://test-openai.com/v1';
+    process.env.GITHUB_TOKEN = 'test-github-token';
     
     mockSendMessage = vi.fn().mockResolvedValue(undefined);
     bot = new MorpheumBot();
@@ -289,6 +294,62 @@ describe('MorpheumBot', () => {
       expect(mockSendMessage).toHaveBeenCalledWith(
         expect.stringContaining('# DEVLOG'),
         expect.stringContaining('<h1>DEVLOG</h1>')
+      );
+    });
+  });
+
+  describe('Gauntlet Commands', () => {
+    it('should show gauntlet help with formatted markdown', async () => {
+      await bot.processMessage('!gauntlet help', 'user', mockSendMessage);
+      
+      // Verify that sendMarkdownMessage was called (should have 2 parameters: markdown + HTML)
+      expect(mockSendMessage).toHaveBeenCalledTimes(1);
+      const call = mockSendMessage.mock.calls[0];
+      
+      // Should have both markdown and HTML parameters
+      expect(call).toHaveLength(2);
+      
+      // First parameter should be the markdown
+      expect(call[0]).toContain('🏆 **Gauntlet - AI Model Evaluation**');
+      expect(call[0]).toContain('**Usage:**');
+      expect(call[0]).toContain('`!gauntlet run --model <model> [--task <task>] [--verbose]`');
+      
+      // Second parameter should be HTML
+      expect(call[1]).toContain('<strong>Gauntlet - AI Model Evaluation</strong>');
+      expect(call[1]).toContain('<code>!gauntlet run --model');
+    });
+
+    it('should show gauntlet list with formatted markdown', async () => {
+      await bot.processMessage('!gauntlet list', 'user', mockSendMessage);
+      
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('📋 **Available Gauntlet Tasks:**'),
+        expect.stringContaining('<strong>Available Gauntlet Tasks:</strong>')
+      );
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('**Environment Management & Tooling:**'),
+        expect.stringContaining('<strong>Environment Management &amp; Tooling:</strong>')
+      );
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('`add-jq`'),
+        expect.stringContaining('<code>add-jq</code>')
+      );
+    });
+
+    it('should reject gauntlet run with copilot provider', async () => {
+      // Switch to copilot provider with repository  
+      await bot.processMessage('!llm switch copilot owner/repo', 'user', mockSendMessage);
+      
+      // Verify switch was successful by checking one of the switch message calls
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('Switched to copilot')
+      );
+      mockSendMessage.mockClear();
+      
+      await bot.processMessage('!gauntlet run --model gpt-4', 'user', mockSendMessage);
+      
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        'Error: Gauntlet cannot be run with Copilot provider. Please switch to OpenAI or Ollama first using `!llm switch <openai|ollama>`'
       );
     });
   });
