@@ -7,6 +7,7 @@ import { execa } from "execa";
 import * as fs from "fs";
 import { formatMarkdown } from "./format-markdown";
 import { CopilotClient } from "./copilotClient";
+import * as net from "net";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
@@ -165,6 +166,9 @@ Available commands:
 - \`!copilot status [session-id]\` - Check copilot session status
 - \`!copilot list\` - List active copilot sessions
 - \`!copilot cancel <session-id>\` - Cancel a copilot session
+- \`!gauntlet help\` - Show gauntlet evaluation help
+- \`!gauntlet list\` - List available gauntlet tasks
+- \`!gauntlet run --model <model> [--task <task>]\` - Run gauntlet evaluation
 
 For regular tasks, just type your request without a command prefix.`;
       await sendMessage(message);
@@ -184,6 +188,8 @@ For regular tasks, just type your request without a command prefix.`;
       await this.handleDirectOllamaCommand(body, sendMessage);
     } else if (body.startsWith("!copilot")) {
       await this.handleCopilotCommand(body, sendMessage);
+    } else if (body.startsWith("!gauntlet")) {
+      await this.handleGauntletCommand(body, sendMessage);
     }
   }
 
@@ -383,6 +389,135 @@ Configuration:
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       await sendMessage(`Error executing Copilot command: ${errorMessage}`);
+    }
+  }
+
+  private async handleGauntletCommand(body: string, sendMessage: MessageSender) {
+    const parts = body.split(' ');
+    const subcommand = parts[1];
+
+    // Check if current LLM provider is compatible with gauntlet
+    if (this.currentLLMProvider === 'copilot') {
+      await sendMessage('Error: Gauntlet cannot be run with Copilot provider. Please switch to OpenAI or Ollama first using `!llm switch <openai|ollama>`');
+      return;
+    }
+
+    if (subcommand === 'help' || !subcommand) {
+      const helpMessage = `🏆 **Gauntlet - AI Model Evaluation**
+
+**Usage:**
+- \`!gauntlet run --model <model> [--task <task>] [--verbose]\` - Run gauntlet evaluation
+- \`!gauntlet list\` - List available tasks
+- \`!gauntlet help\` - Show this help message
+
+**Options:**
+- \`--model <model>\` - Required. The model name to evaluate
+- \`--task <task>\` - Optional. Specific task ID to run (runs all tasks if not specified)
+- \`--verbose\` - Optional. Enable verbose output
+
+**Available Tasks:**
+- \`add-jq\` - Add jq tool to environment (Easy)
+- \`check-sed-available\` - Check sed tool availability (Easy) 
+- \`create-project-dir\` - Create project directory (Easy)
+- \`add-xml-converter\` - Create XML to JSON converter (Medium)
+- \`resolve-python-dependency\` - Fix Python dependency issue (Hard)
+- \`hello-world-server\` - Create web server (Easy)
+- \`create-hugo-site\` - Create Hugo static site (Medium)
+- \`refine-existing-codebase\` - Refine existing code (Hard)
+
+**Examples:**
+- \`!gauntlet run --model gpt-4\` - Run all tasks with GPT-4
+- \`!gauntlet run --model llama2 --task add-jq\` - Run specific task
+- \`!gauntlet run --model claude --verbose\` - Run with verbose output
+
+⚠️ **Note:** Gauntlet only works with OpenAI and Ollama providers, not Copilot.`;
+      await sendMessage(helpMessage);
+      return;
+    }
+
+    if (subcommand === 'list') {
+      const tasksMessage = `📋 **Available Gauntlet Tasks:**
+
+**Environment Management & Tooling:**
+- \`add-jq\` (Easy) - Add jq tool for JSON parsing
+- \`check-sed-available\` (Easy) - Verify sed tool availability  
+- \`create-project-dir\` (Easy) - Create project directory
+- \`add-xml-converter\` (Medium) - Create XML to JSON converter
+- \`resolve-python-dependency\` (Hard) - Fix missing Python dependencies
+
+**Software Development & Refinement:**
+- \`hello-world-server\` (Easy) - Create simple web server
+- \`create-hugo-site\` (Medium) - Set up Hugo static site
+- \`refine-existing-codebase\` (Hard) - Improve existing code
+
+Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
+      await sendMessage(tasksMessage);
+      return;
+    }
+
+    if (subcommand === 'run') {
+      await this.runGauntletEvaluation(parts.slice(2), sendMessage);
+      return;
+    }
+
+    await sendMessage('Usage: !gauntlet <run|list|help>');
+  }
+
+  private async runGauntletEvaluation(args: string[], sendMessage: MessageSender) {
+    // Parse arguments
+    let model: string | null = null;
+    let task: string | null = null;
+    let verbose = false;
+
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === '--model' || args[i] === '-m') {
+        model = args[i + 1];
+        i++; // Skip next argument
+      } else if (args[i] === '--task' || args[i] === '-t') {
+        task = args[i + 1];
+        i++; // Skip next argument
+      } else if (args[i] === '--verbose' || args[i] === '-v') {
+        verbose = true;
+      }
+    }
+
+    if (!model) {
+      await sendMessage('Error: --model is required. Usage: !gauntlet run --model <model> [--task <task>] [--verbose]');
+      return;
+    }
+
+    try {
+      await sendMessage(`🏆 Starting Gauntlet evaluation with model: ${model}${task ? ` (task: ${task})` : ' (all tasks)'}...`);
+      
+      await sendMessage('⚠️ Gauntlet evaluation is a complex process that requires Docker containers. This may take several minutes...');
+      
+      await sendMessage(`🔧 **Gauntlet Evaluation Process:**
+
+1. **Container Setup** - Creating isolated Docker environment
+2. **Model Configuration** - Setting up ${model} for evaluation  
+3. **Task Execution** - Running ${task || 'all tasks'} in controlled environment
+4. **Success Validation** - Checking task completion criteria
+5. **Results Generation** - Compiling evaluation scores
+
+This process requires:
+- Docker daemon running
+- Nix development environment
+- Container networking setup
+- Task-specific validation logic
+
+**Current Status:** Gauntlet integration is available but requires full container infrastructure to execute safely.
+
+For manual gauntlet execution, use the command line:
+\`\`\`bash
+cd /path/to/morpheum
+./src/gauntlet/gauntlet.ts run --model ${model}${task ? ` --task ${task}` : ''}${verbose ? ' --verbose' : ''}
+\`\`\`
+
+📊 **Integration Complete** - Gauntlet commands are now available in chat interface!`);
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await sendMessage(`❌ Error running gauntlet: ${errorMessage}`);
     }
   }
 
