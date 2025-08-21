@@ -16,6 +16,8 @@ export interface CopilotSession {
   createdAt: Date;
   updatedAt: Date;
   result?: CopilotResult;
+  pullRequestUrl?: string; // Track PR URL for notifications
+  pullRequestState?: 'draft' | 'ready' | 'merged' | 'closed'; // Track PR state for notifications
 }
 
 /**
@@ -135,11 +137,20 @@ export class CopilotClient implements LLMClient {
         await new Promise(resolve => setTimeout(resolve, this.pollInterval));
         const updatedSession = await this.getSessionStatus(currentSession.id, currentSession.issueNumber);
         
+        // Check for PR ready state change (from draft to ready)
+        if (updatedSession.pullRequestUrl && 
+            updatedSession.pullRequestState === 'ready' && 
+            currentSession.pullRequestState !== 'ready') {
+          const prReadyUpdate = this.formatPRReadyUpdate(updatedSession);
+          onChunk(prReadyUpdate);
+        }
+        
         if (updatedSession.status !== currentSession.status) {
           const statusUpdate = this.formatStatusUpdate(updatedSession);
           onChunk(statusUpdate);
-          currentSession = updatedSession;
         }
+        
+        currentSession = updatedSession;
       }
       
       const finalResult = await this.formatFinalResult(currentSession);
@@ -344,6 +355,8 @@ export class CopilotClient implements LLMClient {
         createdAt: new Date(parseInt(sessionId.split('_')[2])),
         updatedAt: new Date(),
         result,
+        pullRequestUrl: undefined, // No PR in demo mode
+        pullRequestState: undefined,
       };
     }
 
@@ -381,6 +394,8 @@ export class CopilotClient implements LLMClient {
 
       let status: CopilotSessionStatus = 'pending';
       let result: CopilotResult | undefined;
+      let pullRequestUrl: string | undefined;
+      let pullRequestState: 'draft' | 'ready' | 'merged' | 'closed' | undefined;
 
       if (pullRequestEvent && pullRequestEvent.source?.issue?.pull_request) {
         // Copilot has created a PR, check its status
@@ -392,10 +407,14 @@ export class CopilotClient implements LLMClient {
             pull_number: prNumber,
           });
 
+          pullRequestUrl = pr.data.html_url;
+
           if (pr.data.state === 'open' && pr.data.draft) {
             status = 'in_progress';
+            pullRequestState = 'draft';
           } else if (pr.data.state === 'open' && !pr.data.draft) {
             status = 'completed';
+            pullRequestState = 'ready';
             
             // Get commit details
             const commits = await this.octokit.rest.pulls.listCommits({
@@ -420,6 +439,7 @@ export class CopilotClient implements LLMClient {
             };
           } else if (pr.data.state === 'closed') {
             status = pr.data.merged ? 'completed' : 'failed';
+            pullRequestState = pr.data.merged ? 'merged' : 'closed';
           }
         } catch (prError) {
           console.warn(`Failed to fetch PR #${prNumber}, but treating as in_progress:`, prError);
@@ -476,6 +496,8 @@ export class CopilotClient implements LLMClient {
         createdAt: new Date(parseInt(sessionId.split('_')[2])),
         updatedAt: new Date(),
         result,
+        pullRequestUrl,
+        pullRequestState,
       };
     } catch (error) {
       console.warn('Failed to get Copilot session status from API, returning error status:', error);
@@ -492,6 +514,8 @@ export class CopilotClient implements LLMClient {
           filesChanged: [],
           confidence: 0.0,
         },
+        pullRequestUrl: undefined,
+        pullRequestState: undefined,
       };
     }
   }
@@ -540,6 +564,16 @@ export class CopilotClient implements LLMClient {
   }
 
   /**
+   * Format a PR ready for review notification
+   */
+  private formatPRReadyUpdate(session: CopilotSession): string {
+    const isDemo = session.id.startsWith('cop_demo_');
+    const prefix = isDemo ? '[DEMO] ' : '';
+    
+    return `🔗 ${prefix}Pull Request ready for review! ${session.pullRequestUrl}`;
+  }
+
+  /**
    * Format the final result message
    */
   private async formatFinalResult(session: CopilotSession): Promise<string> {
@@ -568,7 +602,7 @@ export class CopilotClient implements LLMClient {
     
     // Only show PR and commit info if they exist (not in demo mode)
     if (result.pullRequestUrl) {
-      message += `🔗 Pull Request: ${result.pullRequestUrl}\n`;
+      message += `🔗 **Pull Request ready for review**: ${result.pullRequestUrl}\n`;
     }
     
     if (result.commitSha) {
