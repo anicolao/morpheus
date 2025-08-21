@@ -100,13 +100,24 @@ export class MorpheumBot {
   }
 
   /**
+   * Validate API key for a specific provider
+   */
+  private validateApiKey(provider: 'openai' | 'ollama' | 'copilot'): void {
+    if (provider === 'openai' && !this.llmConfig.openai.apiKey) {
+      throw new Error('OpenAI API key is not configured. Set OPENAI_API_KEY environment variable.');
+    } else if (provider === 'copilot' && !this.llmConfig.copilot.apiKey) {
+      throw new Error('GitHub token is not configured. Set GITHUB_TOKEN environment variable.');
+    }
+    // Ollama doesn't require an API key
+  }
+
+  /**
    * Configure the bot to use a specific model and provider for gauntlet evaluation
    */
   public configureForGauntlet(model: string, provider: 'openai' | 'ollama') {
+    this.validateApiKey(provider);
+    
     if (provider === 'openai') {
-      if (!this.llmConfig.openai.apiKey) {
-        throw new Error('OpenAI API key is not configured. Set OPENAI_API_KEY environment variable.');
-      }
       this.llmConfig.openai.model = model;
       this.currentLLMProvider = 'openai';
     } else if (provider === 'ollama') {
@@ -273,17 +284,9 @@ Configuration:
       }
 
       try {
-        if (provider === 'openai' && !this.llmConfig.openai.apiKey) {
-          await sendMessage('Error: OpenAI API key is not configured. Set OPENAI_API_KEY environment variable.');
-          return;
-        }
+        this.validateApiKey(provider);
 
         if (provider === 'copilot') {
-          if (!this.llmConfig.copilot.apiKey) {
-            await sendMessage('Error: GitHub token is not configured. Set GITHUB_TOKEN environment variable.');
-            return;
-          }
-          
           // For copilot, the third parameter is the repository
           if (parts[3]) {
             this.llmConfig.copilot.repository = parts[3];
@@ -328,8 +331,10 @@ Configuration:
       return;
     }
 
-    if (!this.llmConfig.openai.apiKey) {
-      await sendMessage('Error: OpenAI API key is not configured. Set OPENAI_API_KEY environment variable.');
+    try {
+      this.validateApiKey('openai');
+    } catch (error) {
+      await sendMessage(`Error: ${error instanceof Error ? error.message : String(error)}`);
       return;
     }
 
@@ -487,7 +492,7 @@ Configuration:
 **Examples:**
 - \`!gauntlet run --model gpt-4 --provider openai\` - Run all tasks with GPT-4 via OpenAI
 - \`!gauntlet run --model llama2 --provider ollama --task add-jq\` - Run specific task with Ollama
-- \`!gauntlet run --model claude --verbose\` - Run with verbose output (defaults to ollama)
+- \`!gauntlet run --model llama3 --verbose\` - Run with verbose output (defaults to ollama)
 
 ⚠️ **Note:** Gauntlet only works with OpenAI and Ollama providers, not Copilot.`;
       await sendMarkdownMessage(helpMessage, sendMessage);

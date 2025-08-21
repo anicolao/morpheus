@@ -573,24 +573,28 @@ program
   .option("-t, --task <task>", "The task to run (defaults to all tasks)")
   .option("-v, --verbose", "Enable verbose logging", false)
   .action(async (options) => {
-    // Validate provider option
-    if (!['openai', 'ollama'].includes(options.provider)) {
-      console.error('Error: --provider must be either "openai" or "ollama"');
+    try {
+      // Validate provider option
+      if (!['openai', 'ollama'].includes(options.provider)) {
+        throw new Error('--provider must be either "openai" or "ollama"');
+      }
+
+      const results: GauntletResult = {};
+      if (options.task) {
+        await runGauntlet(options.model, options.provider, options.task, results, options.verbose);
+      } else {
+        for (const task of tasks) {
+          await runGauntlet(options.model, options.provider, task.id, results, options.verbose);
+        }
+      }
+
+      console.log("\n--- GAUNTLET RESULTS ---");
+      console.log(JSON.stringify(results, null, 2));
+      console.log("--- END GAUNTLET RESULTS ---\n");
+    } catch (error) {
+      console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
       process.exit(1);
     }
-
-    const results: GauntletResult = {};
-    if (options.task) {
-      await runGauntlet(options.model, options.provider, options.task, results, options.verbose);
-    } else {
-      for (const task of tasks) {
-        await runGauntlet(options.model, options.provider, task.id, results, options.verbose);
-      }
-    }
-
-    console.log("\n--- GAUNTLET RESULTS ---");
-    console.log(JSON.stringify(results, null, 2));
-    console.log("--- END GAUNTLET RESULTS ---\n");
   });
 
 program.parse(process.argv);
