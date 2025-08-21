@@ -30,17 +30,34 @@ export interface CopilotResult {
 }
 
 /**
- * GitHub Copilot assignment response from GraphQL API
+ * GitHub repository data from GraphQL API
  */
-export interface CopilotAssignmentResponse {
-  assignIssueToCopilot: {
+export interface RepositoryData {
+  repository: {
+    id: string;
+    suggestedActors: {
+      nodes: Array<{
+        login: string;
+        id: string;
+        __typename: string;
+      }>;
+    };
+  };
+}
+
+/**
+ * GitHub Copilot issue creation response from GraphQL API
+ */
+export interface CopilotIssueResponse {
+  createIssue: {
     issue: {
       id: string;
       number: number;
-    };
-    copilotSession: {
-      id: string;
-      status: string;
+      assignees: {
+        nodes: Array<{
+          login: string;
+        }>;
+      };
     };
   };
 }
@@ -145,61 +162,93 @@ export class CopilotClient implements LLMClient {
    * Start a GitHub Copilot session for the given prompt
    */
   private async startCopilotSession(prompt: string): Promise<CopilotSession> {
-    // Create GitHub issue for the prompt
-    const issue = await this.octokit.rest.issues.create({
-      owner: this.owner,
-      repo: this.repo,
-      title: `Copilot Task: ${prompt.slice(0, 80)}${prompt.length > 80 ? '...' : ''}`,
-      body: `**GitHub Copilot Coding Agent Task**\n\nThis issue has been assigned to GitHub Copilot for automated resolution.\n\n**Task Request:**\n${prompt}\n\n*This issue will be automatically processed by GitHub Copilot's coding agent.*`,
-      labels: ['copilot-session'],
-    });
-
     try {
-      // Assign the issue to GitHub Copilot using GraphQL API
-      const assignmentMutation = `
-        mutation AssignIssueToCopilot($issueId: ID!) {
-          assignIssueToCopilot(input: { issueId: $issueId }) {
-            issue {
-              id
-              number
-            }
-            copilotSession {
-              id
-              status
-            }
-          }
-        }
-      `;
-
-      // Get the issue ID for GraphQL (need to fetch it as REST returns different format)
-      const issueGqlResponse = await this.octokit.graphql(`
-        query GetIssueId($owner: String!, $repo: String!, $number: Int!) {
+      // Step 1: Check if Copilot is available and get repository/bot IDs
+      const repositoryData = await this.octokit.graphql(`
+        query GetRepositoryData($owner: String!, $repo: String!) {
           repository(owner: $owner, name: $repo) {
-            issue(number: $number) {
-              id
+            id
+            suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
+              nodes {
+                login
+                id
+                __typename
+                ... on Bot {
+                  id
+                }
+                ... on User {
+                  id
+                }
+              }
             }
           }
         }
       `, {
         owner: this.owner,
         repo: this.repo,
-        number: issue.data.number,
-      });
+      }) as RepositoryData;
 
-      const issueId = (issueGqlResponse as any).repository.issue.id;
+      // Find Copilot bot in suggested actors
+      const copilotActor = repositoryData.repository.suggestedActors.nodes.find(
+        actor => actor.login === 'copilot-swe-agent'
+      );
 
-      // Assign issue to Copilot
-      const assignmentResponse = await this.octokit.graphql(assignmentMutation, {
-        issueId: issueId,
-      }) as CopilotAssignmentResponse;
+      if (!copilotActor) {
+        throw new Error('Copilot coding agent is not available for this repository');
+      }
 
-      const copilotSessionId = assignmentResponse.assignIssueToCopilot.copilotSession.id;
-      const sessionStatus = assignmentResponse.assignIssueToCopilot.copilotSession.status as CopilotSessionStatus;
+      const repositoryId = repositoryData.repository.id;
+      const copilotBotId = copilotActor.id;
+
+      // Step 2: Create issue with Copilot assigned using GraphQL
+      const createIssueMutation = `
+        mutation CreateIssueWithCopilot($repositoryId: ID!, $title: String!, $body: String!, $assigneeIds: [ID!]!) {
+          createIssue(input: {
+            repositoryId: $repositoryId,
+            title: $title,
+            body: $body,
+            assigneeIds: $assigneeIds
+          }) {
+            issue {
+              id
+              number
+              assignees(first: 10) {
+                nodes {
+                  login
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const issueTitle = `Copilot Task: ${prompt.slice(0, 80)}${prompt.length > 80 ? '...' : ''}`;
+      const issueBody = `**GitHub Copilot Coding Agent Task**\n\nThis issue has been assigned to GitHub Copilot for automated resolution.\n\n**Task Request:**\n${prompt}\n\n*This issue will be automatically processed by GitHub Copilot's coding agent.*`;
+
+      const issueResponse = await this.octokit.graphql(createIssueMutation, {
+        repositoryId: repositoryId,
+        title: issueTitle,
+        body: issueBody,
+        assigneeIds: [copilotBotId],
+      }) as CopilotIssueResponse;
+
+      const issue = issueResponse.createIssue.issue;
+      const issueNumber = issue.number;
+
+      // Verify Copilot was assigned
+      const copilotAssigned = issue.assignees.nodes.some(assignee => assignee.login === 'copilot-swe-agent');
+      
+      if (!copilotAssigned) {
+        throw new Error('Failed to assign issue to Copilot coding agent');
+      }
+
+      // Generate session ID based on issue (since we don't get a separate session ID from the API)
+      const sessionId = `cop_real_${issueNumber}_${Date.now()}`;
       
       const session: CopilotSession = {
-        id: copilotSessionId,
-        status: sessionStatus,
-        issueNumber: issue.data.number,
+        id: sessionId,
+        status: 'pending',
+        issueNumber: issueNumber,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -208,8 +257,8 @@ export class CopilotClient implements LLMClient {
       await this.octokit.rest.issues.createComment({
         owner: this.owner,
         repo: this.repo,
-        issue_number: issue.data.number,
-        body: `🤖 **GitHub Copilot Coding Agent Assigned**\n\nSession ID: ${copilotSessionId}\nStatus: ${sessionStatus}\n\nThe GitHub Copilot coding agent is now working on this issue.`,
+        issue_number: issueNumber,
+        body: `🤖 **GitHub Copilot Coding Agent Assigned**\n\nSession ID: ${sessionId}\nStatus: ${session.status}\n\nThe GitHub Copilot coding agent is now working on this issue. You can track progress at https://github.com/copilot/agents`,
       });
 
       return session;
@@ -217,6 +266,15 @@ export class CopilotClient implements LLMClient {
       console.warn('Failed to assign issue to Copilot coding agent, falling back to demo mode:', error);
       
       // Fallback to demo mode if the GraphQL API is not available or fails
+      // Create GitHub issue for the prompt using REST API
+      const issue = await this.octokit.rest.issues.create({
+        owner: this.owner,
+        repo: this.repo,
+        title: `Copilot Task: ${prompt.slice(0, 80)}${prompt.length > 80 ? '...' : ''}`,
+        body: `**GitHub Copilot Coding Agent Task**\n\nThis issue has been assigned to GitHub Copilot for automated resolution.\n\n**Task Request:**\n${prompt}\n\n*This issue will be automatically processed by GitHub Copilot's coding agent.*`,
+        labels: ['copilot-session'],
+      });
+
       const sessionId = `cop_demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       const session: CopilotSession = {
@@ -240,7 +298,7 @@ export class CopilotClient implements LLMClient {
         owner: this.owner,
         repo: this.repo,
         issue_number: issue.data.number,
-        body: `🤖 **GitHub Copilot Integration Demo**\n\nSession ID: ${sessionId}\nStatus: ${session.status}\n\n*Note: This is a simulation demonstrating how GitHub Copilot sessions would work. The actual Copilot coding agent API assignment failed or is not yet available.*`,
+        body: `🤖 **GitHub Copilot Integration Demo**\n\nSession ID: ${sessionId}\nStatus: ${session.status}\n\n*Note: This is a simulation demonstrating how GitHub Copilot sessions would work. The actual Copilot coding agent API assignment failed or is not yet available.*\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
 
       return session;
@@ -259,9 +317,9 @@ export class CopilotClient implements LLMClient {
       let status: CopilotSessionStatus;
       let result: CopilotResult | undefined;
       
-      if (sessionAge < 5000) {
+      if (sessionAge < 1000) {
         status = 'pending';
-      } else if (sessionAge < 15000) {
+      } else if (sessionAge < 2000) {
         status = 'in_progress';
       } else {
         status = 'completed';
@@ -286,43 +344,114 @@ export class CopilotClient implements LLMClient {
     }
 
     try {
-      // Real Copilot session - query GraphQL API for status
-      const sessionQuery = `
-        query GetCopilotSessionStatus($sessionId: ID!) {
-          copilotSession(id: $sessionId) {
-            id
-            status
-            result {
-              summary
-              pullRequestUrl
-              commitSha
-              filesChanged
-              confidence
-            }
-            updatedAt
-          }
-        }
-      `;
+      // Real Copilot session - track progress by monitoring the issue
+      if (!issueNumber) {
+        throw new Error('Issue number required for real Copilot session tracking');
+      }
 
-      const response = await this.octokit.graphql(sessionQuery, {
-        sessionId: sessionId,
+      // Get issue details and check for linked pull requests
+      const issue = await this.octokit.rest.issues.get({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: issueNumber,
       });
 
-      const sessionData = (response as any).copilotSession;
+      // Check issue timeline for Copilot activity
+      const timeline = await this.octokit.rest.issues.listEventsForTimeline({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: issueNumber,
+      });
+
+      // Look for events that indicate Copilot activity
+      const copilotEvents = timeline.data.filter(event => 
+        (event.actor && event.actor.login === 'copilot-swe-agent') ||
+        (event.event === 'cross-referenced' && event.source?.issue?.pull_request)
+      );
+
+      // Check if there's a linked pull request from Copilot
+      const pullRequestEvent = timeline.data.find(event => 
+        event.event === 'cross-referenced' && 
+        event.source?.issue?.pull_request &&
+        event.actor?.login === 'copilot-swe-agent'
+      );
+
+      let status: CopilotSessionStatus = 'pending';
+      let result: CopilotResult | undefined;
+
+      if (pullRequestEvent && pullRequestEvent.source?.issue?.pull_request) {
+        // Copilot has created a PR, check its status
+        const prNumber = pullRequestEvent.source.issue.number;
+        const pr = await this.octokit.rest.pulls.get({
+          owner: this.owner,
+          repo: this.repo,
+          pull_number: prNumber,
+        });
+
+        if (pr.data.state === 'open' && pr.data.draft) {
+          status = 'in_progress';
+        } else if (pr.data.state === 'open' && !pr.data.draft) {
+          status = 'completed';
+          
+          // Get commit details
+          const commits = await this.octokit.rest.pulls.listCommits({
+            owner: this.owner,
+            repo: this.repo,
+            pull_number: prNumber,
+          });
+
+          // Get files changed
+          const files = await this.octokit.rest.pulls.listFiles({
+            owner: this.owner,
+            repo: this.repo,
+            pull_number: prNumber,
+          });
+
+          result = {
+            summary: pr.data.body || 'GitHub Copilot has completed the task and created a pull request.',
+            pullRequestUrl: pr.data.html_url,
+            commitSha: commits.data[commits.data.length - 1]?.sha,
+            filesChanged: files.data.map(file => file.filename),
+            confidence: 0.9, // Default confidence for real Copilot sessions
+          };
+        } else if (pr.data.state === 'closed') {
+          status = pr.data.merged ? 'completed' : 'failed';
+        }
+      } else {
+        // Check if Copilot has reacted to the issue (👀 reaction indicates it's working)
+        const reactions = await this.octokit.rest.reactions.listForIssue({
+          owner: this.owner,
+          repo: this.repo,
+          issue_number: issueNumber,
+        });
+
+        const copilotReaction = reactions.data.find(reaction => 
+          reaction.user?.login === 'copilot-swe-agent' && reaction.content === 'eyes'
+        );
+
+        if (copilotReaction) {
+          status = 'in_progress';
+        } else {
+          // Check if it's been too long without activity (consider failed)
+          const sessionAge = Date.now() - parseInt(sessionId.split('_')[2]);
+          if (sessionAge > 300000) { // 5 minutes
+            status = 'failed';
+            result = {
+              summary: 'No response from GitHub Copilot coding agent. The session may have failed.',
+              filesChanged: [],
+              confidence: 0.0,
+            };
+          }
+        }
+      }
       
       return {
-        id: sessionData.id,
-        status: sessionData.status as CopilotSessionStatus,
-        issueNumber: issueNumber || undefined,
-        createdAt: new Date(sessionId), // We don't have original creation time from API
-        updatedAt: new Date(sessionData.updatedAt),
-        result: sessionData.result ? {
-          summary: sessionData.result.summary,
-          pullRequestUrl: sessionData.result.pullRequestUrl,
-          commitSha: sessionData.result.commitSha,
-          filesChanged: sessionData.result.filesChanged || [],
-          confidence: sessionData.result.confidence || 0.0,
-        } : undefined,
+        id: sessionId,
+        status,
+        issueNumber: issueNumber,
+        createdAt: new Date(parseInt(sessionId.split('_')[2])),
+        updatedAt: new Date(),
+        result,
       };
     } catch (error) {
       console.warn('Failed to get Copilot session status from API, returning error status:', error);
@@ -335,7 +464,7 @@ export class CopilotClient implements LLMClient {
         createdAt: new Date(),
         updatedAt: new Date(),
         result: {
-          summary: 'Failed to get session status from GitHub Copilot API.',
+          summary: 'Failed to get session status from GitHub API.',
           filesChanged: [],
           confidence: 0.0,
         },

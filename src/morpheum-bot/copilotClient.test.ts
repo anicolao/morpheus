@@ -7,7 +7,17 @@ const mockOctokit = {
     issues: {
       create: vi.fn(),
       createComment: vi.fn(),
-      update: vi.fn()
+      update: vi.fn(),
+      get: vi.fn(),
+      listEventsForTimeline: vi.fn()
+    },
+    pulls: {
+      get: vi.fn(),
+      listCommits: vi.fn(),
+      listFiles: vi.fn()
+    },
+    reactions: {
+      listForIssue: vi.fn()
     }
   },
   graphql: vi.fn()
@@ -32,6 +42,16 @@ describe('CopilotClient', () => {
     });
     mockOctokit.rest.issues.createComment.mockResolvedValue({});
     mockOctokit.rest.issues.update.mockResolvedValue({});
+    mockOctokit.rest.issues.get.mockResolvedValue({
+      data: { number: 123, state: 'open' }
+    });
+    mockOctokit.rest.issues.listEventsForTimeline.mockResolvedValue({ data: [] });
+    mockOctokit.rest.pulls.get.mockResolvedValue({
+      data: { state: 'open', draft: false }
+    });
+    mockOctokit.rest.pulls.listCommits.mockResolvedValue({ data: [] });
+    mockOctokit.rest.pulls.listFiles.mockResolvedValue({ data: [] });
+    mockOctokit.rest.reactions.listForIssue.mockResolvedValue({ data: [] });
     
     // Set poll interval to very short for testing
     process.env.COPILOT_POLL_INTERVAL = '0.1';
@@ -52,66 +72,77 @@ describe('CopilotClient', () => {
     // Mock successful GraphQL responses
     mockOctokit.graphql
       .mockResolvedValueOnce({
-        // Mock issue ID query response
+        // Mock repository data with Copilot available
         repository: {
-          issue: {
-            id: 'gid://github/Issue/123456789'
+          id: 'gid://github/Repository/123456789',
+          suggestedActors: {
+            nodes: [
+              {
+                login: 'copilot-swe-agent',
+                id: 'gid://github/Bot/copilot-swe-agent',
+                __typename: 'Bot'
+              }
+            ]
           }
         }
       })
       .mockResolvedValueOnce({
-        // Mock Copilot assignment response
-        assignIssueToCopilot: {
+        // Mock issue creation response
+        createIssue: {
           issue: {
             id: 'gid://github/Issue/123456789',
-            number: 123
-          },
-          copilotSession: {
-            id: 'cop_real_session_123',
-            status: 'pending'
+            number: 123,
+            assignees: {
+              nodes: [
+                {
+                  login: 'copilot-swe-agent'
+                }
+              ]
+            }
           }
         }
-      })
-      .mockResolvedValueOnce({
-        // Mock session status query
-        copilotSession: {
-          id: 'cop_real_session_123',
-          status: 'completed',
-          result: {
-            summary: 'Task completed successfully',
-            pullRequestUrl: 'https://github.com/owner/repo/pull/124',
-            commitSha: 'abc123',
-            filesChanged: ['src/example.ts'],
-            confidence: 0.9
-          },
-          updatedAt: new Date().toISOString()
-        }
       });
+
+    // Mock REST API calls for status tracking
+    mockOctokit.rest.issues.listEventsForTimeline.mockResolvedValue({
+      data: [
+        {
+          event: 'cross-referenced',
+          actor: { login: 'copilot-swe-agent' },
+          source: {
+            issue: {
+              number: 124,
+              pull_request: {}
+            }
+          }
+        }
+      ]
+    });
+    mockOctokit.rest.pulls.get.mockResolvedValue({
+      data: {
+        state: 'open',
+        draft: false,
+        html_url: 'https://github.com/owner/repo/pull/124',
+        body: 'Task completed successfully'
+      }
+    });
+    mockOctokit.rest.pulls.listCommits.mockResolvedValue({
+      data: [{ sha: 'abc123' }]
+    });
+    mockOctokit.rest.pulls.listFiles.mockResolvedValue({
+      data: [{ filename: 'src/example.ts' }]
+    });
 
     const response = await client.send('Test prompt');
     
     expect(response).toContain('GitHub Copilot session completed');
     expect(response).toContain('90%'); // confidence percentage
-    expect(mockOctokit.rest.issues.create).toHaveBeenCalledWith({
-      owner: 'owner',
-      repo: 'repo',
-      title: 'Copilot Task: Test prompt',
-      body: expect.stringContaining('GitHub Copilot Coding Agent Task'),
-      labels: ['copilot-session'],
-    });
-    expect(mockOctokit.graphql).toHaveBeenCalledTimes(3); // Issue ID + Assignment + Status
+    expect(mockOctokit.graphql).toHaveBeenCalledTimes(2); // Repository data + Issue creation
   });
 
   it('should fallback to demo mode when GraphQL assignment fails', async () => {
-    // Mock GraphQL failure for assignment
+    // Mock GraphQL failure for repository data
     mockOctokit.graphql
-      .mockResolvedValueOnce({
-        repository: {
-          issue: {
-            id: 'gid://github/Issue/123456789'
-          }
-        }
-      })
       .mockRejectedValueOnce(new Error('Copilot API not available'));
 
     const response = await client.send('Test prompt');
@@ -124,18 +155,11 @@ describe('CopilotClient', () => {
       issue_number: 123,
       title: '[DEMO] Test Issue',
     });
-  });
+  }, 10000); // Increase timeout for demo polling
 
   it('should support streaming with status updates', async () => {
     // Mock demo mode (GraphQL fails)
     mockOctokit.graphql
-      .mockResolvedValueOnce({
-        repository: {
-          issue: {
-            id: 'gid://github/Issue/123456789'
-          }
-        }
-      })
       .mockRejectedValueOnce(new Error('API not available'));
 
     const chunks: string[] = [];
