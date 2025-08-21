@@ -1,0 +1,231 @@
+---
+---
+
+@import "minima";
+
+/* Morpheum Custom Styles */
+
+/* Color palette inspired by the logo */
+:root {
+  --primary-color: #2c5282;    /* Deep blue */
+  --secondary-color: #4a90e2;  /* Light blue */
+  --accent-color: #38a169;     /* Green for success/actions */
+  --text-color: #2d3748;       /* Dark gray */
+  --light-bg: #f7fafc;         /* Very light blue-gray */
+  --border-color: #e2e8f0;     /* Light gray */
+}
+
+/* Header styling */
+.site-header {
+  background-color: var(--primary-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.site-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: white !important;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.site-title:hover {
+  color: #e2e8f0 !important;
+}
+
+.site-logo {
+  height: 40px;
+  width: 40px;
+  margin-right: 12px;
+  border-radius: 4px;
+}
+
+.site-nav .page-link {
+  color: white;
+  font-weight: 500;
+}
+
+.site-nav .page-link:hover {
+  color: #e2e8f0;
+  text-decoration: none;
+}
+
+/* Hero section */
+.hero {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.hero-logo {
+  height: 80px;
+  width: 80px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+/* Feature cards */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid var(--secondary-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.feature-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+/* Status indicators */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025rem;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-planned {
+  background-color: #cce7ff;
+  color: #0066cc;
+}
+
+.status-completed {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Call-to-action buttons */
+.cta-button {
+  display: inline-block;
+  background-color: var(--accent-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.cta-button:hover {
+  background-color: #2f7d5e;
+  color: white;
+  text-decoration: none;
+}
+
+.cta-button-secondary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.cta-button-secondary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Content sections */
+.content-section {
+  margin: 3rem 0;
+  padding: 2rem 0;
+}
+
+.content-section h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+/* Navigation improvements */
+.site-nav .menu-icon > svg {
+  fill: white;
+}
+
+/* Footer styling */
+.site-footer {
+  background-color: var(--light-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Code blocks */
+pre, code {
+  border-radius: 0.375rem;
+}
+
+.highlight {
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+table th,
+table td {
+  border: 1px solid var(--border-color);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+table th {
+  background-color: var(--light-bg);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Responsive design */
+@media screen and (max-width: 600px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+  
+  .hero p {
+    font-size: 1rem;
+  }
+  
+  .features {
+    grid-template-columns: 1fr;
+  }
+}

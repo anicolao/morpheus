@@ -1,0 +1,10 @@
+<ul class="social-media-list">
+  {%- if site.github_username -%}
+  <li>
+    <a href="https://github.com/{{ site.github_username }}/{{ site.repository | split: '/' | last }}">
+      <svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#github' | relative_url }}"></use></svg>
+      <span class="username">{{ site.github_username }}</span>
+    </a>
+  </li>
+  {%- endif -%}
+</ul>
