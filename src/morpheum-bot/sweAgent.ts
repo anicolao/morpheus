@@ -15,6 +15,10 @@ export class SWEAgent {
     this.conversationHistory.push({ role: 'system', content: SYSTEM_PROMPT });
   }
 
+  get currentJailClient(): JailClient {
+    return this.jailClient;
+  }
+
   async run(task: string): Promise<{ role: string; content: string }[]> {
     this.conversationHistory.push({ role: 'user', content: task });
 

@@ -525,6 +525,28 @@ async function runGauntlet(
   results[taskId] = { success };
 }
 
+// Export function for use by the bot
+export async function executeGauntlet(
+  model: string,
+  taskId?: string,
+  verbose: boolean = false
+): Promise<GauntletResult> {
+  const results: GauntletResult = {};
+  
+  if (taskId) {
+    await runGauntlet(model, taskId, results, verbose);
+  } else {
+    for (const task of tasks) {
+      await runGauntlet(model, task.id, results, verbose);
+    }
+  }
+  
+  return results;
+}
+
+// Export tasks list for the bot to use
+export { tasks as gauntletTasks };
+
 program
   .name("gauntlet")
   .description("A CLI tool to run the Morpheum AI Model Evaluation Gauntlet");

@@ -282,11 +282,8 @@ Configuration:
         this.currentLLMProvider = provider;
         this.currentLLMClient = this.createCurrentLLMClient();
         
-        // Update the SWE agent with new LLM client
-        const jailHost = process.env.JAIL_HOST || "localhost";
-        const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
-        const jailClient = new JailClient(jailHost, jailPort);
-        this.sweAgent = new SWEAgent(this.currentLLMClient, jailClient);
+        // Update the SWE agent with new LLM client but preserve the current jail client
+        this.sweAgent = new SWEAgent(this.currentLLMClient, this.sweAgent.currentJailClient);
 
         if (provider === 'copilot') {
           await sendMessage(`Switched to ${provider} (repository: ${this.llmConfig.copilot.repository}, baseUrl: ${this.llmConfig.copilot.baseUrl})`);
@@ -510,10 +507,10 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
 
     for (let i = 0; i < args.length; i++) {
       if (args[i] === '--model' || args[i] === '-m') {
-        model = args[i + 1];
+        model = args[i + 1] || null;
         i++; // Skip next argument
       } else if (args[i] === '--task' || args[i] === '-t') {
-        task = args[i + 1];
+        task = args[i + 1] || null;
         i++; // Skip next argument
       } else if (args[i] === '--verbose' || args[i] === '-v') {
         verbose = true;
@@ -530,29 +527,32 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
       
       await sendMessage('⚠️ Gauntlet evaluation is a complex process that requires Docker containers. This may take several minutes...');
       
-      await sendMessage(`🔧 **Gauntlet Evaluation Process:**
+      // Import and execute the actual gauntlet
+      const { executeGauntlet } = await import('../gauntlet/gauntlet');
+      
+      await sendMessage('🔧 Executing gauntlet evaluation...');
+      
+      const results = await executeGauntlet(model, task || undefined, verbose);
+      
+      // Format and display results
+      const resultSummary = Object.entries(results)
+        .map(([taskId, result]) => `- ${taskId}: ${result.success ? '✅ PASS' : '❌ FAIL'}`)
+        .join('\n');
+      
+      const passCount = Object.values(results).filter(r => r.success).length;
+      const totalCount = Object.values(results).length;
+      
+      const resultsMessage = `🏆 **Gauntlet Evaluation Complete!**
 
-1. **Container Setup** - Creating isolated Docker environment
-2. **Model Configuration** - Setting up ${model} for evaluation  
-3. **Task Execution** - Running ${task || 'all tasks'} in controlled environment
-4. **Success Validation** - Checking task completion criteria
-5. **Results Generation** - Compiling evaluation scores
+**Model:** ${model}
+**Tasks:** ${task || 'All tasks'}
+**Results:** ${passCount}/${totalCount} passed
 
-This process requires:
-- Docker daemon running
-- Nix development environment
-- Container networking setup
-- Task-specific validation logic
+${resultSummary}
 
-**Current Status:** Gauntlet integration is available but requires full container infrastructure to execute safely.
+📊 **Success Rate:** ${totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0}%`;
 
-For manual gauntlet execution, use the command line:
-\`\`\`bash
-cd /path/to/morpheum
-./src/gauntlet/gauntlet.ts run --model ${model}${task ? ` --task ${task}` : ''}${verbose ? ' --verbose' : ''}
-\`\`\`
-
-📊 **Integration Complete** - Gauntlet commands are now available in chat interface!`);
+      await sendMarkdownMessage(resultsMessage, sendMessage);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -629,12 +629,7 @@ ${nextStep}`;
         const executingCommandMarkdown = `⚡ **Executing command:** ${formattedCommand}`;
         await sendMarkdownMessage(executingCommandMarkdown, sendMessage);
         
-        const jailHost = process.env.JAIL_HOST || "localhost";
-        const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
-        const { JailClient } = await import('./jailClient');
-        const jailClient = new JailClient(jailHost, jailPort);
-        
-        const commandOutput = await jailClient.execute(commands[0]!);
+        const commandOutput = await this.sweAgent.currentJailClient.execute(commands[0]!);
         conversationHistory.push({ role: 'tool', content: commandOutput });
         
         // Smart output display: show small outputs directly, large outputs with prefix + spoiler
