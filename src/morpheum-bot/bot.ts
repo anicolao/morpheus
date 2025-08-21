@@ -387,7 +387,11 @@ Configuration:
   }
 
   private async handleTask(task: string, sendMessage: MessageSender) {
-    await sendMessage(`🚀 Working on: "${task}" using ${this.currentLLMProvider} (${this.llmConfig[this.currentLLMProvider].model})...`);
+    const identifier = this.currentLLMProvider === 'copilot' 
+      ? this.llmConfig.copilot.repository 
+      : this.llmConfig[this.currentLLMProvider].model;
+    
+    await sendMessage(`🚀 Working on: "${task}" using ${this.currentLLMProvider} (${identifier})...`);
     
     // Create a streaming version of the SWE agent run
     await this.runSWEAgentWithStreaming(task, sendMessage);

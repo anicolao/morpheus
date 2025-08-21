@@ -1,5 +1,7 @@
 # GitHub Copilot Integration Proposal
 
+> **⚠️ IMPORTANT NOTE**: This is a conceptual demonstration of GitHub Copilot integration. The actual GitHub Copilot API for automated issue resolution is not yet publicly available. This implementation serves as a proof-of-concept showing how the integration would work once GitHub releases the full Copilot API capabilities. For more information about GitHub Copilot's roadmap and API availability, see [GitHub's official Copilot documentation](https://docs.github.com/en/copilot).
+
 ## Overview
 
 This proposal outlines the integration of GitHub Copilot as a third LLM provider for the Morpheum bot, extending beyond traditional chat completions to leverage GitHub's AI service for issue resolution. This integration would allow users to switch to "copilot" mode where the bot creates GitHub Copilot sessions for issues and provides real-time status updates back to the Matrix chat.

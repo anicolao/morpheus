@@ -70,7 +70,7 @@ export class CopilotClient implements LLMClient {
       const session = await this.startCopilotSession(prompt);
       const completedSession = await this.waitForCompletion(session);
       
-      const result = this.formatFinalResult(completedSession);
+      const result = await this.formatFinalResult(completedSession);
       
       console.log(`--- GITHUB COPILOT RESPONSE (${this.repository} @ ${this.baseUrl}) ---`);
       console.log(result.split('\n').map(line => `  ${line}`).join('\n'));
@@ -100,7 +100,7 @@ export class CopilotClient implements LLMClient {
       let currentSession = session;
       while (currentSession.status !== 'completed' && currentSession.status !== 'failed') {
         await new Promise(resolve => setTimeout(resolve, this.pollInterval));
-        const updatedSession = await this.getSessionStatus(currentSession.id);
+        const updatedSession = await this.getSessionStatus(currentSession.id, currentSession.issueNumber);
         
         if (updatedSession.status !== currentSession.status) {
           const statusUpdate = this.formatStatusUpdate(updatedSession);
@@ -109,7 +109,10 @@ export class CopilotClient implements LLMClient {
         }
       }
       
-      const finalResult = this.formatFinalResult(currentSession);
+      const finalResult = await this.formatFinalResult(currentSession);
+      
+      // Send the final result as a chunk so it reaches the chat room
+      onChunk(finalResult);
       
       console.log(`--- GITHUB COPILOT STREAMING RESPONSE COMPLETE (${this.repository} @ ${this.baseUrl}) ---`);
       console.log(finalResult.split('\n').map(line => `  ${line}`).join('\n'));
@@ -161,7 +164,7 @@ export class CopilotClient implements LLMClient {
   /**
    * Get the current status of a Copilot session
    */
-  private async getSessionStatus(sessionId: string): Promise<CopilotSession> {
+  private async getSessionStatus(sessionId: string, issueNumber?: number): Promise<CopilotSession> {
     // TODO: Implement actual GitHub Copilot API status polling
     // DEMO MODE: This is a simulation of how GitHub Copilot sessions would work
     
@@ -190,7 +193,7 @@ export class CopilotClient implements LLMClient {
     return {
       id: sessionId,
       status,
-      issueNumber: undefined, // Would need to track this properly
+      issueNumber: issueNumber || undefined,
       createdAt: new Date(parseInt(sessionId.split('_')[1])),
       updatedAt: new Date(),
       result,
@@ -205,7 +208,7 @@ export class CopilotClient implements LLMClient {
     
     while (currentSession.status !== 'completed' && currentSession.status !== 'failed') {
       await new Promise(resolve => setTimeout(resolve, this.pollInterval));
-      currentSession = await this.getSessionStatus(currentSession.id);
+      currentSession = await this.getSessionStatus(currentSession.id, currentSession.issueNumber);
     }
     
     return currentSession;
@@ -241,8 +244,12 @@ export class CopilotClient implements LLMClient {
   /**
    * Format the final result message
    */
-  private formatFinalResult(session: CopilotSession): string {
+  private async formatFinalResult(session: CopilotSession): Promise<string> {
     if (session.status === 'failed') {
+      // Close the issue when failed
+      if (session.issueNumber) {
+        await this.closeIssue(session.issueNumber, 'Session failed');
+      }
       return '❌ GitHub Copilot session failed. Please try again or contact support.';
     }
     
@@ -269,7 +276,37 @@ export class CopilotClient implements LLMClient {
     
     message += `\n${result.summary}`;
     
+    // Close the issue when completed
+    if (session.issueNumber) {
+      await this.closeIssue(session.issueNumber, 'Session completed successfully');
+    }
+    
     return message;
+  }
+
+  /**
+   * Close a GitHub issue with a resolution comment
+   */
+  private async closeIssue(issueNumber: number, reason: string): Promise<void> {
+    try {
+      // Add final comment explaining closure
+      await this.octokit.rest.issues.createComment({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: issueNumber,
+        body: `🔒 **Session Resolution**\n\n${reason}\n\n*This issue is being automatically closed as the GitHub Copilot session has been resolved.*`,
+      });
+
+      // Close the issue
+      await this.octokit.rest.issues.update({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: issueNumber,
+        state: 'closed',
+      });
+    } catch (error) {
+      console.error(`Failed to close issue #${issueNumber}:`, error);
+    }
   }
 
   /**
