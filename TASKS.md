@@ -598,6 +598,17 @@ the Matrix bot serving as its primary user interface.
   - [x] Validated fix with comprehensive test suite ensuring all functionality
         remains intact
 
+- [x] **Ad Hoc: Fix Deep Linking in Copilot Session Started Message (Issue #42)**
+  - [x] Identified issue where 'Copilot session started' message used generic
+        `https://github.com/copilot/agents` URL instead of deep linking to
+        session details
+  - [x] Modified `formatStatusUpdate` method to use issue-specific URLs when
+        available but no PR exists yet
+  - [x] Updated test expectations to verify deep linking to GitHub issue URL
+  - [x] Maintained backward compatibility with existing URL fallback logic
+  - [x] Verified fix with comprehensive test suite ensuring all functionality
+        remains intact
+
 - [x] **Ad Hoc: Fix Markdown Link Rendering in Copilot Streaming Messages (Issue #40)**
   - [x] Identified root cause: Copilot streaming chunks with markdown links were sent as plain text instead of formatted HTML
   - [x] Added `hasMarkdownLinks()` helper function to detect markdown links in text chunks using regex pattern

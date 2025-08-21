@@ -572,18 +572,23 @@ export class CopilotClient implements LLMClient {
     const isDemo = session.id.startsWith('cop_demo_');
     const prefix = isDemo ? '[DEMO] ' : '';
     
-    // Create specific session progress URL if we have a PR, otherwise use generic URL
-    let progressUrl = `https://github.com/copilot/agents`;
+    // Create specific session progress URL and text with descriptive markdown
+    let progressText = `📊 Track progress: https://github.com/copilot/agents`;
     if (session.pullRequestUrl) {
       const prNumber = this.extractPRNumber(session.pullRequestUrl);
       if (prNumber) {
-        progressUrl = `https://github.com/${this.owner}/${this.repo}/pull/${prNumber}/agent-sessions/${session.id}`;
+        const prAgentUrl = `https://github.com/${this.owner}/${this.repo}/pull/${prNumber}/agent-sessions/${session.id}`;
+        progressText = `📊 Track progress on PR [#${prNumber}](${prAgentUrl})`;
       }
+    } else if (session.issueNumber) {
+      // Link to the GitHub issue where the session details are tracked
+      const issueUrl = this.buildIssueUrl(session.issueNumber);
+      progressText = `📊 Track progress on issue [#${session.issueNumber}](${issueUrl})`;
     }
     
     switch (session.status) {
       case 'pending':
-        return `${emoji} ${prefix}Copilot session started (ID: ${session.id}) - Status: pending\n📊 Track progress: ${progressUrl}\n`;
+        return `${emoji} ${prefix}Copilot session started (ID: ${session.id}) - Status: pending\n${progressText}\n`;
       case 'in_progress':
         return `${emoji} ${prefix}Copilot session status: in_progress - Analyzing codebase...\n`;
       case 'completed':

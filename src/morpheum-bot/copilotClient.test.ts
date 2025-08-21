@@ -225,8 +225,8 @@ describe('CopilotClient', () => {
     expect(chunks.some(chunk => chunk.includes('Issue [#123](https://github.com/owner/repo/issues/123) created'))).toBe(true);
     expect(chunks.some(chunk => chunk.includes('Starting GitHub Copilot session for [#123](https://github.com/owner/repo/issues/123)'))).toBe(true);
     
-    // Check that status updates include session tracking
-    expect(chunks.some(chunk => chunk.includes('Track progress: https://github.com/copilot/agents'))).toBe(true);
+    // Check that status updates include session tracking - should link to the issue since no PR exists yet
+    expect(chunks.some(chunk => chunk.includes('Track progress on issue [#123](https://github.com/owner/repo/issues/123)'))).toBe(true);
     
     // Check that all chunks end with newlines (except potentially the final result)
     const statusChunks = chunks.filter(chunk => !chunk.includes('GitHub Copilot session completed!'));

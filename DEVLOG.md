@@ -40,6 +40,30 @@ to work around them.
 
 ---
 
+### 2025-01-21: Fix Deep Linking in Copilot Session Started Message (Issue #42)
+
+- **High-Level Request:**
+  
+  - The 'Copilot session started' doesn't deep link to the session details like it is supposed to.
+
+- **Actions Taken:**
+
+  - **Problem Analysis:** Investigated the `formatStatusUpdate` method in `copilotClient.ts` and found that the 'pending' status message uses a generic `https://github.com/copilot/agents` URL instead of linking to the specific issue where session details are tracked
+  - **Root Cause Identification:** The logic only creates specific URLs when a pull request exists, but during the 'pending' phase, no PR has been created yet - however, an issue number is available at that point
+  - **Minimal Fix Implementation:** Modified the URL generation logic to check for `session.issueNumber` as a fallback when no PR exists, using the existing `buildIssueUrl()` helper method
+  - **Test Updates:** Updated the corresponding test expectation to verify the fix - changed from expecting the generic copilot URL to the specific issue URL (`https://github.com/owner/repo/issues/123`)
+  - **Verification:** Confirmed all tests pass and the deep linking now works correctly
+
+- **Friction/Success Points:**
+
+  - **Success:** The existing `buildIssueUrl()` helper method made the fix clean and consistent with the existing codebase
+  - **Success:** The test suite provided immediate feedback to verify the fix was working correctly
+  - **Success:** The change was surgical and minimal - only 3 lines of new code plus improved comment
+  - **Learning:** The session object already contained all necessary information (issueNumber) to create meaningful deep links
+  - **Success:** Maintained backward compatibility - the generic URL is still used as a final fallback when neither PR nor issue exists
+
+---
+
 ### 2025-08-21: Fix Markdown Link Rendering in Copilot Streaming Messages (Issue #40)
 
 - **High-Level Request:**
@@ -104,6 +128,7 @@ to work around them.
   - **Matrix Formatting:** Matrix protocol supports both plain text and HTML messages - the `sendMarkdownMessage()` function converts markdown to HTML using the `formatMarkdown()` utility
   - **Testing Patterns:** Tests verify both raw markdown content and the formatted HTML output to ensure complete functionality
   - **Mock Strategy:** Enhanced test mocks to handle gauntlet-specific content while maintaining simplicity and reliability
+>>>>>>> 62b658f3735ed0ae5331dfa85a0b9f0a79b219ee
 
 ---
 
