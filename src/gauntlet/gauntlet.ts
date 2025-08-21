@@ -44,6 +44,29 @@ const tasks: GauntletTask[] = [
     },
   },
   {
+    id: "check-sed-available",
+    skill: "Environment Management & Tooling",
+    difficulty: "Easy",
+    prompt: "Check if the 'sed' tool is available for text processing.",
+    successCondition: async (containerName) => {
+      const { stdout } = await execa(
+        "nix",
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          "which sed",
+        ],
+        { cwd: "./jail" },
+      );
+      return stdout.includes("/nix/store") && stdout.includes("sed");
+    },
+  },
+  {
     id: "create-project-dir",
     skill: "Environment Management & Tooling",
     difficulty: "Easy",
