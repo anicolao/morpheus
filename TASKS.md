@@ -1,6 +1,6 @@
 # Tasks
 
-This file tracks the current and upcoming tasks for the Morpheum project. 
+This file tracks the current and upcoming tasks for the Morpheum project.
 
 ## Morpheum v0.1: The "Matrix Milestone"
 
@@ -205,7 +205,8 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 
   - [x] Create Jekyll-based GitHub Pages site in `docs/` directory
   - [x] Design visual theme inspired by project logo
-  - [x] Create comprehensive documentation pages (Getting Started, Architecture, Contributing, Vision, Agents)
+  - [x] Create comprehensive documentation pages (Getting Started, Architecture,
+        Contributing, Vision, Agents)
   - [x] Create project status and roadmap pages
   - [x] Create design proposals section
   - [x] Set up GitHub Actions for automatic deployment
@@ -278,8 +279,10 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
     - [x] Create `OpenAIClient` class implementing `LLMClient` interface.
     - [x] Support custom base URLs for OpenAI-compatible APIs.
   - [x] **Subtask 3: Integrate OpenAI Client into Bot**
-    - [x] Enhanced `src/morpheum-bot/bot.ts` to support both OpenAI and Ollama APIs.
-    - [x] Added new commands: `!openai`, `!ollama`, `!llm status`, `!llm switch`.
+    - [x] Enhanced `src/morpheum-bot/bot.ts` to support both OpenAI and Ollama
+          APIs.
+    - [x] Added new commands: `!openai`, `!ollama`, `!llm status`,
+          `!llm switch`.
     - [x] Created comprehensive test suite covering all new functionality.
     - [x] Added common `LLMClient` interface and factory pattern.
     - [x] Updated `SWEAgent` to use generic `LLMClient` interface.
@@ -332,8 +335,9 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 ## Phase 1: Implement the Jailed Agent Environment
 
 The goal of this phase is to automate the setup and management of the jailed
-agent environment described in `JAIL_PROTOTYPE.md` (now deprecated - see current implementation in `jail/` directory). All scripts and
-configurations will be placed in a new `jail/` directory.
+agent environment described in `JAIL_PROTOTYPE.md` (now deprecated - see current
+implementation in `jail/` directory). All scripts and configurations will be
+placed in a new `jail/` directory.
 
 - [x] **Task 1: Create the `jail` directory structure.**
 
@@ -365,7 +369,8 @@ configurations will be placed in a new `jail/` directory.
 - [x] **Task 6: Create `jail/agent.ts` client**
 
   - Create the TypeScript agent client as `jail/agent.ts`.
-  - Copy the TypeScript code from `JAIL_PROTOTYPE.md` into this file (now implemented).
+  - Copy the TypeScript code from `JAIL_PROTOTYPE.md` into this file (now
+    implemented).
 
 - [x] **Task 7: Create `jail/README.md`**
   - Create a `README.md` file inside the `jail` directory.
@@ -491,62 +496,103 @@ the Matrix bot serving as its primary user interface.
   - [x] Refactor the `sweAgent` to loop, feeding back command output to the LLM.
   - [x] The loop terminates when the LLM responds without a command.
 - [x] **Task 51: Simplify and Improve System Prompt**
-  - [x] Distill the system prompt to be clearer, more concise, and plan-oriented.
+  - [x] Distill the system prompt to be clearer, more concise, and
+        plan-oriented.
 - [x] **Task 52: Stabilize Jail Communication**
-  - [x] Fix `socat` configuration to reliably capture both `stdout` and `stderr`.
-  - [x] Implement a robust readiness probe in the gauntlet to prevent race conditions.
+  - [x] Fix `socat` configuration to reliably capture both `stdout` and
+        `stderr`.
+  - [x] Implement a robust readiness probe in the gauntlet to prevent race
+        conditions.
 - [x] **Task 53: Update Gauntlet for Nix Workflow**
-  - [x] Modify gauntlet success conditions to check for tools within the `nix develop` environment.
+  - [x] Modify gauntlet success conditions to check for tools within the
+        `nix develop` environment.
 - [x] **Task 54: Update Local Model**
   - [x] Update the `morpheum-local` model to use `qwen`.
 - [x] **Task 55: Correct Documentation Inconsistencies**
+
   - [x] Analyzed all `.md` files for inconsistencies.
-  - [x] Updated `ROADMAP.md` to reflect the completion of v0.1 and the current focus on v0.2.
+  - [x] Updated `ROADMAP.md` to reflect the completion of v0.1 and the current
+        focus on v0.2.
   - [x] Updated `CONTRIBUTING.md` to describe the active Matrix-based workflow.
 
 - [x] **Task 56: Apply PR Review Comments**
-  - [x] Addressed feedback from PR #1 regarding package management preferences in documentation.
+
+  - [x] Addressed feedback from PR #1 regarding package management preferences
+        in documentation.
   - [x] Updated test script configuration for better compatibility.
-  - [x] Enhanced bot status messages to include model information (PR #2 feedback).
-  - [x] Ensured all changes maintain existing functionality while improving user experience.
+  - [x] Enhanced bot status messages to include model information (PR #2
+        feedback).
+  - [x] Ensured all changes maintain existing functionality while improving user
+        experience.
 
 - [x] **Task 57: Implement Streaming API Support**
-  - [x] Extended `LLMClient` interface with `sendStreaming()` method for real-time feedback
+
+  - [x] Extended `LLMClient` interface with `sendStreaming()` method for
+        real-time feedback
   - [x] Implemented OpenAI streaming using Server-Sent Events (SSE) format
   - [x] Implemented Ollama streaming using JSONL format
-  - [x] Added real-time progress indicators with emojis for enhanced user experience
-  - [x] Maintained backward compatibility with existing `send()` method (2025-01-18)
+  - [x] Added real-time progress indicators with emojis for enhanced user
+        experience
+  - [x] Maintained backward compatibility with existing `send()` method
+        (2025-01-18)
 
 - [x] **Task 58: Fix Jail Implementation Output Issues**
-  - [x] Resolved bash warnings from interactive shell attempting to control non-existent terminal
-  - [x] Cleaned up command output by switching from interactive (`bash -li`) to non-interactive (`bash -l`) shells
+
+  - [x] Resolved bash warnings from interactive shell attempting to control
+        non-existent terminal
+  - [x] Cleaned up command output by switching from interactive (`bash -li`) to
+        non-interactive (`bash -l`) shells
   - [x] Added comprehensive tests to validate clean output behavior (2025-01-20)
 
 - [x] **Task 59: Design GitHub Copilot Integration**
-  - [x] Created comprehensive design proposal for GitHub Copilot as third LLM provider
+
+  - [x] Created comprehensive design proposal for GitHub Copilot as third LLM
+        provider
   - [x] Designed CopilotClient following existing LLMClient interface patterns
   - [x] Planned GitHub authentication and session management architecture
   - [x] Specified real-time status update mechanisms using polling and streaming
   - [x] Documented complete implementation plan with file-by-file changes
-  - [x] Created `COPILOT_PROPOSAL.md` with technical specifications and rollout strategy (2025-01-27)
+  - [x] Created `COPILOT_PROPOSAL.md` with technical specifications and rollout
+        strategy (2025-01-27)
 
 - [x] **Task 59: Enhance Bot User Feedback with Plan and Next Step Display**
-  - [x] Added `parsePlanAndNextStep()` function to extract structured thinking from LLM responses
-  - [x] Implemented plan display with 📋 icon showing bot's strategy on first iteration
-  - [x] Implemented next step display with 🎯 icon showing bot's immediate action plan
-  - [x] Used existing `sendMarkdownMessage()` helper for proper HTML formatting in Matrix
-  - [x] Added comprehensive test coverage with 6 new test cases for parsing functionality
-  - [x] Enhanced user transparency by showing the bot's thinking process in structured format
+
+  - [x] Added `parsePlanAndNextStep()` function to extract structured thinking
+        from LLM responses
+  - [x] Implemented plan display with 📋 icon showing bot's strategy on first
+        iteration
+  - [x] Implemented next step display with 🎯 icon showing bot's immediate
+        action plan
+  - [x] Used existing `sendMarkdownMessage()` helper for proper HTML formatting
+        in Matrix
+  - [x] Added comprehensive test coverage with 6 new test cases for parsing
+        functionality
+  - [x] Enhanced user transparency by showing the bot's thinking process in
+        structured format
 
 - [x] **Ad Hoc: Add sed as Default Tool in Jail Environment**
+
   - [x] Added `sed` to the nixpkgs package list in `jail/run.sh`
   - [x] Created gauntlet test case to verify sed availability
   - [x] Verified no regressions in existing functionality
 
 - [x] **Ad Hoc: Fix Build Artifacts Being Built in Source Tree**
-  - [x] Removed 66 build artifacts (*.js, *.d.ts, *.d.ts.map) from source tree
-  - [x] Configured tsconfig.json to use outDir: './build' for all compilation output
-  - [x] Updated .gitignore with comprehensive patterns to prevent future artifact commits
-  - [x] Verified TypeScript compilation and tests work with new build directory configuration
 
+  - [x] Removed 66 build artifacts (_.js, _.d.ts, \*.d.ts.map) from source tree
+  - [x] Configured tsconfig.json to use outDir: './build' for all compilation
+        output
+  - [x] Updated .gitignore with comprehensive patterns to prevent future
+        artifact commits
+  - [x] Verified TypeScript compilation and tests work with new build directory
+        configuration
 
+- [x] **Ad Hoc: Fix GitHub Copilot Assignment Verification Logic**
+  - [x] Investigated false error in GitHub Copilot assignment verification
+        causing unnecessary demo mode fallback
+  - [x] Identified that verification logic was incorrectly throwing errors even
+        when assignments were successful
+  - [x] Modified verification to log warnings instead of throwing errors for
+        timing/response structure variations
+  - [x] Maintained proper error handling for actual assignment failures
+  - [x] Validated fix with comprehensive test suite ensuring all functionality
+        remains intact

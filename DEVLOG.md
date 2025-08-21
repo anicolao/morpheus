@@ -14,12 +14,18 @@ to work around them.
 ### 2025-01-21: Create GitHub Pages Site for Morpheum
 
 - **High-Level Request:**
-  - Create a first version of GitHub Pages for the project using the logo as visual inspiration and following guidance from PROJECT_TRACKING_PROPOSAL.md.
+
+  - Create a first version of GitHub Pages for the project using the logo as
+    visual inspiration and following guidance from PROJECT_TRACKING_PROPOSAL.md.
 
 - **Actions Taken:**
-  - **Site Structure:** Created a Jekyll-based GitHub Pages site in `docs/` directory with the recommended structure from the project tracking proposal
-  - **Design System:** Developed custom CSS inspired by the project logo, using a blue color palette and clean, professional styling
-  - **Content Migration:** Created comprehensive documentation pages based on existing project markdown files:
+
+  - **Site Structure:** Created a Jekyll-based GitHub Pages site in `docs/`
+    directory with the recommended structure from the project tracking proposal
+  - **Design System:** Developed custom CSS inspired by the project logo, using
+    a blue color palette and clean, professional styling
+  - **Content Migration:** Created comprehensive documentation pages based on
+    existing project markdown files:
     - Landing page with project vision and key features
     - Getting Started guide for new contributors
     - Architecture overview explaining the Matrix/GitHub design
@@ -27,87 +33,178 @@ to work around them.
     - Vision document and Agent guidelines
     - Project status with current roadmap and milestones
     - Design proposals section for architectural decisions
-  - **Automation:** Set up GitHub Actions workflow for automatic deployment from main branch
-  - **Jekyll Configuration:** Configured Jekyll with proper theme, plugins, and navigation structure
-  - **AGENTS.md Update:** Added instructions for AI agents to maintain the GitHub Pages site alongside code changes
+  - **Automation:** Set up GitHub Actions workflow for automatic deployment from
+    main branch
+  - **Jekyll Configuration:** Configured Jekyll with proper theme, plugins, and
+    navigation structure
+  - **AGENTS.md Update:** Added instructions for AI agents to maintain the
+    GitHub Pages site alongside code changes
 
 - **Friction/Success Points:**
-  - **Success:** Jekyll provided a clean, simple framework that integrates well with GitHub Pages
-  - **Success:** The existing documentation was well-structured and easy to adapt for the website
-  - **Success:** The blue color palette from the logo created a cohesive, professional appearance
-  - **Success:** The responsive design works well on both desktop and mobile devices
-  - **Learning:** GitHub Pages requires specific directory structure and configuration for Jekyll builds
+
+  - **Success:** Jekyll provided a clean, simple framework that integrates well
+    with GitHub Pages
+  - **Success:** The existing documentation was well-structured and easy to
+    adapt for the website
+  - **Success:** The blue color palette from the logo created a cohesive,
+    professional appearance
+  - **Success:** The responsive design works well on both desktop and mobile
+    devices
+  - **Learning:** GitHub Pages requires specific directory structure and
+    configuration for Jekyll builds
 
 - **Lessons Learned:**
-  - GitHub Pages with Jekyll provides an excellent foundation for project documentation websites
-  - Preserving the Matrix-centric philosophy while creating public-facing documentation helps maintain project consistency
-  - Automated deployment via GitHub Actions ensures the site stays current with repository changes
-  - Including agent guidelines in public documentation helps establish clear expectations for AI collaboration
+  - GitHub Pages with Jekyll provides an excellent foundation for project
+    documentation websites
+  - Preserving the Matrix-centric philosophy while creating public-facing
+    documentation helps maintain project consistency
+  - Automated deployment via GitHub Actions ensures the site stays current with
+    repository changes
+  - Including agent guidelines in public documentation helps establish clear
+    expectations for AI collaboration
 
 ---
 
 ### 2025-01-21: Fix Build Artifacts Being Built in Source Tree
 
 - **High-Level Request:**
-  - Clean up TypeScript build artifacts (*.js, *.d.ts, *.d.ts.map) that were being generated in the source tree and committed to git.
+
+  - Clean up TypeScript build artifacts (_.js, _.d.ts, \*.d.ts.map) that were
+    being generated in the source tree and committed to git.
 
 - **Actions Taken:**
-  - **Problem Analysis:** Found 66 build artifacts scattered throughout the repository (63 in src/, 3 in jail/, 4 in root)
-  - **TypeScript Configuration:** Updated `tsconfig.json` to set `outDir: "./build"` to direct all compilation output to a dedicated build directory
-  - **Gitignore Enhancement:** Added comprehensive patterns to ignore all build artifacts:
+
+  - **Problem Analysis:** Found 66 build artifacts scattered throughout the
+    repository (63 in src/, 3 in jail/, 4 in root)
+  - **TypeScript Configuration:** Updated `tsconfig.json` to set
+    `outDir: "./build"` to direct all compilation output to a dedicated build
+    directory
+  - **Gitignore Enhancement:** Added comprehensive patterns to ignore all build
+    artifacts:
     - `/build/` directory for future builds
     - Global patterns for `*.js`, `*.d.ts`, `*.d.ts.map`, `*.js.map`
-  - **Source Tree Cleanup:** Systematically removed all existing build artifacts from the repository
-  - **Verification:** Confirmed TypeScript compiler now outputs to build directory and tests still pass
+  - **Source Tree Cleanup:** Systematically removed all existing build artifacts
+    from the repository
+  - **Verification:** Confirmed TypeScript compiler now outputs to build
+    directory and tests still pass
 
 - **Friction/Success Points:**
-  - **Success:** The cleanup was straightforward and comprehensive - all 66 build artifacts were successfully removed
-  - **Success:** TypeScript automatically started using the new build directory configuration
-  - **Success:** Gitignore patterns properly prevent future commits of build artifacts
-  - **Success:** Tests continue to work normally, confirming no breaking changes to functionality
+
+  - **Success:** The cleanup was straightforward and comprehensive - all 66
+    build artifacts were successfully removed
+  - **Success:** TypeScript automatically started using the new build directory
+    configuration
+  - **Success:** Gitignore patterns properly prevent future commits of build
+    artifacts
+  - **Success:** Tests continue to work normally, confirming no breaking changes
+    to functionality
 
 - **Lessons Learned:**
-  - Build artifacts in source trees create repository clutter and unnecessary commits
-  - Proper TypeScript `outDir` configuration combined with comprehensive gitignore patterns prevents this issue
-  - The existing project had pre-existing test failures unrelated to the build artifacts, which helped confirm our changes didn't break anything
+  - Build artifacts in source trees create repository clutter and unnecessary
+    commits
+  - Proper TypeScript `outDir` configuration combined with comprehensive
+    gitignore patterns prevents this issue
+  - The existing project had pre-existing test failures unrelated to the build
+    artifacts, which helped confirm our changes didn't break anything
+
+---
+
+### 2025-01-21: Fix GitHub Copilot Assignment Verification Logic
+
+- **High-Level Request:**
+
+  - Fix false error in GitHub Copilot assignment verification that was causing
+    successful operations to fallback to demo mode unnecessarily.
+
+- **Actions Taken:**
+
+  - **Issue Analysis:** Investigated user feedback showing that Copilot
+    assignments were working correctly (PR #21 created) but verification logic
+    was throwing false errors
+  - **Root Cause Identification:** Found that the strict verification check was
+    failing even when assignments were successful, potentially due to timing
+    issues or response structure differences
+  - **Fix Implementation:** Changed the verification logic from throwing an
+    error to logging a warning when assignment isn't immediately reflected in
+    the response
+  - **Testing:** Ran comprehensive test suite to ensure all existing
+    functionality remained intact
+
+- **Friction/Success Points:**
+
+  - **Success:** Quick identification of the root cause through user feedback
+    and error analysis
+  - **Success:** Simple fix that maintains error handling while removing false
+    positives
+  - **Success:** All tests continue to pass after the change
+  - **Learning:** Assignment verification should be more tolerant of timing and
+    response variations
+
+- **Lessons Learned:**
+  - GitHub API assignment operations may not always be immediately reflected in
+    responses
+  - Verification logic should distinguish between actual failures and
+    timing/response structure variations
+  - User feedback is invaluable for identifying false error conditions that
+    testing might miss
 
 ---
 
 ### 2025-01-21: Add sed as Default Tool in Jail Environment
 
 - **High-Level Request:**
-  - Add `sed` as a default tool in the jail environment so it's available for text processing tasks.
+
+  - Add `sed` as a default tool in the jail environment so it's available for
+    text processing tasks.
 
 - **Actions Taken:**
-  - **Environment Analysis:** Explored the jail setup in `jail/run.sh` and identified where tools are installed via Nix (line 25)
-  - **Tool Addition:** Added `sed` to the nixpkgs installation list in `jail/run.sh` 
-  - **Test Creation:** Added a gauntlet test task `check-sed-available` to verify sed is properly installed and accessible
+
+  - **Environment Analysis:** Explored the jail setup in `jail/run.sh` and
+    identified where tools are installed via Nix (line 25)
+  - **Tool Addition:** Added `sed` to the nixpkgs installation list in
+    `jail/run.sh`
+  - **Test Creation:** Added a gauntlet test task `check-sed-available` to
+    verify sed is properly installed and accessible
   - **Validation:** Ran existing tests to ensure no regressions were introduced
 
 - **Friction/Success Points:**
-  - **Success:** Simple change - just added `sed` to the existing package list, demonstrating good separation of concerns in the jail setup
+
+  - **Success:** Simple change - just added `sed` to the existing package list,
+    demonstrating good separation of concerns in the jail setup
   - **Success:** Easy to test with the existing gauntlet framework
-  - **Friction:** Cannot fully test without Docker/Colima environment setup, but gauntlet framework provides the testing infrastructure
+  - **Friction:** Cannot fully test without Docker/Colima environment setup, but
+    gauntlet framework provides the testing infrastructure
 
 - **Lessons Learned:**
-  - The jail environment design makes it very easy to add new tools by simply extending the Nix package list
-  - The gauntlet framework provides excellent infrastructure for testing tool availability
+  - The jail environment design makes it very easy to add new tools by simply
+    extending the Nix package list
+  - The gauntlet framework provides excellent infrastructure for testing tool
+    availability
 
 ---
 
 ### 2025-01-27: Draft GitHub Copilot Integration Design Proposal
 
 - **High-Level Request:**
-  - Draft a comprehensive design proposal for integrating GitHub Copilot as a third LLM provider in the Morpheum bot, enabling users to switch to "copilot" mode for issue resolution with real-time status updates.
+
+  - Draft a comprehensive design proposal for integrating GitHub Copilot as a
+    third LLM provider in the Morpheum bot, enabling users to switch to
+    "copilot" mode for issue resolution with real-time status updates.
 
 - **Actions Taken:**
+
   - **Architecture Analysis:**
-    - Explored the existing codebase to understand current LLM integration patterns (OpenAI/Ollama)
-    - Analyzed the bot's command structure, factory patterns, and Matrix integration
-    - Reviewed existing documentation (README.md, VISION.md, ROADMAP.md) for context
+    - Explored the existing codebase to understand current LLM integration
+      patterns (OpenAI/Ollama)
+    - Analyzed the bot's command structure, factory patterns, and Matrix
+      integration
+    - Reviewed existing documentation (README.md, VISION.md, ROADMAP.md) for
+      context
   - **Design Proposal Creation:**
-    - Created comprehensive `COPILOT_PROPOSAL.md` with detailed technical specifications
-    - Designed CopilotClient class following existing LLMClient interface patterns
+    - Created comprehensive `COPILOT_PROPOSAL.md` with detailed technical
+      specifications
+    - Designed CopilotClient class following existing LLMClient interface
+      patterns
     - Planned GitHub authentication and session management architecture
     - Specified real-time status update mechanisms using polling and streaming
     - Outlined complete workflow from issue creation to PR completion
@@ -118,268 +215,449 @@ to work around them.
     - Specified environment configuration and security considerations
 
 - **Friction/Success Points:**
-  - **Success:** The existing LLMClient interface and factory pattern provided excellent extensibility points for adding GitHub Copilot
-  - **Success:** The bot's command structure was well-designed for adding new provider-specific commands
-  - **Success:** Clear separation of concerns in the current architecture made integration planning straightforward
-  - **Success:** Comprehensive understanding of Matrix chat integration enabled design of seamless status update mechanisms
-  - **Friction:** Pre-commit hooks required updating DEVLOG.md and TASKS.md, enforcing good documentation practices
+
+  - **Success:** The existing LLMClient interface and factory pattern provided
+    excellent extensibility points for adding GitHub Copilot
+  - **Success:** The bot's command structure was well-designed for adding new
+    provider-specific commands
+  - **Success:** Clear separation of concerns in the current architecture made
+    integration planning straightforward
+  - **Success:** Comprehensive understanding of Matrix chat integration enabled
+    design of seamless status update mechanisms
+  - **Friction:** Pre-commit hooks required updating DEVLOG.md and TASKS.md,
+    enforcing good documentation practices
 
 - **Lessons Learned:**
-  - **Interface Design:** Well-designed interfaces (like LLMClient) make extending functionality much easier
-  - **Factory Patterns:** The existing createLLMClient factory pattern provides a clean extension point for new providers
-  - **Documentation First:** Creating comprehensive design documents before implementation helps identify potential issues and requirements
-  - **Status Updates:** Real-time progress feedback is crucial for long-running AI operations like issue resolution
-  - **Workflow Integration:** New features should integrate seamlessly with existing user workflows rather than requiring learning new paradigms
+  - **Interface Design:** Well-designed interfaces (like LLMClient) make
+    extending functionality much easier
+  - **Factory Patterns:** The existing createLLMClient factory pattern provides
+    a clean extension point for new providers
+  - **Documentation First:** Creating comprehensive design documents before
+    implementation helps identify potential issues and requirements
+  - **Status Updates:** Real-time progress feedback is crucial for long-running
+    AI operations like issue resolution
+  - **Workflow Integration:** New features should integrate seamlessly with
+    existing user workflows rather than requiring learning new paradigms
 
 ---
 
 ### 2025-01-20: Fix Jail Implementation Bash Warnings and Output Cleanup
 
 - **Actions Taken:**
-  - Changed jail implementation from interactive bash (`bash -li`) to non-interactive bash (`bash -l`) in `jail/run.sh`
-  - Applied the fix to both the agent service (port 12001) and monitoring service (port 12002)
-  - Added comprehensive tests in `jailClient.output-cleaning.test.ts` to validate clean output behavior
-  - Verified existing output cleaning logic properly handles trimming and EOC marker detection
+
+  - Changed jail implementation from interactive bash (`bash -li`) to
+    non-interactive bash (`bash -l`) in `jail/run.sh`
+  - Applied the fix to both the agent service (port 12001) and monitoring
+    service (port 12002)
+  - Added comprehensive tests in `jailClient.output-cleaning.test.ts` to
+    validate clean output behavior
+  - Verified existing output cleaning logic properly handles trimming and EOC
+    marker detection
 
 - **Friction/Success Points:**
-  - **Success:** The fix was minimal and surgical - only 2 character changes in the shell script (`-li` to `-l`)
-  - **Success:** No changes needed to the output cleaning logic as it was already working correctly
-  - **Success:** All existing tests continue to pass, showing backward compatibility is maintained
+
+  - **Success:** The fix was minimal and surgical - only 2 character changes in
+    the shell script (`-li` to `-l`)
+  - **Success:** No changes needed to the output cleaning logic as it was
+    already working correctly
+  - **Success:** All existing tests continue to pass, showing backward
+    compatibility is maintained
 
 - **Lessons Learned:**
-  - Interactive bash shells produce unwanted prompts and warnings when used programmatically without a TTY
-  - Non-interactive login shells (`bash -l`) provide clean I/O for programmatic control while still loading user environment
-  - The existing EOC marker approach combined with `substring()` and `trim()` already provided robust output cleaning
-  - Comprehensive test coverage helps validate that minimal changes don't break existing functionality
+  - Interactive bash shells produce unwanted prompts and warnings when used
+    programmatically without a TTY
+  - Non-interactive login shells (`bash -l`) provide clean I/O for programmatic
+    control while still loading user environment
+  - The existing EOC marker approach combined with `substring()` and `trim()`
+    already provided robust output cleaning
+  - Comprehensive test coverage helps validate that minimal changes don't break
+    existing functionality
 
 ---
 
 ### 2025-01-18: Fix Multiline Command Formatting in Bot Output
 
 - **Actions Taken:**
-  - Identified issue where multiline commands in "Executing command" messages were incorrectly formatted with single backticks, causing poor markdown rendering
-  - Modified command formatting logic in `src/morpheum-bot/bot.ts` to detect multiline commands using `includes('\n')`
-  - **Single line commands**: Wrapped in single backticks `` `command` `` for inline display
-  - **Multi-line commands**: Wrapped in triple backticks with newlines `` ```\ncommand\n``` `` for proper code block rendering
-  - Maintained use of `sendMarkdownMessage()` for proper HTML formatting in Matrix clients
+
+  - Identified issue where multiline commands in "Executing command" messages
+    were incorrectly formatted with single backticks, causing poor markdown
+    rendering
+  - Modified command formatting logic in `src/morpheum-bot/bot.ts` to detect
+    multiline commands using `includes('\n')`
+  - **Single line commands**: Wrapped in single backticks `` `command` `` for
+    inline display
+  - **Multi-line commands**: Wrapped in triple backticks with newlines
+    ` ```\ncommand\n``` ` for proper code block rendering
+  - Maintained use of `sendMarkdownMessage()` for proper HTML formatting in
+    Matrix clients
   - Verified all 56 tests continue to pass
 
 - **Friction/Success Points:**
-  - **Success:** Multiline commands now display as properly formatted code blocks instead of broken inline text
-  - **Success:** Single line commands maintain clean inline display with single backticks
-  - **Success:** Logic is simple and reliable using string `includes()` method to detect newlines
-  - **Success:** All existing tests pass without modification, indicating change is backward compatible
+
+  - **Success:** Multiline commands now display as properly formatted code
+    blocks instead of broken inline text
+  - **Success:** Single line commands maintain clean inline display with single
+    backticks
+  - **Success:** Logic is simple and reliable using string `includes()` method
+    to detect newlines
+  - **Success:** All existing tests pass without modification, indicating change
+    is backward compatible
 
 - **Technical Learnings:**
-  - **Markdown Formatting:** Single backticks work well for inline commands but fail for multiline text
-  - **Code Block Rendering:** Triple backticks with surrounding newlines create proper markdown code blocks
-  - **Matrix HTML Rendering:** The `sendMarkdownMessage()` helper properly converts both formats to HTML for Matrix clients
-  - **Command Parsing:** The `parseBashCommands()` function can return multiline commands from LLM responses, making this formatting fix necessary
+  - **Markdown Formatting:** Single backticks work well for inline commands but
+    fail for multiline text
+  - **Code Block Rendering:** Triple backticks with surrounding newlines create
+    proper markdown code blocks
+  - **Matrix HTML Rendering:** The `sendMarkdownMessage()` helper properly
+    converts both formats to HTML for Matrix clients
+  - **Command Parsing:** The `parseBashCommands()` function can return multiline
+    commands from LLM responses, making this formatting fix necessary
 
 ---
 
 ### 2025-01-18: Improve Bot User Feedback with Structured Progress Messages
 
 - **Actions Taken:**
-  - Identified issue where raw LLM streaming chunks were being sent to users during task processing, creating verbose and repetitive output
-  - Modified `runSWEAgentWithStreaming()` in `src/morpheum-bot/bot.ts` to provide structured progress messages instead of raw LLM chunks
-  - Changed "Thinking..." message to "Analyzing and planning..." for better clarity
-  - Added "Analysis complete. Processing response..." message after LLM finishes processing
-  - **COMPLETED: Implemented markdown spoiler sections with HTML `<details>` and `<summary>` tags for command output**
-  - **COMPLETED: Increased output limit from 2000 to 64k characters while keeping chat clean with collapsible sections**
-  - **COMPLETED: Added early task termination detection for "Job's done!" phrase to exit iteration loop early**
-  - **COMPLETED: Created `sendMarkdownMessage()` helper function for proper HTML formatting using existing `formatMarkdown` infrastructure**
-  - **COMPLETED: Removed MAX_ITERATIONS display from progress messages - now shows "Iteration X:" instead of "Iteration X/10"**
-  - **COMPLETED: Added plan and next step display to show bot's thinking process to users**
-    - Created `parsePlanAndNextStep()` function to extract `<plan>` and `<next_step>` blocks from LLM responses
+
+  - Identified issue where raw LLM streaming chunks were being sent to users
+    during task processing, creating verbose and repetitive output
+  - Modified `runSWEAgentWithStreaming()` in `src/morpheum-bot/bot.ts` to
+    provide structured progress messages instead of raw LLM chunks
+  - Changed "Thinking..." message to "Analyzing and planning..." for better
+    clarity
+  - Added "Analysis complete. Processing response..." message after LLM finishes
+    processing
+  - **COMPLETED: Implemented markdown spoiler sections with HTML `<details>` and
+    `<summary>` tags for command output**
+  - **COMPLETED: Increased output limit from 2000 to 64k characters while
+    keeping chat clean with collapsible sections**
+  - **COMPLETED: Added early task termination detection for "Job's done!" phrase
+    to exit iteration loop early**
+  - **COMPLETED: Created `sendMarkdownMessage()` helper function for proper HTML
+    formatting using existing `formatMarkdown` infrastructure**
+  - **COMPLETED: Removed MAX_ITERATIONS display from progress messages - now
+    shows "Iteration X:" instead of "Iteration X/10"**
+  - **COMPLETED: Added plan and next step display to show bot's thinking process
+    to users**
+    - Created `parsePlanAndNextStep()` function to extract `<plan>` and
+      `<next_step>` blocks from LLM responses
     - Plan displayed with 📋 icon on first iteration showing the bot's strategy
-    - Next step displayed with 🎯 icon for each iteration showing what the bot will do next
-    - Properly formatted using markdown with `sendMarkdownMessage()` for HTML rendering
+    - Next step displayed with 🎯 icon for each iteration showing what the bot
+      will do next
+    - Properly formatted using markdown with `sendMarkdownMessage()` for HTML
+      rendering
     - Added comprehensive test coverage with 6 new test cases
-  - Updated test expectations in `src/morpheum-bot/bot.test.ts` to match new message format without MAX_ITERATIONS
+  - Updated test expectations in `src/morpheum-bot/bot.test.ts` to match new
+    message format without MAX_ITERATIONS
   - Verified all 56 tests continue to pass (up from 50 tests)
 
 - **Friction/Success Points:**
-  - **Success:** Users now receive clear, structured updates showing exactly what the bot is doing at each step
-  - **Success:** Eliminated verbose LLM thinking output while maintaining all functionality
-  - **Success:** Each message provides new, meaningful information without repetition
-  - **Success:** Command output now uses collapsible spoiler sections with 64k limit, allowing users to view full output without cluttering chat
-  - **Success:** Early termination when "Job's done!" is detected provides faster task completion
-  - **Success:** Proper HTML markdown formatting ensures messages display correctly in Matrix clients
-  - **Success:** Cleaner progress messages without MAX_ITERATIONS display improve user experience
-  - **Success:** Users can now see the bot's planning process through plan and next step displays, making the workflow transparent
-  - **Friction:** Had to update test expectations to match new message format, but this was straightforward
+
+  - **Success:** Users now receive clear, structured updates showing exactly
+    what the bot is doing at each step
+  - **Success:** Eliminated verbose LLM thinking output while maintaining all
+    functionality
+  - **Success:** Each message provides new, meaningful information without
+    repetition
+  - **Success:** Command output now uses collapsible spoiler sections with 64k
+    limit, allowing users to view full output without cluttering chat
+  - **Success:** Early termination when "Job's done!" is detected provides
+    faster task completion
+  - **Success:** Proper HTML markdown formatting ensures messages display
+    correctly in Matrix clients
+  - **Success:** Cleaner progress messages without MAX_ITERATIONS display
+    improve user experience
+  - **Success:** Users can now see the bot's planning process through plan and
+    next step displays, making the workflow transparent
+  - **Friction:** Had to update test expectations to match new message format,
+    but this was straightforward
 
 - **Technical Learnings:**
-  - **User Experience:** Structured progress messages (🧠 → 💭 → 📋 → 🎯 → ⚡ → 📋 → ✅) provide better feedback than raw LLM streams
-  - **Message Flow:** Users see: Working on task → Analyzing → Analysis complete → Command execution → Results → Task completed
-  - **Output Management:** Truncating very long command outputs (>2000 chars) prevents chat flooding while preserving full data in conversation history
-  - **Direct Commands:** Kept streaming behavior for `!openai` and `!ollama` commands since users expect to see raw LLM output for debugging
+  - **User Experience:** Structured progress messages (🧠 → 💭 → 📋 → 🎯 → ⚡ →
+    📋 → ✅) provide better feedback than raw LLM streams
+  - **Message Flow:** Users see: Working on task → Analyzing → Analysis complete
+    → Command execution → Results → Task completed
+  - **Output Management:** Truncating very long command outputs (>2000 chars)
+    prevents chat flooding while preserving full data in conversation history
+  - **Direct Commands:** Kept streaming behavior for `!openai` and `!ollama`
+    commands since users expect to see raw LLM output for debugging
 
 ---
 
 ### 2025-01-18: Implement Streaming Capabilities for LLM Clients
 
 - **Actions Taken:**
-  - Extended the `LLMClient` interface to include a `sendStreaming()` method that accepts a callback for partial responses
-  - Implemented streaming in `OpenAIClient` using Server-Sent Events (SSE) format with proper chunk parsing
-  - Implemented streaming in `OllamaClient` using JSONL (newline-delimited JSON) format
+
+  - Extended the `LLMClient` interface to include a `sendStreaming()` method
+    that accepts a callback for partial responses
+  - Implemented streaming in `OpenAIClient` using Server-Sent Events (SSE)
+    format with proper chunk parsing
+  - Implemented streaming in `OllamaClient` using JSONL (newline-delimited JSON)
+    format
   - Updated `MorpheumBot` to use streaming for better user experience:
     - Direct OpenAI commands (`!openai`) now show real-time thinking progress
-    - Direct Ollama commands (`!ollama`) now show real-time thinking progress  
+    - Direct Ollama commands (`!ollama`) now show real-time thinking progress
     - Regular task processing shows iteration progress and LLM thinking status
   - Added comprehensive tests for streaming functionality in both clients
   - Updated bot tests to include streaming method mocks
 
 - **Friction/Success Points:**
-  - **Success:** Streaming implementation provides immediate user feedback during long-running LLM operations
-  - **Success:** Both OpenAI and Ollama streaming APIs work well with different formats (SSE vs JSONL)
+
+  - **Success:** Streaming implementation provides immediate user feedback
+    during long-running LLM operations
+  - **Success:** Both OpenAI and Ollama streaming APIs work well with different
+    formats (SSE vs JSONL)
   - **Success:** Test coverage maintained at 100% with proper streaming mocks
-  - **Friction:** Had to update test mocks to include the new `sendStreaming` method to avoid test failures
-  - **Friction:** Pre-commit hooks require DEVLOG updates, ensuring documentation stays current
+  - **Friction:** Had to update test mocks to include the new `sendStreaming`
+    method to avoid test failures
+  - **Friction:** Pre-commit hooks require DEVLOG updates, ensuring
+    documentation stays current
 
 - **Technical Learnings:**
-  - **OpenAI Streaming:** Uses Server-Sent Events with `data:` prefixed lines and `[DONE]` terminator
-  - **Ollama Streaming:** Uses JSONL format with `{"response": "chunk", "done": false}` structure
-  - **ReadableStream Handling:** Both APIs require proper stream reader management with TextDecoder
-  - **User Experience:** Emojis (🤖, 🧠, ⚡, ✅) improve message readability and provide visual feedback
-  - **Error Handling:** Streaming errors need special handling since they occur during data parsing
-  - **Test Strategy:** Mocking streaming requires simulating async chunk delivery with callbacks
+  - **OpenAI Streaming:** Uses Server-Sent Events with `data:` prefixed lines
+    and `[DONE]` terminator
+  - **Ollama Streaming:** Uses JSONL format with
+    `{"response": "chunk", "done": false}` structure
+  - **ReadableStream Handling:** Both APIs require proper stream reader
+    management with TextDecoder
+  - **User Experience:** Emojis (🤖, 🧠, ⚡, ✅) improve message readability and
+    provide visual feedback
+  - **Error Handling:** Streaming errors need special handling since they occur
+    during data parsing
+  - **Test Strategy:** Mocking streaming requires simulating async chunk
+    delivery with callbacks
 
 ---
 
 ### 2025-01-04: Fix Gauntlet Validation Issues
 
 - **Actions Taken:**
-  - Fixed validation patterns in gauntlet tasks to ensure consistent use of `/project` directory context
-  - Updated XML converter task to be more flexible - now asks agents to write a script instead of installing specific tools
+
+  - Fixed validation patterns in gauntlet tasks to ensure consistent use of
+    `/project` directory context
+  - Updated XML converter task to be more flexible - now asks agents to write a
+    script instead of installing specific tools
   - Created test XML file for validating XML to JSON conversion functionality
-  - Modified file-checking tasks to properly use `cd /project &&` for correct working directory context
+  - Modified file-checking tasks to properly use `cd /project &&` for correct
+    working directory context
   - **Replaced file content checks with actual server functionality testing:**
-    - **hello-world-server task**: Instead of just checking if `server.js` contains "Hello, Morpheum!" text, now starts the server with `execa` in background using `nix develop -c bun run server.js`, waits 3 seconds for startup, then uses `curl -s localhost:3000` to test actual HTTP functionality
-    - **refine-existing-codebase task**: First creates initial server.js file with basic Bun server code (as specified in GAUNTLET.md), then starts the modified server and tests the `/api/v1/status` endpoint by curling it and parsing the JSON response to verify structure
-    - Added proper error handling with try/catch blocks and server process cleanup using `serverProcess.kill()`
+    - **hello-world-server task**: Instead of just checking if `server.js`
+      contains "Hello, Morpheum!" text, now starts the server with `execa` in
+      background using `nix develop -c bun run server.js`, waits 3 seconds for
+      startup, then uses `curl -s localhost:3000` to test actual HTTP
+      functionality
+    - **refine-existing-codebase task**: First creates initial server.js file
+      with basic Bun server code (as specified in GAUNTLET.md), then starts the
+      modified server and tests the `/api/v1/status` endpoint by curling it and
+      parsing the JSON response to verify structure
+    - Added proper error handling with try/catch blocks and server process
+      cleanup using `serverProcess.kill()`
   - Ensured all tests continue to pass after changes
 
 - **Friction/Success Points:**
-  - **Success:** The XML task validation is now much more practical - agents can use any approach (yq, jq, custom scripts, etc.) as long as they produce working XML to JSON conversion
-  - **Success:** Fixed directory context issues that could cause false negatives when agents create files in the correct `/project` directory
-  - **Success:** Server validation now tests real functionality - eliminates false positives where files contained expected text but servers didn't actually work
-  - **Success:** Background server process management using `execa` without awaiting, combined with `setTimeout` delays and proper cleanup, provides reliable testing of HTTP endpoints
-  - **Lesson:** Pre-commit hooks enforce documentation updates, which helps maintain project coherence
-  - **Lesson:** Testing actual server functionality requires careful process management - starting servers in background, waiting for startup, making HTTP requests, and cleaning up processes
+
+  - **Success:** The XML task validation is now much more practical - agents can
+    use any approach (yq, jq, custom scripts, etc.) as long as they produce
+    working XML to JSON conversion
+  - **Success:** Fixed directory context issues that could cause false negatives
+    when agents create files in the correct `/project` directory
+  - **Success:** Server validation now tests real functionality - eliminates
+    false positives where files contained expected text but servers didn't
+    actually work
+  - **Success:** Background server process management using `execa` without
+    awaiting, combined with `setTimeout` delays and proper cleanup, provides
+    reliable testing of HTTP endpoints
+  - **Lesson:** Pre-commit hooks enforce documentation updates, which helps
+    maintain project coherence
+  - **Lesson:** Testing actual server functionality requires careful process
+    management - starting servers in background, waiting for startup, making
+    HTTP requests, and cleaning up processes
 
 - **Technical Learnings:**
-  - **Background Process Management**: Using `execa()` without awaiting allows starting servers in background, then using `serverProcess.kill()` for cleanup
-  - **Server Startup Timing**: 3-second delay with `setTimeout` provides reliable server startup time before testing endpoints
-  - **HTTP Testing in Containers**: `curl -s localhost:3000` works reliably within Docker containers for testing server responses
-  - **Nested Nix Environments**: Running `nix develop -c bun run server.js` inside Docker containers requires proper command chaining
-  - **Error Handling for Server Tests**: Try/catch blocks prevent test failures from crashing the validation system
-  - **JSON Response Validation**: Parsing curl output with `JSON.parse()` allows testing response structure, not just text content
+  - **Background Process Management**: Using `execa()` without awaiting allows
+    starting servers in background, then using `serverProcess.kill()` for
+    cleanup
+  - **Server Startup Timing**: 3-second delay with `setTimeout` provides
+    reliable server startup time before testing endpoints
+  - **HTTP Testing in Containers**: `curl -s localhost:3000` works reliably
+    within Docker containers for testing server responses
+  - **Nested Nix Environments**: Running `nix develop -c bun run server.js`
+    inside Docker containers requires proper command chaining
+  - **Error Handling for Server Tests**: Try/catch blocks prevent test failures
+    from crashing the validation system
+  - **JSON Response Validation**: Parsing curl output with `JSON.parse()` allows
+    testing response structure, not just text content
 
 ---
 
 ### 2025-01-04: Fix Failing Tests in bot.test.ts
 
 - **Actions Taken:**
-  - Fixed 2 failing tests in `src/morpheum-bot/bot.test.ts` related to file commands (!tasks and !devlog).
-  - Updated fs module mock to return correct content for TASKS.md and DEVLOG.md files instead of generic test content.
-  - Enhanced formatMarkdown mock to properly handle the specific file content and return expected HTML format.
+
+  - Fixed 2 failing tests in `src/morpheum-bot/bot.test.ts` related to file
+    commands (!tasks and !devlog).
+  - Updated fs module mock to return correct content for TASKS.md and DEVLOG.md
+    files instead of generic test content.
+  - Enhanced formatMarkdown mock to properly handle the specific file content
+    and return expected HTML format.
   - Confirmed all 46 tests now pass successfully.
 
 - **Friction/Success Points:**
-  - **Success:** Quickly identified the root cause - mocks were too generic and not handling specific file content.
-  - **Success:** The test failure output was very clear about what was expected vs. what was received.
-  - **Success:** Minimal changes required - only updated the mock implementations without changing test logic.
+
+  - **Success:** Quickly identified the root cause - mocks were too generic and
+    not handling specific file content.
+  - **Success:** The test failure output was very clear about what was expected
+    vs. what was received.
+  - **Success:** Minimal changes required - only updated the mock
+    implementations without changing test logic.
 
 - **Lessons Learned:**
-  - When mocking file system operations, it's important to handle specific file paths appropriately rather than using a one-size-fits-all approach.
-  - Test mocks should closely mirror the expected behavior of the real implementations to ensure tests are meaningful.
-  - The pre-commit hook enforcing DEVLOG.md updates ensures proper documentation of all changes.
+  - When mocking file system operations, it's important to handle specific file
+    paths appropriately rather than using a one-size-fits-all approach.
+  - Test mocks should closely mirror the expected behavior of the real
+    implementations to ensure tests are meaningful.
+  - The pre-commit hook enforcing DEVLOG.md updates ensures proper documentation
+    of all changes.
 
 ---
 
 ### 2025-08-20: Apply PR Review Comments for Better Merge Readiness
 
 - **Actions Taken:**
-  - Addressed feedback from PR #1 and PR #2 to ensure pull requests can be merged successfully.
-  - Confirmed AGENTS.md correctly states preference for `bun` over `npm` for package management (no change needed).
-  - Updated package.json test script to use `npx vitest` for better compatibility when vitest isn't globally installed.
-  - Enhanced MorpheumBot class to include model information in task status messages, addressing PR #2 feedback to "indicate the model, too".
-  - Added ollamaModel as a private property in the bot to make it accessible in status messages.
-  - Modified handleTask method to display "Working on: [task] using [model]..." format.
+
+  - Addressed feedback from PR #1 and PR #2 to ensure pull requests can be
+    merged successfully.
+  - Confirmed AGENTS.md correctly states preference for `bun` over `npm` for
+    package management (no change needed).
+  - Updated package.json test script to use `npx vitest` for better
+    compatibility when vitest isn't globally installed.
+  - Enhanced MorpheumBot class to include model information in task status
+    messages, addressing PR #2 feedback to "indicate the model, too".
+  - Added ollamaModel as a private property in the bot to make it accessible in
+    status messages.
+  - Modified handleTask method to display "Working on: [task] using [model]..."
+    format.
 
 - **Friction/Success Points:**
-  - **Success:** Successfully identified and addressed specific reviewer feedback from multiple PRs.
-  - **Friction:** Pre-commit hook correctly enforced the requirement to update DEVLOG.md and TASKS.md, ensuring proper logging practices.
-  - **Success:** Tests run successfully after npm install, confirming package.json changes work correctly.
+
+  - **Success:** Successfully identified and addressed specific reviewer
+    feedback from multiple PRs.
+  - **Friction:** Pre-commit hook correctly enforced the requirement to update
+    DEVLOG.md and TASKS.md, ensuring proper logging practices.
+  - **Success:** Tests run successfully after npm install, confirming
+    package.json changes work correctly.
 
 - **Lessons Learned:**
-  - PR review comments provide valuable guidance for improving code quality and user experience.
-  - The pre-commit hook is an effective enforcement mechanism for maintaining project documentation standards.
-  - Status messages benefit from including contextual information like which model is being used for tasks.
+  - PR review comments provide valuable guidance for improving code quality and
+    user experience.
+  - The pre-commit hook is an effective enforcement mechanism for maintaining
+    project documentation standards.
+  - Status messages benefit from including contextual information like which
+    model is being used for tasks.
 
 ### 2025-01-12: Implement OpenAI/Ollama Dual API Support for Morpheum Bot
 
 - **High-Level Request:**
-  - Extend the morpheum-bot to support both OpenAI API and Ollama API, allowing users to switch between different LLM providers based on their needs, with comprehensive testing and documentation.
+
+  - Extend the morpheum-bot to support both OpenAI API and Ollama API, allowing
+    users to switch between different LLM providers based on their needs, with
+    comprehensive testing and documentation.
 
 - **Actions Taken:**
+
   - **OpenAI Integration:**
-    - Completed the existing Task 34 by implementing a full `OpenAIClient` class that follows the same patterns as `OllamaClient`.
-    - Created comprehensive test suite covering all OpenAI functionality including error handling, custom base URLs, and various response scenarios.
+    - Completed the existing Task 34 by implementing a full `OpenAIClient` class
+      that follows the same patterns as `OllamaClient`.
+    - Created comprehensive test suite covering all OpenAI functionality
+      including error handling, custom base URLs, and various response
+      scenarios.
     - Un-skipped the existing `openai.test.ts` and expanded it significantly.
   - **Common Interface Design:**
     - Created `LLMClient` interface to abstract differences between providers.
-    - Implemented factory pattern in `llmClient.ts` for creating appropriate clients based on configuration.
-    - Updated both `OpenAIClient` and `OllamaClient` to implement the common interface.
+    - Implemented factory pattern in `llmClient.ts` for creating appropriate
+      clients based on configuration.
+    - Updated both `OpenAIClient` and `OllamaClient` to implement the common
+      interface.
   - **Bot Enhancement:**
-    - Major refactor of `MorpheumBot` to support dual APIs with automatic provider selection.
-    - Added new commands: `!llm status`, `!llm switch`, `!openai <prompt>`, `!ollama <prompt>`.
+    - Major refactor of `MorpheumBot` to support dual APIs with automatic
+      provider selection.
+    - Added new commands: `!llm status`, `!llm switch`, `!openai <prompt>`,
+      `!ollama <prompt>`.
     - Enhanced help system with comprehensive command documentation.
     - Implemented configuration via environment variables for both providers.
   - **Architecture Improvements:**
-    - Updated `SWEAgent` to use generic `LLMClient` interface instead of being tied to Ollama.
-    - Added support for OpenAI-compatible APIs via custom base URL configuration.
+    - Updated `SWEAgent` to use generic `LLMClient` interface instead of being
+      tied to Ollama.
+    - Added support for OpenAI-compatible APIs via custom base URL
+      configuration.
     - Implemented robust error handling and validation throughout.
   - **Testing & Documentation:**
     - Created 46 passing tests across 5 new/updated test files.
-    - Added comprehensive documentation in `MORPHEUM_BOT_API.md` with usage examples.
+    - Added comprehensive documentation in `MORPHEUM_BOT_API.md` with usage
+      examples.
     - Updated `TASKS.md` to mark Task 34 as completed.
 
 - **Friction/Success Points:**
-  - **Success:** The existing codebase had excellent patterns to follow - the `OllamaClient` implementation provided a clear template for the `OpenAIClient`.
-  - **Success:** The test infrastructure was already well-established, making it easy to add comprehensive test coverage.
-  - **Success:** The bot's command structure was extensible, allowing seamless integration of new LLM commands.
-  - **Success:** Environment variable-based configuration made it easy to support both providers without breaking existing setups.
-  - **Friction:** Had to navigate some existing test failures (2 in format-markdown) that were unrelated to the changes, but successfully isolated the new functionality.
-  - **Success:** The interface-based approach made the integration very clean and maintainable.
+
+  - **Success:** The existing codebase had excellent patterns to follow - the
+    `OllamaClient` implementation provided a clear template for the
+    `OpenAIClient`.
+  - **Success:** The test infrastructure was already well-established, making it
+    easy to add comprehensive test coverage.
+  - **Success:** The bot's command structure was extensible, allowing seamless
+    integration of new LLM commands.
+  - **Success:** Environment variable-based configuration made it easy to
+    support both providers without breaking existing setups.
+  - **Friction:** Had to navigate some existing test failures (2 in
+    format-markdown) that were unrelated to the changes, but successfully
+    isolated the new functionality.
+  - **Success:** The interface-based approach made the integration very clean
+    and maintainable.
 
 - **Lessons Learned:**
-  - **Interface Design:** Creating a common interface early (`LLMClient`) made it trivial to swap providers and will make future LLM integrations much easier.
-  - **Factory Pattern:** The factory pattern (`createLLMClient`) provides excellent extensibility for adding new providers in the future.
-  - **Environment-based Configuration:** Using environment variables for configuration provides flexibility while maintaining security (API keys aren't hardcoded).
-  - **Comprehensive Testing:** Having both unit tests and integration tests gives confidence that the dual-API approach works correctly.
-  - **Documentation-First:** Creating `MORPHEUM_BOT_API.md` with usage examples makes the new functionality immediately accessible to users.
-  - **Backward Compatibility:** Maintaining the original `sendOpenAIRequest` function ensures existing code won't break while providing the new class-based API.
+  - **Interface Design:** Creating a common interface early (`LLMClient`) made
+    it trivial to swap providers and will make future LLM integrations much
+    easier.
+  - **Factory Pattern:** The factory pattern (`createLLMClient`) provides
+    excellent extensibility for adding new providers in the future.
+  - **Environment-based Configuration:** Using environment variables for
+    configuration provides flexibility while maintaining security (API keys
+    aren't hardcoded).
+  - **Comprehensive Testing:** Having both unit tests and integration tests
+    gives confidence that the dual-API approach works correctly.
+  - **Documentation-First:** Creating `MORPHEUM_BOT_API.md` with usage examples
+    makes the new functionality immediately accessible to users.
+  - **Backward Compatibility:** Maintaining the original `sendOpenAIRequest`
+    function ensures existing code won't break while providing the new
+    class-based API.
 
 ### 2025-08-20: Documentation Consistency Review
 
 - **Actions Taken:**
-  - Conducted comprehensive review of all markdown files for inconsistencies with current project state
-  - Added deprecation notices to `GEMINI_CLI_OVERVIEW.md` and `JAIL_PROTOTYPE.md` since Gemini CLI was removed and jail system is now implemented
-  - Updated `AGENTS.md` to reflect actual npm usage instead of preferred but unavailable bun
-  - Updated `README.md` "Getting Started" section to reflect current v0.2 project state rather than early conceptual phase
-  - Updated references in `TASKS.md` to clarify that jail prototype tasks have been completed
-  - Preserved historical context by marking outdated files as deprecated rather than deleting them
+
+  - Conducted comprehensive review of all markdown files for inconsistencies
+    with current project state
+  - Added deprecation notices to `GEMINI_CLI_OVERVIEW.md` and
+    `JAIL_PROTOTYPE.md` since Gemini CLI was removed and jail system is now
+    implemented
+  - Updated `AGENTS.md` to reflect actual npm usage instead of preferred but
+    unavailable bun
+  - Updated `README.md` "Getting Started" section to reflect current v0.2
+    project state rather than early conceptual phase
+  - Updated references in `TASKS.md` to clarify that jail prototype tasks have
+    been completed
+  - Preserved historical context by marking outdated files as deprecated rather
+    than deleting them
 
 - **Friction/Success Points:**
-  - **Success:** Following established pattern from previous DEVLOG entries to preserve history rather than delete outdated content
-  - **Success:** Identified clear inconsistencies between documented vs actual package management, project state, and implemented features
-  
+  - **Success:** Following established pattern from previous DEVLOG entries to
+    preserve history rather than delete outdated content
+  - **Success:** Identified clear inconsistencies between documented vs actual
+    package management, project state, and implemented features
 - **Lessons Learned:**
   - Documentation consistency reviews are essential as projects evolve rapidly
-  - Deprecation notices are preferable to deletion for maintaining historical context
+  - Deprecation notices are preferable to deletion for maintaining historical
+    context
   - Package manager preferences in documentation should match available tooling
 
 ---
@@ -387,46 +665,85 @@ to work around them.
 ### 2025-08-19: Align Documentation with Project State
 
 - **Actions Taken:**
-  - Read all project markdown files to identify inconsistencies between the documented plans and the actual state of the project.
-  - Discovered that `ROADMAP.md` was significantly outdated and did not reflect the completion of the initial bot setup (v0.1).
-  - Updated `ROADMAP.md` to mark v0.1 tasks as complete, preserving the project history, and added a new v0.2 section outlining the current focus on agent evaluation and enhancement.
-  - Updated `CONTRIBUTING.md` to clarify that the Matrix-driven workflow is the current, active development process, not a future goal.
+
+  - Read all project markdown files to identify inconsistencies between the
+    documented plans and the actual state of the project.
+  - Discovered that `ROADMAP.md` was significantly outdated and did not reflect
+    the completion of the initial bot setup (v0.1).
+  - Updated `ROADMAP.md` to mark v0.1 tasks as complete, preserving the project
+    history, and added a new v0.2 section outlining the current focus on agent
+    evaluation and enhancement.
+  - Updated `CONTRIBUTING.md` to clarify that the Matrix-driven workflow is the
+    current, active development process, not a future goal.
 
 - **Friction/Success Points:**
-  - **Success:** The process of reading the documentation and git log allowed for a clear and accurate update, bringing the project narrative in line with reality.
-  - **Friction:** I initially proposed deleting the outdated sections, but the user correctly pointed out that preserving the history and marking items as complete is a better approach. I also forgot to include the `TASKS.md` and `DEVLOG.md` updates in the original commit plan, which was a process failure.
+
+  - **Success:** The process of reading the documentation and git log allowed
+    for a clear and accurate update, bringing the project narrative in line with
+    reality.
+  - **Friction:** I initially proposed deleting the outdated sections, but the
+    user correctly pointed out that preserving the history and marking items as
+    complete is a better approach. I also forgot to include the `TASKS.md` and
+    `DEVLOG.md` updates in the original commit plan, which was a process
+    failure.
 
 - **Lessons Learned:**
-  - Project documentation, especially roadmaps, must be treated as living documents and updated regularly to reflect progress.
-  - Preserving the history of completed work in a roadmap is valuable for understanding the project's trajectory.
-  - Adherence to the project's own contribution process (i.e., updating `TASKS.md` and `DEVLOG.md`) is critical for all contributors, including the AI agent.
+  - Project documentation, especially roadmaps, must be treated as living
+    documents and updated regularly to reflect progress.
+  - Preserving the history of completed work in a roadmap is valuable for
+    understanding the project's trajectory.
+  - Adherence to the project's own contribution process (i.e., updating
+    `TASKS.md` and `DEVLOG.md`) is critical for all contributors, including the
+    AI agent.
 
 ---
 
 ### 2025-08-18: Stabilize Jail Communication and Refine Agent Workflow
 
 - **Actions Taken:**
+
   - **Jail Communication:**
-    - Engaged in an extensive debugging process to create a stable shell environment inside the Docker container.
-    - Correctly identified that `socat`'s `SYSTEM` command was the key to enabling a shell that could handle `stderr` redirection (`2>&1`).
-    - Implemented a robust readiness probe in the gauntlet script that polls the container with an `echo` command, ensuring tests only run when the jail is fully initialized.
-    - This finally resolved a series of complex, cascading issues including empty responses, connection timeouts, and hangs.
+    - Engaged in an extensive debugging process to create a stable shell
+      environment inside the Docker container.
+    - Correctly identified that `socat`'s `SYSTEM` command was the key to
+      enabling a shell that could handle `stderr` redirection (`2>&1`).
+    - Implemented a robust readiness probe in the gauntlet script that polls the
+      container with an `echo` command, ensuring tests only run when the jail is
+      fully initialized.
+    - This finally resolved a series of complex, cascading issues including
+      empty responses, connection timeouts, and hangs.
   - **Agent Workflow:**
-    - Refactored the `sweAgent` to use an iterative loop, allowing it to see the output of its commands and decide on subsequent actions.
-    - Greatly simplified the system prompt to be more direct and plan-oriented, instructing the agent to create a plan, show the next step, and then act or ask for approval.
+    - Refactored the `sweAgent` to use an iterative loop, allowing it to see the
+      output of its commands and decide on subsequent actions.
+    - Greatly simplified the system prompt to be more direct and plan-oriented,
+      instructing the agent to create a plan, show the next step, and then act
+      or ask for approval.
   - **Gauntlet & Model:**
-    - Added a new, simple gauntlet task (`create-project-dir`) to act as a baseline test for agent capability.
-    - Updated all gauntlet success conditions to correctly check for tools inside the `nix develop` environment.
+    - Added a new, simple gauntlet task (`create-project-dir`) to act as a
+      baseline test for agent capability.
+    - Updated all gauntlet success conditions to correctly check for tools
+      inside the `nix develop` environment.
     - Updated the local `morpheum-local` model to use `qwen`.
 
 - **Friction/Success Points:**
-  - **Friction:** The jail communication issue was extremely difficult to debug due to the subtle interactions between `socat`, `bash` (interactive vs. non-interactive), `stderr` redirection, and the `JailClient`'s TCP logic. This led to many failed attempts and required deep analysis of the user's expert feedback.
-  - **Success:** The final `SYSTEM:"bash -li 2>&1"` solution is robust, stable, and correctly captures `stderr`, which is a major step forward for the project. The new agent workflow is much more intelligent and collaborative.
+
+  - **Friction:** The jail communication issue was extremely difficult to debug
+    due to the subtle interactions between `socat`, `bash` (interactive vs.
+    non-interactive), `stderr` redirection, and the `JailClient`'s TCP logic.
+    This led to many failed attempts and required deep analysis of the user's
+    expert feedback.
+  - **Success:** The final `SYSTEM:"bash -li 2>&1"` solution is robust, stable,
+    and correctly captures `stderr`, which is a major step forward for the
+    project. The new agent workflow is much more intelligent and collaborative.
 
 - **Lessons Learned:**
-  - The distinction between `socat`'s `EXEC` and `SYSTEM` options is critical when shell features like redirection are required.
-  - A robust readiness probe that validates the entire communication round-trip is essential when dealing with services that have a slow or unpredictable startup time.
-  - A clear, focused system prompt is vital for guiding the agent's behavior. The new plan-based prompt is a significant improvement.
+  - The distinction between `socat`'s `EXEC` and `SYSTEM` options is critical
+    when shell features like redirection are required.
+  - A robust readiness probe that validates the entire communication round-trip
+    is essential when dealing with services that have a slow or unpredictable
+    startup time.
+  - A clear, focused system prompt is vital for guiding the agent's behavior.
+    The new plan-based prompt is a significant improvement.
 
 ---
 

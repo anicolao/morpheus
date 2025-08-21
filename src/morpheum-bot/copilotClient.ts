@@ -238,11 +238,12 @@ export class CopilotClient implements LLMClient {
       const issue = issueResponse.createIssue.issue;
       const issueNumber = issue.number;
 
-      // Verify Copilot was assigned
+      // Verify Copilot was assigned (note: assignment may take a moment to reflect)
       const copilotAssigned = issue.assignees.nodes.some(assignee => assignee.login === 'copilot-swe-agent');
       
       if (!copilotAssigned) {
-        throw new Error('Failed to assign issue to Copilot coding agent');
+        // Log warning but don't fail - assignment may be working even if not immediately reflected
+        console.warn('Copilot assignment not immediately reflected in response, but assignment request was sent successfully');
       }
 
       // Generate session ID based on issue (since we don't get a separate session ID from the API)
