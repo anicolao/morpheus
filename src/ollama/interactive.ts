@@ -17,10 +17,10 @@ function parseArgs(): { baseUrl: string; model: string } {
 
   for (let i = 0; i < args.length; i++) {
     if ((args[i] === '--url' || args[i] === '-u') && i + 1 < args.length) {
-      baseUrl = args[i + 1];
+      baseUrl = args[i + 1]!;
       i++;
     } else if ((args[i] === '--model' || args[i] === '-m') && i + 1 < args.length) {
-      model = args[i + 1];
+      model = args[i + 1]!;
       i++;
     } else {
       console.error(`Unknown argument: ${args[i]}`);
@@ -33,7 +33,7 @@ function parseArgs(): { baseUrl: string; model: string } {
     printUsageAndExit();
   }
 
-  return { baseUrl, model };
+  return { baseUrl, model: model! };
 }
 
 /**

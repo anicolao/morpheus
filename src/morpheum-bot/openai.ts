@@ -1,4 +1,4 @@
-import { LLMClient } from './llmClient';
+import { type LLMClient } from './llmClient';
 
 export class OpenAIClient implements LLMClient {
   constructor(
@@ -39,7 +39,7 @@ export class OpenAIClient implements LLMClient {
     const content = data.choices?.[0]?.message?.content || '';
     
     console.log(`--- OPENAI RESPONSE (${this.model} @ ${this.baseUrl}) ---`);
-    console.log(content.split('\n').map(line => `  ${line}`).join('\n'));
+    console.log(content.split('\n').map((line: string) => `  ${line}`).join('\n'));
     console.log("-----------------------");
     
     return content;

@@ -1,4 +1,4 @@
-import { LLMClient } from './llmClient';
+import { type LLMClient } from './llmClient';
 import { Octokit } from '@octokit/rest';
 
 /**
