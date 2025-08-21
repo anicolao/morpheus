@@ -541,10 +541,9 @@ ${spoilerContent}
     const conversationHistory: { role: string; content: string }[] = [];
     conversationHistory.push({ role: 'user', content: task });
 
-    await sendMessage(`🤖 Creating GitHub issue for: "${task}"`);
-    
     // For Copilot, we send just the user's task without system prompts
     // since Copilot already understands repository context
+    // The CopilotClient handles all status updates including issue creation
     const response = await this.currentLLMClient.sendStreaming(task, async (chunk) => {
       await sendMessage(chunk);
     });

@@ -124,8 +124,18 @@ export class CopilotClient implements LLMClient {
     console.log("----------------------");
 
     try {
+      // Send issue creation status
+      onChunk(`🤖 Creating GitHub issue for: "${prompt}"\n`);
+      
       // Create issue and start Copilot session
       const session = await this.startCopilotSession(prompt);
+      
+      // Send issue created status with link
+      if (session.issueNumber) {
+        const issueUrl = `https://github.com/${this.owner}/${this.repo}/issues/${session.issueNumber}`;
+        onChunk(`✅ **Issue #${session.issueNumber} created**: ${issueUrl}\n`);
+        onChunk(`🚀 Starting GitHub Copilot session for issue #${session.issueNumber}...\n`);
+      }
       
       // Send initial status
       const initialUpdate = this.formatStatusUpdate(session);
@@ -136,6 +146,13 @@ export class CopilotClient implements LLMClient {
       while (currentSession.status !== 'completed' && currentSession.status !== 'failed') {
         await new Promise(resolve => setTimeout(resolve, this.pollInterval));
         const updatedSession = await this.getSessionStatus(currentSession.id, currentSession.issueNumber);
+        
+        // Check for new PR creation (not in current session but in updated session)
+        if (updatedSession.pullRequestUrl && !currentSession.pullRequestUrl) {
+          const isDemo = updatedSession.id.startsWith('cop_demo_');
+          const prefix = isDemo ? '[DEMO] ' : '';
+          onChunk(`🔗 ${prefix}**Pull Request created**: ${updatedSession.pullRequestUrl}\n`);
+        }
         
         // Check for PR ready state change (from draft to ready)
         if (updatedSession.pullRequestUrl && 
@@ -548,18 +565,19 @@ export class CopilotClient implements LLMClient {
     const emoji = statusEmoji[session.status];
     const isDemo = session.id.startsWith('cop_demo_');
     const prefix = isDemo ? '[DEMO] ' : '';
+    const progressUrl = `https://github.com/copilot/agents`;
     
     switch (session.status) {
       case 'pending':
-        return `${emoji} ${prefix}Copilot session started (ID: ${session.id}) - Status: pending`;
+        return `${emoji} ${prefix}Copilot session started (ID: ${session.id}) - Status: pending\n📊 Track progress: ${progressUrl}\n`;
       case 'in_progress':
-        return `${emoji} ${prefix}Copilot session status: in_progress - Analyzing codebase...`;
+        return `${emoji} ${prefix}Copilot session status: in_progress - Analyzing codebase...\n`;
       case 'completed':
-        return `${emoji} ${prefix}Copilot session completed! Working on final result...`;
+        return `${emoji} ${prefix}Copilot session completed! Working on final result...\n`;
       case 'failed':
-        return `${emoji} ${prefix}Copilot session failed. Please try again.`;
+        return `${emoji} ${prefix}Copilot session failed. Please try again.\n`;
       default:
-        return `${prefix}Status: ${session.status}`;
+        return `${prefix}Status: ${session.status}\n`;
     }
   }
 
@@ -570,7 +588,7 @@ export class CopilotClient implements LLMClient {
     const isDemo = session.id.startsWith('cop_demo_');
     const prefix = isDemo ? '[DEMO] ' : '';
     
-    return `🔗 ${prefix}Pull Request ready for review! ${session.pullRequestUrl}`;
+    return `🔗 ${prefix}**Pull Request ready for review**: ${session.pullRequestUrl}\n`;
   }
 
   /**
