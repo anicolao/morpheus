@@ -38,7 +38,7 @@ export interface RepositoryData {
     suggestedActors: {
       nodes: Array<{
         login: string;
-        id: string;
+        id?: string; // Optional since id is only available on concrete types, not Actor interface
         __typename: string;
       }>;
     };
@@ -171,7 +171,6 @@ export class CopilotClient implements LLMClient {
             suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
               nodes {
                 login
-                id
                 __typename
                 ... on Bot {
                   id
@@ -195,6 +194,10 @@ export class CopilotClient implements LLMClient {
 
       if (!copilotActor) {
         throw new Error('Copilot coding agent is not available for this repository');
+      }
+
+      if (!copilotActor.id) {
+        throw new Error('Unable to get Copilot actor ID from GraphQL response');
       }
 
       const repositoryId = repositoryData.repository.id;
