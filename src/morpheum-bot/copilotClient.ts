@@ -132,8 +132,9 @@ export class CopilotClient implements LLMClient {
       
       // Send issue created status with link
       if (session.issueNumber) {
-        onChunk(`✅ **Issue #${session.issueNumber} created**\n`);
-        onChunk(`🚀 Starting GitHub Copilot session for #${session.issueNumber}...\n`);
+        const issueUrl = this.buildIssueUrl(session.issueNumber);
+        onChunk(`✅ **Issue [#${session.issueNumber}](${issueUrl}) created**\n`);
+        onChunk(`🚀 Starting GitHub Copilot session for [#${session.issueNumber}](${issueUrl})...\n`);
       }
       
       // Send initial status
@@ -152,7 +153,8 @@ export class CopilotClient implements LLMClient {
           const prefix = isDemo ? '[DEMO] ' : '';
           const prNumber = this.extractPRNumber(updatedSession.pullRequestUrl);
           if (prNumber) {
-            onChunk(`🔗 ${prefix}**Pull Request #${prNumber} created**\n`);
+            const prUrl = this.buildPRUrl(prNumber);
+            onChunk(`🔗 ${prefix}**Pull Request [#${prNumber}](${prUrl}) created**\n`);
           } else {
             onChunk(`🔗 ${prefix}**Pull Request created**: ${updatedSession.pullRequestUrl}\n`);
           }
@@ -602,6 +604,20 @@ export class CopilotClient implements LLMClient {
   }
 
   /**
+   * Build GitHub issue URL
+   */
+  private buildIssueUrl(issueNumber: number): string {
+    return `https://github.com/${this.owner}/${this.repo}/issues/${issueNumber}`;
+  }
+
+  /**
+   * Build GitHub PR URL  
+   */
+  private buildPRUrl(prNumber: number): string {
+    return `https://github.com/${this.owner}/${this.repo}/pull/${prNumber}`;
+  }
+
+  /**
    * Format a PR ready for review notification
    */
   private formatPRReadyUpdate(session: CopilotSession): string {
@@ -611,7 +627,8 @@ export class CopilotClient implements LLMClient {
     if (session.pullRequestUrl) {
       const prNumber = this.extractPRNumber(session.pullRequestUrl);
       if (prNumber) {
-        return `🔗 ${prefix}**Pull Request #${prNumber} ready for review**\n`;
+        const prUrl = this.buildPRUrl(prNumber);
+        return `🔗 ${prefix}**Pull Request [#${prNumber}](${prUrl}) ready for review**\n`;
       }
     }
     
@@ -649,7 +666,8 @@ export class CopilotClient implements LLMClient {
     if (result.pullRequestUrl) {
       const prNumber = this.extractPRNumber(result.pullRequestUrl);
       if (prNumber) {
-        message += `🔗 **Pull Request #${prNumber} ready for review**\n`;
+        const prUrl = this.buildPRUrl(prNumber);
+        message += `🔗 **Pull Request [#${prNumber}](${prUrl}) ready for review**\n`;
       } else {
         message += `🔗 **Pull Request ready for review**: ${result.pullRequestUrl}\n`;
       }

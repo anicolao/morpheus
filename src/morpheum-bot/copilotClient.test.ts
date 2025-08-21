@@ -196,8 +196,8 @@ describe('CopilotClient', () => {
     
     // Check that we get issue creation status updates
     expect(chunks.some(chunk => chunk.includes('Creating GitHub issue for: "Fix authentication bug"'))).toBe(true);
-    expect(chunks.some(chunk => chunk.includes('Issue #123 created'))).toBe(true);
-    expect(chunks.some(chunk => chunk.includes('Starting GitHub Copilot session for #123'))).toBe(true);
+    expect(chunks.some(chunk => chunk.includes('Issue [#123](https://github.com/owner/repo/issues/123) created'))).toBe(true);
+    expect(chunks.some(chunk => chunk.includes('Starting GitHub Copilot session for [#123](https://github.com/owner/repo/issues/123)'))).toBe(true);
     
     // Check that status updates include session tracking
     expect(chunks.some(chunk => chunk.includes('Track progress: https://github.com/copilot/agents'))).toBe(true);
