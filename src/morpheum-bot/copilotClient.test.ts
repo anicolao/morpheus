@@ -171,7 +171,8 @@ describe('CopilotClient', () => {
     
     expect(onChunk).toHaveBeenCalled();
     expect(chunks.length).toBeGreaterThan(0);
-    expect(chunks[0]).toContain('Copilot session started');
+    expect(chunks[0]).toContain('Creating GitHub issue for');
+    expect(chunks.some(chunk => chunk.includes('Copilot session started'))).toBe(true);
     expect(chunks.some(chunk => chunk.includes('completed'))).toBe(true);
     expect(chunks.some(chunk => chunk.includes('[DEMO]'))).toBe(true);
   }, 20000); // Increase timeout for async polling
@@ -180,6 +181,33 @@ describe('CopilotClient', () => {
     const sessions = await client.getActiveSessions();
     expect(Array.isArray(sessions)).toBe(true);
   });
+
+  it('should include issue creation and session tracking in streaming updates', async () => {
+    // Mock demo mode (GraphQL fails)
+    mockOctokit.graphql
+      .mockRejectedValueOnce(new Error('API not available'));
+
+    const chunks: string[] = [];
+    const onChunk = vi.fn((chunk: string) => {
+      chunks.push(chunk);
+    });
+
+    await client.sendStreaming('Fix authentication bug', onChunk);
+    
+    // Check that we get issue creation status updates
+    expect(chunks.some(chunk => chunk.includes('Creating GitHub issue for: "Fix authentication bug"'))).toBe(true);
+    expect(chunks.some(chunk => chunk.includes('Issue [#123](https://github.com/owner/repo/issues/123) created'))).toBe(true);
+    expect(chunks.some(chunk => chunk.includes('Starting GitHub Copilot session for [#123](https://github.com/owner/repo/issues/123)'))).toBe(true);
+    
+    // Check that status updates include session tracking
+    expect(chunks.some(chunk => chunk.includes('Track progress: https://github.com/copilot/agents'))).toBe(true);
+    
+    // Check that all chunks end with newlines (except potentially the final result)
+    const statusChunks = chunks.filter(chunk => !chunk.includes('GitHub Copilot session completed!'));
+    statusChunks.forEach(chunk => {
+      expect(chunk).toMatch(/\n$/);
+    });
+  }, 20000);
 
   it('should cancel session', async () => {
     const result = await client.cancelSession('test-session-id');
