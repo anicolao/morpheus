@@ -4,4 +4,4 @@ title: Architecture
 permalink: /documentation/architecture/
 ---
 
-{% include_relative ../../ARCHITECTURE.md %}
+{% include ARCHITECTURE.md %}

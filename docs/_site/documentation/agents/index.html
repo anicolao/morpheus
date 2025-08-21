@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Agent Guidelines | Morpheum</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Agent Guidelines" />
+<meta name="author" content="Morpheum Project" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A collaborative environment where AI agents and humans work together seamlessly on software development projects" />
+<meta property="og:description" content="A collaborative environment where AI agents and humans work together seamlessly on software development projects" />
+<link rel="canonical" href="https://anicolao.github.io/morpheum/documentation/agents/" />
+<meta property="og:url" content="https://anicolao.github.io/morpheum/documentation/agents/" />
+<meta property="og:site_name" content="Morpheum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Agent Guidelines" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"Morpheum Project"},"description":"A collaborative environment where AI agents and humans work together seamlessly on software development projects","headline":"Agent Guidelines","url":"https://anicolao.github.io/morpheum/documentation/agents/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://anicolao.github.io/morpheum/feed.xml" title="Morpheum" /></head>
+
+<body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" rel="author" href="/">
+                <img src="/assets/images/logo.png" alt="Morpheum Logo" class="site-logo">
+                Morpheum
+            </a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path d="m0,1.5h18v3h-18zm0,6h18v3h-18zm0,6h18v3h-18z"/>
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger"><a class="page-link" href="/">Home</a><a class="page-link" href="/documentation/">Documentation</a><a class="page-link" href="/status/">Project Status</a><a class="page-link" href="/proposals/">Design Proposals</a><a class="page-link" href="https://github.com/anicolao/morpheum" target="_blank" rel="noopener">GitHub</a></div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+            <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">Agent Guidelines</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="ai-agent-guidelines">AI Agent Guidelines</h1>
+
+<p>This document outlines the expected behavior and best practices for all AI agents contributing to the Morpheum project. The goal is to ensure consistency, reliability, and seamless collaboration between AI and human developers.</p>
+
+<h2 id="core-principles">Core Principles</h2>
+
+<ul>
+  <li><strong>Adherence to Project Conventions:</strong> Agents must rigorously adhere to existing project conventions, including coding style, architectural patterns, and established workflows. Analyze the surrounding code and documentation before making any changes.</li>
+  <li><strong>Tool Proficiency:</strong> Agents should demonstrate proficiency with the available tools, especially the GitHub CLI/APIs and other development utilities. In cases where a tool’s capabilities are unknown, agents should avoid making definitive statements about what is or isn’t possible.</li>
+  <li><strong>Transparency and Communication:</strong> Agents should be transparent about their actions and the reasoning behind them. When encountering ambiguity or making significant decisions, agents should communicate their intent to the human developer.</li>
+  <li><strong>Reliability and Stability:</strong> Agents must avoid actions that could lead to an unstable state, such as hanging during a git rebase. If an operation is risky or has failed in the past, the agent should report the issue and seek guidance.</li>
+  <li><strong>Accurate and Factual Information:</strong> Agents must avoid “hallucinating” or inventing information. All generated content, especially architectural descriptions and technical documentation, should be based on the actual state of the project.</li>
+</ul>
+
+<h2 id="specific-guidelines">Specific Guidelines</h2>
+
+<ul>
+  <li><strong>File Operations:</strong>
+    <ul>
+      <li>Before modifying any file, agents should read its content to ensure they have the latest version.</li>
+      <li>When creating new files, agents should follow the established naming conventions and directory structure.</li>
+    </ul>
+  </li>
+  <li><strong>Version Control:</strong>
+    <ul>
+      <li>Agents should be proficient with basic git operations, including <code class="language-plaintext highlighter-rouge">git add</code>, <code class="language-plaintext highlighter-rouge">git commit</code>, and <code class="language-plaintext highlighter-rouge">git push</code>.</li>
+      <li>Commit messages should be clear, concise, and follow the project’s established format.</li>
+      <li>Agents should not attempt complex git operations like <code class="language-plaintext highlighter-rouge">git rebase</code> without explicit instructions and a clear understanding of the potential consequences.</li>
+      <li>Agents should prefer SSH over HTTPS for git repositories.</li>
+    </ul>
+  </li>
+  <li><strong>Package Management:</strong> Prefer <code class="language-plaintext highlighter-rouge">bun</code> over <code class="language-plaintext highlighter-rouge">npm</code> for running scripts and managing packages (note: while the current development environment primarily uses <code class="language-plaintext highlighter-rouge">bun</code>, <code class="language-plaintext highlighter-rouge">npm</code> also works if necessary).</li>
+  <li><strong>Content Generation:</strong>
+    <ul>
+      <li>When generating documentation, agents should ensure the content is accurate and reflects the current state of the project.</li>
+      <li>When fetching content from the web, agents should be instructed to retrieve the raw text rather than a summary, unless a summary is explicitly requested.</li>
+    </ul>
+  </li>
+  <li><strong>Error Handling:</strong>
+    <ul>
+      <li>If an agent encounters an error or is unable to complete a task, it should report the issue clearly and provide any relevant context or logs.</li>
+      <li>Agents should not attempt to work around errors without first reporting them and seeking guidance.</li>
+    </ul>
+  </li>
+  <li><strong>Development Log (<code class="language-plaintext highlighter-rouge">DEVLOG.md</code>):</strong>
+    <ul>
+      <li>The <a href="DEVLOG.md"><code class="language-plaintext highlighter-rouge">DEVLOG.md</code></a> is a critical component of this project. It serves as a shared knowledge base for both humans and AI agents to improve collaboration and efficiency.</li>
+      <li>Agents must log a summary of their work in <a href="DEVLOG.md"><code class="language-plaintext highlighter-rouge">DEVLOG.md</code></a>, including the high-level request from the human, the actions taken, and any friction or success points.</li>
+      <li>The log should capture not just <em>what</em> was done, but <em>why</em> it was done, and what was learned in the process. For example, if a new technique is discovered (e.g., using <code class="language-plaintext highlighter-rouge">git show</code> for statistics), this should be documented so that future agents can benefit from this knowledge.</li>
+      <li>The goal is to create a virtuous cycle of learning and improvement, where the <code class="language-plaintext highlighter-rouge">DEVLOG.md</code> becomes a repository of best practices and lessons learned.</li>
+    </ul>
+  </li>
+  <li><strong>GitHub Pages Site Maintenance:</strong>
+    <ul>
+      <li>The project documentation is published via GitHub Pages from the <code class="language-plaintext highlighter-rouge">docs/</code> directory using Jekyll.</li>
+      <li>The Jekyll site uses <code class="language-plaintext highlighter-rouge">include_relative</code> to reference root documentation files (ARCHITECTURE.md, VISION.md, etc.) maintaining a single source of truth.</li>
+      <li>The site automatically deploys via GitHub Actions when changes are pushed to the main branch.</li>
+      <li>Content in <code class="language-plaintext highlighter-rouge">docs/status/</code> and <code class="language-plaintext highlighter-rouge">docs/proposals/</code> should be updated to reflect current project state.</li>
+      <li>When adding new design proposals or significant architectural changes, create corresponding pages in the Jekyll site for public visibility.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>By following these guidelines, AI agents can become more effective and reliable partners in the software development process.</p>
+
+  </div>
+</article>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrapper">
+            <div class="footer-col-wrapper">
+                <div class="footer-col footer-col-1">
+                    <ul class="contact-list">
+                        <li class="p-name">Morpheum Project</li><li><a class="u-email" href="mailto:contact@morpheum.dev">contact@morpheum.dev</a></li></ul>
+                </div>
+
+                <div class="footer-col footer-col-2"><ul class="social-media-list"><li>
+    <a href="https://github.com/anicolao/morpheum">
+      <svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg>
+      <span class="username">anicolao</span>
+    </a>
+  </li></ul></div>
+
+                <div class="footer-col footer-col-3">
+                    <p>A collaborative environment where AI agents and humans work together seamlessly on software development projects</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
