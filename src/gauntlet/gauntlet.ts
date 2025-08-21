@@ -606,4 +606,3 @@ if (process.argv[1] === __filename) {
 
   program.parse(process.argv);
 }
-}
