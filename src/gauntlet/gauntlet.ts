@@ -4,8 +4,8 @@ import { SWEAgent } from "../morpheum-bot/sweAgent";
 import { JailClient } from "../morpheum-bot/jailClient";
 import { execa } from "execa";
 import * as net from "net";
-
-console.log("Gauntlet script started");
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 // Define the structure for a Gauntlet task
 interface GauntletTask {
@@ -561,40 +561,49 @@ export async function executeGauntlet(
 // Export tasks list for the bot to use
 export { tasks as gauntletTasks };
 
-program
-  .name("gauntlet")
-  .description("A CLI tool to run the Morpheum AI Model Evaluation Gauntlet");
+// CLI interface - only run when this file is executed directly
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-program
-  .command("run")
-  .description("Run the gauntlet for a specific model and task")
-  .requiredOption("-m, --model <model>", "The model to evaluate")
-  .option("-p, --provider <provider>", "The LLM provider to use (openai|ollama)", "ollama")
-  .option("-t, --task <task>", "The task to run (defaults to all tasks)")
-  .option("-v, --verbose", "Enable verbose logging", false)
-  .action(async (options) => {
-    try {
-      // Validate provider option
-      if (!['openai', 'ollama'].includes(options.provider)) {
-        throw new Error('--provider must be either "openai" or "ollama"');
-      }
+if (process.argv[1] === __filename) {
+  console.log("Gauntlet script started");
 
-      const results: GauntletResult = {};
-      if (options.task) {
-        await runGauntlet(options.model, options.provider, options.task, results, options.verbose);
-      } else {
-        for (const task of tasks) {
-          await runGauntlet(options.model, options.provider, task.id, results, options.verbose);
+  program
+    .name("gauntlet")
+    .description("A CLI tool to run the Morpheum AI Model Evaluation Gauntlet");
+
+  program
+    .command("run")
+    .description("Run the gauntlet for a specific model and task")
+    .requiredOption("-m, --model <model>", "The model to evaluate")
+    .option("-p, --provider <provider>", "The LLM provider to use (openai|ollama)", "ollama")
+    .option("-t, --task <task>", "The task to run (defaults to all tasks)")
+    .option("-v, --verbose", "Enable verbose logging", false)
+    .action(async (options) => {
+      try {
+        // Validate provider option
+        if (!['openai', 'ollama'].includes(options.provider)) {
+          throw new Error('--provider must be either "openai" or "ollama"');
         }
+
+        const results: GauntletResult = {};
+        if (options.task) {
+          await runGauntlet(options.model, options.provider, options.task, results, options.verbose);
+        } else {
+          for (const task of tasks) {
+            await runGauntlet(options.model, options.provider, task.id, results, options.verbose);
+          }
+        }
+
+        console.log("\n--- GAUNTLET RESULTS ---");
+        console.log(JSON.stringify(results, null, 2));
+        console.log("--- END GAUNTLET RESULTS ---\n");
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
       }
+    });
 
-      console.log("\n--- GAUNTLET RESULTS ---");
-      console.log(JSON.stringify(results, null, 2));
-      console.log("--- END GAUNTLET RESULTS ---\n");
-    } catch (error) {
-      console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-      process.exit(1);
-    }
-  });
-
-program.parse(process.argv);
+  program.parse(process.argv);
+}
+}
