@@ -11,6 +11,66 @@ to work around them.
 
 ---
 
+### 2025-08-21: Refactor Message Sending to Avoid sendMessageSmart Function (Issue #40 Follow-up)
+
+- **High-Level Request:**
+  
+  - User feedback: "I didn't want `sendMessage` renamed to `sendMessageSmart`. This just has a high chance of creating merge conflicts for minimal cognitive benefit on what the method does."
+
+- **Actions Taken:**
+
+  - **Function Refactoring:** Instead of creating a new `sendMessageSmart()` function, enhanced the existing `sendMarkdownMessage()` function to be smart:
+    - Added automatic markdown detection using the existing `hasMarkdown()` function
+    - Route to HTML formatting if markdown is detected, plain text otherwise
+    - Maintains the same function name to reduce merge conflict potential
+  - **Code Cleanup:** 
+    - Removed the `sendMessageSmart()` function entirely
+    - Replaced all `sendMessageSmart()` calls with `sendMarkdownMessage()` calls throughout the codebase
+    - Kept `sendPlainTextMessage()` for explicit plain text sending when needed
+  - **Comprehensive Testing:** All 110 tests continue to pass, including the markdown streaming tests
+  - **Smart Detection Preserved:** The comprehensive markdown detection logic (links, code blocks, bold, italic, headings) is preserved in the `hasMarkdown()` function
+
+- **Friction/Success Points:**
+
+  - **Success:** Avoided creating new function names that could cause cognitive overhead and merge conflicts
+  - **Success:** Maintained backward compatibility by enhancing existing functions rather than replacing them
+  - **Success:** All existing test coverage continues to work without modification
+  - **Learning:** User feedback emphasized that function naming changes should be avoided for minimal cognitive benefit
+  - **Success:** The smart detection is now seamlessly integrated into the existing `sendMarkdownMessage()` function, making it the default choice for any message that might contain markdown
+
+---
+
+### 2025-08-21: Fix Markdown Link Rendering in Copilot Streaming Messages (Issue #40)
+
+- **High-Level Request:**
+  
+  - The status messages with markdown links for progress on copilot tasks are being sent as raw text instead of markdown. please fix
+
+- **Actions Taken:**
+
+  - **Root Cause Analysis:** Identified that the issue was in the Copilot streaming callback in `bot.ts` where chunks containing markdown links (like `[#123](https://github.com/owner/repo/issues/123)`) were being sent as plain text instead of formatted HTML
+  - **Code Investigation:** Found that the bot already had a `formatMarkdown()` function and `sendMarkdownMessage()` helper, but the Copilot streaming callback wasn't using them for chunks with markdown links
+  - **Helper Function Creation:** Added `hasMarkdownLinks()` function to detect when text chunks contain markdown links using regex pattern `/\[.+?\]\(https?:\/\/.+?\)/`
+  - **Streaming Logic Fix:** Modified the Copilot streaming callback to:
+    - Check each chunk for markdown links using the helper function
+    - Send chunks with markdown as HTML using the existing `sendMarkdownMessage()` helper
+    - Send plain text chunks as regular messages (preserving existing behavior)
+  - **Comprehensive Testing:** Created test suite in `bot-markdown-streaming.test.ts` to verify:
+    - Markdown link detection works correctly on typical Copilot status messages
+    - HTML formatting preserves emojis and converts markdown to proper HTML
+    - The streaming logic correctly routes chunks to HTML vs. plain text based on content
+  - **Targeted Implementation:** The fix only affects Copilot streaming where status messages contain GitHub issue/PR links, preserving existing behavior for OpenAI/Ollama streaming
+
+- **Friction/Success Points:**
+
+  - **Success:** The existing `formatMarkdown()` function and message queue HTML support made the implementation straightforward
+  - **Success:** All existing tests continued to pass (106/106), confirming the change was surgical and didn't break existing functionality
+  - **Success:** The fix was highly targeted - only affecting Copilot status messages that actually contain markdown links
+  - **Learning:** The codebase already had all the necessary infrastructure (markdown formatting, HTML message support), it just needed to be connected properly for the Copilot streaming use case
+  - **Success:** Created comprehensive tests that verify both the detection logic and the end-to-end streaming behavior
+
+---
+
 ### 2025-08-21: Fix Gauntlet Command Markdown Formatting in Matrix (Issue #38)
 
 - **High-Level Request:**
