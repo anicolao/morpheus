@@ -441,7 +441,7 @@ Configuration:
 - \`!gauntlet run --model claude --verbose\` - Run with verbose output
 
 ⚠️ **Note:** Gauntlet only works with OpenAI and Ollama providers, not Copilot.`;
-      await sendMessage(helpMessage);
+      await sendMarkdownMessage(helpMessage, sendMessage);
       return;
     }
 
@@ -461,7 +461,7 @@ Configuration:
 - \`refine-existing-codebase\` (Hard) - Improve existing code
 
 Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
-      await sendMessage(tasksMessage);
+      await sendMarkdownMessage(tasksMessage, sendMessage);
       return;
     }
 
