@@ -312,7 +312,7 @@ describe('MorpheumBot', () => {
       // First parameter should be the markdown
       expect(call[0]).toContain('🏆 **Gauntlet - AI Model Evaluation**');
       expect(call[0]).toContain('**Usage:**');
-      expect(call[0]).toContain('`!gauntlet run --model <model> [--task <task>] [--verbose]`');
+      expect(call[0]).toContain('`!gauntlet run --model <model> [--provider <openai|ollama>] [--task <task>] [--verbose]`');
       
       // Second parameter should be HTML
       expect(call[1]).toContain('<strong>Gauntlet - AI Model Evaluation</strong>');

@@ -9,6 +9,7 @@ This document outlines the expected behavior and best practices for all AI agent
 *   **Transparency and Communication:** Agents should be transparent about their actions and the reasoning behind them. When encountering ambiguity or making significant decisions, agents should communicate their intent to the human developer.
 *   **Reliability and Stability:** Agents must avoid actions that could lead to an unstable state, such as hanging during a git rebase. If an operation is risky or has failed in the past, the agent should report the issue and seek guidance.
 *   **Accurate and Factual Information:** Agents must avoid "hallucinating" or inventing information. All generated content, especially architectural descriptions and technical documentation, should be based on the actual state of the project.
+*   **Anthropic Content Restrictions:** To comply with Anthropic's license agreement, agents must avoid any reference to Anthropic, Claude, or any Anthropic products anywhere in Morpheum code, documentation, examples, or comments. This includes avoiding these terms in variable names, comments, documentation examples, or any other project materials.
 
 ## Specific Guidelines
 
