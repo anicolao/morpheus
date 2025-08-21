@@ -11,6 +11,37 @@ to work around them.
 
 ---
 
+### 2025-01-21: Fix PR Update Claims Issue - Implement Git Validation System
+
+- **High-Level Request:**
+  - Fix the issue where agents claim to have updated PRs with detailed descriptions and commit hashes but the changes were not actually in the PR.
+
+- **Actions Taken:**
+  - **Root Cause Analysis:** Investigated the architectural disconnect between what agents claim to do (fork repos, commit changes, create PRs) and what the current system actually does (only create GitHub issues and track PR status)
+  - **Git Validation System:** Created comprehensive `gitValidation.ts` module with functions to verify actual git state vs. claimed operations
+  - **Integration Points:** Added validation to both `CopilotClient.formatFinalResult()` and bot task completion workflow
+  - **Validation Features:**
+    - `validateGitOperationClaim()`: Verifies claimed commit hashes exist and file changes are present
+    - `generateValidationWarning()`: Creates clear warning messages when claims don't match reality
+    - Git state checking: Detects unstaged changes, unpushed commits, and missing files
+  - **Task 27 Resolution:** Completed investigation and implemented solution for the documented issue of incorrect commits and missed changes
+  - **Test Coverage:** Created 14 comprehensive tests covering all validation scenarios
+
+- **Friction/Success Points:**
+  - **Success:** Clear identification of the root cause - agents weren't actually performing the git operations they claimed
+  - **Success:** Comprehensive solution that validates actual git state vs. claims
+  - **Success:** All 121 tests passing, including robust new validation test suite
+  - **Learning:** The issue wasn't just about AGENTS.md being checked in incorrectly, but a fundamental gap between claimed and actual operations
+  - **Solution Effectiveness:** System now warns users when agents make false claims about git operations
+
+- **Lessons Learned:**
+  - Agent validation must match actual capabilities - don't claim to do operations you can't perform
+  - Git operation validation is essential when agents claim to make repository changes
+  - User feedback about repeated issues is valuable for identifying systematic problems
+  - Pre-commit hooks work as designed - they caught the missing DEVLOG.md/TASKS.md updates
+
+---
+
 ### 2025-08-21: Fix Gauntlet Command Markdown Formatting in Matrix (Issue #38)
 
 - **High-Level Request:**
