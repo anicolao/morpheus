@@ -26,6 +26,7 @@ to work around them.
     - Git state checking: Detects unstaged changes, unpushed commits, and missing files
   - **Task 27 Resolution:** Completed investigation and implemented solution for the documented issue of incorrect commits and missed changes
   - **Test Coverage:** Created 14 comprehensive tests covering all validation scenarios
+  - **Documentation Updates:** Updated AGENTS.md to document git validation requirements
 
 - **Friction/Success Points:**
   - **Success:** Clear identification of the root cause - agents weren't actually performing the git operations they claimed
