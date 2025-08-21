@@ -42,6 +42,50 @@ Instead of directly manipulating Git, human contributors will instruct AI agents
 
 AI agents are central to the Morpheum project. Please refer to the [AGENTS.md](AGENTS.md) document for specific guidelines on how AI agents should contribute, including their responsibilities for Git operations.
 
+## Task and Development Log Management
+
+To avoid merge conflicts, tasks and development logs are managed using a directory-based approach:
+
+### Adding New Tasks
+
+Instead of editing `TASKS.md` directly:
+
+1. Create a new file in `docs/_tasks/` with the naming convention: `task-{number}-{short-description}.md`
+2. Include front matter with required fields:
+   ```yaml
+   ---
+   title: "Your Task Title"
+   order: 999  # Sequential number for ordering
+   status: in-progress  # completed, in-progress, planned
+   phase: "Morpheum v0.X: Phase Name"
+   category: "Category Name"
+   ---
+   ```
+3. Write the task description in standard markdown format
+4. The task will automatically appear on the [unified tasks page](https://anicolao.github.io/morpheum/status/tasks/)
+
+### Adding Development Log Entries
+
+Instead of editing `DEVLOG.md` directly:
+
+1. Create a new file in `docs/_devlogs/` with the naming convention: `{YYYY-MM-DD}-{short-description}.md`
+2. Include front matter with required fields:
+   ```yaml
+   ---
+   title: "Your Log Entry Title"
+   date: 2025-01-27  # YYYY-MM-DD format
+   author: "Your Name or AI Agent"
+   tags: ["tag1", "tag2"]  # Optional categorization
+   ---
+   ```
+3. Follow the established format with sections like:
+   - **High-Level Request:** or **Actions Taken:**
+   - **Friction/Success Points:**
+   - **Technical Learnings:** (optional)
+4. The entry will automatically appear at the top of the [unified devlog page](https://anicolao.github.io/morpheum/status/devlogs/)
+
+This approach eliminates merge conflicts while maintaining the unified view that contributors expect.
+
 ## Code of Conduct
 
 We expect all contributors to adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).

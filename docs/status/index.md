@@ -22,7 +22,7 @@ We're currently in **Morpheum v0.2: Agent Advancement**, working on enhancing AI
 
 ### Latest Development Activity
 
-Check our [development log](https://github.com/anicolao/morpheum/blob/main/DEVLOG.md) for detailed updates on recent progress, including:
+Check our [development log](/status/devlogs/) for detailed updates on recent progress, including:
 
 - Pre-commit hook improvements
 - Agent reliability enhancements
@@ -31,7 +31,7 @@ Check our [development log](https://github.com/anicolao/morpheum/blob/main/DEVLO
 
 ### Active Tasks
 
-Current development focus areas:
+View our complete [task list](/status/tasks/) for detailed information. Current development focus areas:
 
 1. **Agent Intelligence**: Improving reasoning and decision-making capabilities
 2. **Error Handling**: Better recovery from failures and edge cases
