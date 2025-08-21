@@ -34,9 +34,9 @@ This document outlines the expected behavior and best practices for all AI agent
     *   The goal is to create a virtuous cycle of learning and improvement, where the `DEVLOG.md` becomes a repository of best practices and lessons learned.
 *   **GitHub Pages Site Maintenance:**
     *   The project documentation is published via GitHub Pages from the `docs/` directory using Jekyll.
-    *   When updating project documentation (README.md, ARCHITECTURE.md, etc.), corresponding changes should be made to the Jekyll site in `docs/` to keep the public-facing documentation current.
+    *   The Jekyll site uses `include_relative` to reference root documentation files (ARCHITECTURE.md, VISION.md, etc.) maintaining a single source of truth.
     *   The site automatically deploys via GitHub Actions when changes are pushed to the main branch.
-    *   Content in `docs/documentation/`, `docs/status/`, and `docs/proposals/` should be updated to reflect current project state.
+    *   Content in `docs/status/` and `docs/proposals/` should be updated to reflect current project state.
     *   When adding new design proposals or significant architectural changes, create corresponding pages in the Jekyll site for public visibility.
 
 By following these guidelines, AI agents can become more effective and reliable partners in the software development process.

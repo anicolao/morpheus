@@ -8,47 +8,15 @@ permalink: /status/
 
 Morpheum is currently in **Phase v0.2 (Agent Advancement)**, focusing on improving agent intelligence and reliability.
 
-## Current Roadmap
+## Current Development Phase
 
-### Morpheum v0.1: The "Matrix Milestone" ✅ Completed
+We're currently in **Morpheum v0.2: Agent Advancement**, working on enhancing AI agent capabilities and reliability. For detailed roadmap information including all phases and milestones, see our [complete roadmap](/status/roadmap/).
 
-This initial phase focused on bootstrapping the project and establishing the basic infrastructure for a collaborative, Matrix-based workflow.
-
-**Completed:**
-- ✅ Matrix room setup and bot infrastructure
-- ✅ Basic bot framework using TypeScript and `matrix-bot-sdk`
-- ✅ Local LLM integration (Ollama)
-- ✅ Core agent capabilities
-
-### Morpheum v0.2: Agent Advancement 🚀 In Progress
-
-Currently focusing on enhancing AI agent capabilities and reliability.
-
-**In Progress:**
+**Current Focus Areas:**
 - 🔄 Enhanced agent intelligence and reasoning
 - 🔄 Improved error handling and recovery
 - 🔄 Better GitHub integration patterns
 - 🔄 Agent workflow optimization
-
-**Planned for v0.2:**
-- 📋 Advanced task decomposition
-- 📋 Multi-agent coordination
-- 📋 Enhanced GitHub API integration
-- 📋 Improved Matrix room management
-
-### Future Phases
-
-#### Phase v0.3: Advanced Integration
-- GitHub Projects integration
-- Enhanced documentation automation
-- Community engagement features
-- Advanced agent marketplace
-
-#### Phase v0.4: Decentralization
-- Federated agent networks
-- Hardware provider marketplace
-- Cross-project collaboration
-- Advanced security features
 
 ## Recent Updates
 
