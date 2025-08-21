@@ -11,6 +11,12 @@ import * as net from "net";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
+// Helper function to detect if a chunk contains markdown links
+function hasMarkdownLinks(text: string): boolean {
+  // Match markdown links like [text](url)
+  return /\[.+?\]\(https?:\/\/.+?\)/.test(text);
+}
+
 // Helper function to send markdown messages with proper HTML formatting
 function sendMarkdownMessage(markdown: string, sendMessage: MessageSender): Promise<void> {
   const html = formatMarkdown(markdown);
@@ -690,7 +696,12 @@ ${spoilerContent}
     // since Copilot already understands repository context
     // The CopilotClient handles all status updates including issue creation
     const response = await this.currentLLMClient.sendStreaming(task, async (chunk) => {
-      await sendMessage(chunk);
+      // Check if chunk contains markdown links and format accordingly
+      if (hasMarkdownLinks(chunk)) {
+        await sendMarkdownMessage(chunk, sendMessage);
+      } else {
+        await sendMessage(chunk);
+      }
     });
     
     conversationHistory.push({ role: 'assistant', content: response });

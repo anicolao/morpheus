@@ -597,3 +597,11 @@ the Matrix bot serving as its primary user interface.
   - [x] Maintained proper error handling for actual assignment failures
   - [x] Validated fix with comprehensive test suite ensuring all functionality
         remains intact
+
+- [x] **Ad Hoc: Fix Markdown Link Rendering in Copilot Streaming Messages (Issue #40)**
+  - [x] Identified root cause: Copilot streaming chunks with markdown links were sent as plain text instead of formatted HTML
+  - [x] Added `hasMarkdownLinks()` helper function to detect markdown links in text chunks using regex pattern
+  - [x] Modified Copilot streaming callback to route chunks with markdown to HTML formatting using existing `sendMarkdownMessage()` helper
+  - [x] Created comprehensive test suite to verify markdown detection, HTML formatting, and end-to-end streaming behavior
+  - [x] Ensured fix is surgical and targeted - only affects Copilot status messages with GitHub links, preserves all existing functionality
+  - [x] All 106 tests passing, confirming no regressions introduced
