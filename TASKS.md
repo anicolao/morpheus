@@ -484,6 +484,7 @@ the Matrix bot serving as its primary user interface.
   - [x] Create a `DEVLOG.md` entry for this task.
   - [x] Follow the rules in `AGENTS.md`.
   - [ ] Test the gauntlet script with a local model, getting it to pass.
+  - [x] Add Gauntlet chat UI integration (Issue #34) - Enable running gauntlet from chat interface when using OpenAI/Ollama providers with commands: `!gauntlet help`, `!gauntlet list`, `!gauntlet run --model <model> [--task <task>] [--verbose]`
 
 - [x] **Task 49: Remove `gemini-cli` Submodule**
   - [x] Verify that there are no remaining code dependencies on the submodule.
