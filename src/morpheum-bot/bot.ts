@@ -576,7 +576,15 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
       
       await sendMessage('🔧 Executing gauntlet evaluation...');
       
-      const results = await executeGauntlet(model, provider, task || undefined, verbose);
+      const results = await executeGauntlet(
+        model, 
+        provider, 
+        task || undefined, 
+        verbose,
+        async (progressMessage: string, html?: string) => {
+          await sendMarkdownMessage(progressMessage, sendMessage);
+        }
+      );
       
       // Format and display results
       const resultSummary = Object.entries(results)
