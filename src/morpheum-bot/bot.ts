@@ -99,6 +99,28 @@ export class MorpheumBot {
     this.sweAgent = new SWEAgent(this.currentLLMClient, jailClient);
   }
 
+  /**
+   * Configure the bot to use a specific model and provider for gauntlet evaluation
+   */
+  public configureForGauntlet(model: string, provider: 'openai' | 'ollama') {
+    if (provider === 'openai') {
+      if (!this.llmConfig.openai.apiKey) {
+        throw new Error('OpenAI API key is not configured. Set OPENAI_API_KEY environment variable.');
+      }
+      this.llmConfig.openai.model = model;
+      this.currentLLMProvider = 'openai';
+    } else if (provider === 'ollama') {
+      this.llmConfig.ollama.model = model;
+      this.currentLLMProvider = 'ollama';
+    }
+    
+    // Recreate the LLM client with the new configuration
+    this.currentLLMClient = this.createCurrentLLMClient();
+    
+    // Update the SWE agent with the new LLM client but preserve the jail client
+    this.sweAgent = new SWEAgent(this.currentLLMClient, this.sweAgent.currentJailClient);
+  }
+
   private createCurrentLLMClient(): LLMClient {
     const config: LLMConfig = {
       provider: this.currentLLMProvider,
@@ -207,7 +229,7 @@ Available commands:
 - \`!copilot cancel <session-id>\` - Cancel a copilot session
 - \`!gauntlet help\` - Show gauntlet evaluation help
 - \`!gauntlet list\` - List available gauntlet tasks
-- \`!gauntlet run --model <model> [--task <task>]\` - Run gauntlet evaluation
+- \`!gauntlet run --model <model> [--provider <openai|ollama>] [--task <task>]\` - Run gauntlet evaluation
 
 For regular tasks, just type your request without a command prefix.`;
       await sendMessage(message);
@@ -442,12 +464,13 @@ Configuration:
       const helpMessage = `🏆 **Gauntlet - AI Model Evaluation**
 
 **Usage:**
-- \`!gauntlet run --model <model> [--task <task>] [--verbose]\` - Run gauntlet evaluation
+- \`!gauntlet run --model <model> [--provider <openai|ollama>] [--task <task>] [--verbose]\` - Run gauntlet evaluation
 - \`!gauntlet list\` - List available tasks
 - \`!gauntlet help\` - Show this help message
 
 **Options:**
 - \`--model <model>\` - Required. The model name to evaluate
+- \`--provider <openai|ollama>\` - Optional. LLM provider to use (defaults to ollama)
 - \`--task <task>\` - Optional. Specific task ID to run (runs all tasks if not specified)
 - \`--verbose\` - Optional. Enable verbose output
 
@@ -462,9 +485,9 @@ Configuration:
 - \`refine-existing-codebase\` - Refine existing code (Hard)
 
 **Examples:**
-- \`!gauntlet run --model gpt-4\` - Run all tasks with GPT-4
-- \`!gauntlet run --model llama2 --task add-jq\` - Run specific task
-- \`!gauntlet run --model claude --verbose\` - Run with verbose output
+- \`!gauntlet run --model gpt-4 --provider openai\` - Run all tasks with GPT-4 via OpenAI
+- \`!gauntlet run --model llama2 --provider ollama --task add-jq\` - Run specific task with Ollama
+- \`!gauntlet run --model claude --verbose\` - Run with verbose output (defaults to ollama)
 
 ⚠️ **Note:** Gauntlet only works with OpenAI and Ollama providers, not Copilot.`;
       await sendMarkdownMessage(helpMessage, sendMessage);
@@ -502,12 +525,22 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
   private async runGauntletEvaluation(args: string[], sendMessage: MessageSender) {
     // Parse arguments
     let model: string | null = null;
+    let provider: 'openai' | 'ollama' = 'ollama';
     let task: string | null = null;
     let verbose = false;
 
     for (let i = 0; i < args.length; i++) {
       if (args[i] === '--model' || args[i] === '-m') {
         model = args[i + 1] || null;
+        i++; // Skip next argument
+      } else if (args[i] === '--provider' || args[i] === '-p') {
+        const providerArg = args[i + 1];
+        if (providerArg && ['openai', 'ollama'].includes(providerArg)) {
+          provider = providerArg as 'openai' | 'ollama';
+        } else {
+          await sendMessage('Error: --provider must be either "openai" or "ollama"');
+          return;
+        }
         i++; // Skip next argument
       } else if (args[i] === '--task' || args[i] === '-t') {
         task = args[i + 1] || null;
@@ -518,12 +551,18 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
     }
 
     if (!model) {
-      await sendMessage('Error: --model is required. Usage: !gauntlet run --model <model> [--task <task>] [--verbose]');
+      await sendMessage('Error: --model is required. Usage: !gauntlet run --model <model> [--provider <openai|ollama>] [--task <task>] [--verbose]');
+      return;
+    }
+
+    // Validate provider requirements
+    if (provider === 'openai' && !this.llmConfig.openai.apiKey) {
+      await sendMessage('Error: OpenAI provider requires OPENAI_API_KEY environment variable to be set.');
       return;
     }
 
     try {
-      await sendMessage(`🏆 Starting Gauntlet evaluation with model: ${model}${task ? ` (task: ${task})` : ' (all tasks)'}...`);
+      await sendMessage(`🏆 Starting Gauntlet evaluation with provider: ${provider}, model: ${model}${task ? ` (task: ${task})` : ' (all tasks)'}...`);
       
       await sendMessage('⚠️ Gauntlet evaluation is a complex process that requires Docker containers. This may take several minutes...');
       
@@ -532,7 +571,7 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
       
       await sendMessage('🔧 Executing gauntlet evaluation...');
       
-      const results = await executeGauntlet(model, task || undefined, verbose);
+      const results = await executeGauntlet(model, provider, task || undefined, verbose);
       
       // Format and display results
       const resultSummary = Object.entries(results)
