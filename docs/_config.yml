@@ -1,0 +1,73 @@
+# Jekyll configuration for Morpheum GitHub Pages
+title: Morpheum
+description: A collaborative environment where AI agents and humans work together seamlessly on software development projects
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://anicolao.github.io/morpheum" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
+
+# Theme and appearance
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Site configuration
+author: Morpheum Project
+email: contact@morpheum.dev
+github_username: anicolao
+repository: anicolao/morpheum
+
+# Navigation links
+nav_links:
+  - title: "Home"
+    url: "/"
+  - title: "Documentation"
+    url: "/documentation/"
+  - title: "Project Status"
+    url: "/status/"
+  - title: "Design Proposals"
+    url: "/proposals/"
+  - title: "GitHub"
+    url: "https://github.com/anicolao/morpheum"
+
+# Collections
+collections:
+  documentation:
+    output: true
+    permalink: /:collection/:name/
+  proposals:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+  - scope:
+      path: "_documentation"
+    values:
+      layout: "page"
+  - scope:
+      path: "_proposals"
+    values:
+      layout: "page"
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md
+  - LICENCE

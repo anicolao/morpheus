@@ -201,6 +201,17 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
   - [ ] A change to the bot's source was missed.
   - [ ] Investigate what went wrong and document it.
 
+- [x] **Task 28: Create GitHub Pages Site**
+
+  - [x] Create Jekyll-based GitHub Pages site in `docs/` directory
+  - [x] Design visual theme inspired by project logo
+  - [x] Create comprehensive documentation pages (Getting Started, Architecture, Contributing, Vision, Agents)
+  - [x] Create project status and roadmap pages
+  - [x] Create design proposals section
+  - [x] Set up GitHub Actions for automatic deployment
+  - [x] Update AGENTS.md with site maintenance instructions
+  - [x] Document implementation in DEVLOG.md
+
 - [x] **Task 25: Fix `gemini-cli` Submodule Build and Crash**
 
   - [x] Investigate and fix a crash in the `gemini-cli` submodule's
