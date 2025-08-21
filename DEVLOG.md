@@ -1,11 +1,14 @@
 # DEVLOG
 
+> **📍 NEW LOCATION:** This file has been restructured to eliminate merge conflicts.
+> 
+> **🔗 View the complete development log at: [https://anicolao.github.io/morpheum/status/devlogs/](https://anicolao.github.io/morpheum/status/devlogs/)**
+>
+> **✍️ To add new entries:** Create individual files in `docs/_devlogs/` instead of editing this file directly. See the [contributing guide](https://anicolao.github.io/morpheum/documentation/contributing/) for details.
+
 ## Morpheum Development Log
 
-This log tracks the development of `morpheum` using `morpheum` itself. Our main
-goal is to minimize manual work, letting AI agents handle most tasks by
-generating project markdown. This explains why we sometimes hit snags and have
-to work around them.
+This log has been migrated to a directory-based structure to resolve constant merge conflicts. Each development log entry is now a separate file in `docs/_devlogs/`, and they are automatically aggregated into a unified view on the GitHub Pages site in reverse chronological order.
 
 ## Changelog
 

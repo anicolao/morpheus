@@ -44,6 +44,12 @@ collections:
   proposals:
     output: true
     permalink: /:collection/:name/
+  tasks:
+    output: true
+    permalink: /status/:collection/:name/
+  devlogs:
+    output: true
+    permalink: /status/:collection/:name/
 
 # Defaults
 defaults:
@@ -57,6 +63,14 @@ defaults:
       layout: "page"
   - scope:
       path: "_proposals"
+    values:
+      layout: "page"
+  - scope:
+      path: "_tasks"
+    values:
+      layout: "page"
+  - scope:
+      path: "_devlogs"
     values:
       layout: "page"
 

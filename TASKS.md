@@ -1,6 +1,12 @@
 # Tasks
 
-This file tracks the current and upcoming tasks for the Morpheum project.
+> **📍 NEW LOCATION:** This file has been restructured to eliminate merge conflicts. 
+> 
+> **🔗 View the complete task list at: [https://anicolao.github.io/morpheum/status/tasks/](https://anicolao.github.io/morpheum/status/tasks/)**
+>
+> **✍️ To add new tasks:** Create individual files in `docs/_tasks/` instead of editing this file directly. See the [contributing guide](https://anicolao.github.io/morpheum/documentation/contributing/) for details.
+
+This file has been migrated to a directory-based structure to resolve constant merge conflicts. Each task is now a separate file in `docs/_tasks/`, and they are automatically aggregated into a unified view on the GitHub Pages site.
 
 ## Morpheum v0.1: The "Matrix Milestone"
 
