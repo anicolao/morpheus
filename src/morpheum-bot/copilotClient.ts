@@ -132,9 +132,8 @@ export class CopilotClient implements LLMClient {
       
       // Send issue created status with link
       if (session.issueNumber) {
-        const issueUrl = `https://github.com/${this.owner}/${this.repo}/issues/${session.issueNumber}`;
-        onChunk(`✅ **Issue #${session.issueNumber} created**: ${issueUrl}\n`);
-        onChunk(`🚀 Starting GitHub Copilot session for issue #${session.issueNumber}...\n`);
+        onChunk(`✅ **Issue #${session.issueNumber} created**\n`);
+        onChunk(`🚀 Starting GitHub Copilot session for #${session.issueNumber}...\n`);
       }
       
       // Send initial status
@@ -151,7 +150,12 @@ export class CopilotClient implements LLMClient {
         if (updatedSession.pullRequestUrl && !currentSession.pullRequestUrl) {
           const isDemo = updatedSession.id.startsWith('cop_demo_');
           const prefix = isDemo ? '[DEMO] ' : '';
-          onChunk(`🔗 ${prefix}**Pull Request created**: ${updatedSession.pullRequestUrl}\n`);
+          const prNumber = this.extractPRNumber(updatedSession.pullRequestUrl);
+          if (prNumber) {
+            onChunk(`🔗 ${prefix}**Pull Request #${prNumber} created**\n`);
+          } else {
+            onChunk(`🔗 ${prefix}**Pull Request created**: ${updatedSession.pullRequestUrl}\n`);
+          }
         }
         
         // Check for PR ready state change (from draft to ready)
@@ -565,7 +569,15 @@ export class CopilotClient implements LLMClient {
     const emoji = statusEmoji[session.status];
     const isDemo = session.id.startsWith('cop_demo_');
     const prefix = isDemo ? '[DEMO] ' : '';
-    const progressUrl = `https://github.com/copilot/agents`;
+    
+    // Create specific session progress URL if we have a PR, otherwise use generic URL
+    let progressUrl = `https://github.com/copilot/agents`;
+    if (session.pullRequestUrl) {
+      const prNumber = this.extractPRNumber(session.pullRequestUrl);
+      if (prNumber) {
+        progressUrl = `https://github.com/${this.owner}/${this.repo}/pull/${prNumber}/agent-sessions/${session.id}`;
+      }
+    }
     
     switch (session.status) {
       case 'pending':
@@ -582,11 +594,26 @@ export class CopilotClient implements LLMClient {
   }
 
   /**
+   * Extract PR number from GitHub PR URL
+   */
+  private extractPRNumber(pullRequestUrl: string): number | null {
+    const match = pullRequestUrl.match(/\/pull\/(\d+)$/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  /**
    * Format a PR ready for review notification
    */
   private formatPRReadyUpdate(session: CopilotSession): string {
     const isDemo = session.id.startsWith('cop_demo_');
     const prefix = isDemo ? '[DEMO] ' : '';
+    
+    if (session.pullRequestUrl) {
+      const prNumber = this.extractPRNumber(session.pullRequestUrl);
+      if (prNumber) {
+        return `🔗 ${prefix}**Pull Request #${prNumber} ready for review**\n`;
+      }
+    }
     
     return `🔗 ${prefix}**Pull Request ready for review**: ${session.pullRequestUrl}\n`;
   }
@@ -620,7 +647,12 @@ export class CopilotClient implements LLMClient {
     
     // Only show PR and commit info if they exist (not in demo mode)
     if (result.pullRequestUrl) {
-      message += `🔗 **Pull Request ready for review**: ${result.pullRequestUrl}\n`;
+      const prNumber = this.extractPRNumber(result.pullRequestUrl);
+      if (prNumber) {
+        message += `🔗 **Pull Request #${prNumber} ready for review**\n`;
+      } else {
+        message += `🔗 **Pull Request ready for review**: ${result.pullRequestUrl}\n`;
+      }
     }
     
     if (result.commitSha) {
