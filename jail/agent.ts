@@ -38,8 +38,8 @@ async function runCommand(port: number, command: string): Promise<string> {
 
 // Example usage from the command line
 async function main() {
-  const port = parseInt(process.argv[2], 10);
-  const command = process.argv[3];
+  const port = parseInt(process.argv[2]!, 10);
+  const command = process.argv[3]!;
 
   if (!port || !command) {
     console.error('Usage: bun agent.ts <port> "<command>"');

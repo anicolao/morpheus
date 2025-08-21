@@ -2,7 +2,7 @@ import { SWEAgent } from "./sweAgent";
 import { OllamaClient } from "./ollamaClient";
 import { OpenAIClient } from "./openai";
 import { JailClient } from "./jailClient";
-import { LLMClient, LLMConfig, createLLMClient } from "./llmClient";
+import { type LLMClient, type LLMConfig, createLLMClient } from "./llmClient";
 import { execa } from "execa";
 import * as fs from "fs";
 import { formatMarkdown } from "./format-markdown";
@@ -30,22 +30,32 @@ export class MorpheumBot {
 
   constructor() {
     // Initialize LLM configurations from environment variables
+    const openaiConfig: { apiKey?: string; model: string; baseUrl: string } = {
+      model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+      baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+    };
+    if (process.env.OPENAI_API_KEY) {
+      openaiConfig.apiKey = process.env.OPENAI_API_KEY;
+    }
+
+    const copilotConfig: { apiKey?: string; repository?: string; baseUrl: string; pollInterval: string } = {
+      baseUrl: process.env.COPILOT_BASE_URL || 'https://api.github.com',
+      pollInterval: process.env.COPILOT_POLL_INTERVAL || '10',
+    };
+    if (process.env.GITHUB_TOKEN) {
+      copilotConfig.apiKey = process.env.GITHUB_TOKEN;
+    }
+    if (process.env.COPILOT_REPOSITORY) {
+      copilotConfig.repository = process.env.COPILOT_REPOSITORY;
+    }
+
     this.llmConfig = {
-      openai: {
-        apiKey: process.env.OPENAI_API_KEY,
-        model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
-        baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
-      },
+      openai: openaiConfig,
       ollama: {
         model: process.env.OLLAMA_MODEL || 'morpheum-local',
         baseUrl: process.env.OLLAMA_API_URL || 'http://localhost:11434',
       },
-      copilot: {
-        apiKey: process.env.GITHUB_TOKEN,
-        repository: process.env.COPILOT_REPOSITORY,
-        baseUrl: process.env.COPILOT_BASE_URL || 'https://api.github.com',
-        pollInterval: process.env.COPILOT_POLL_INTERVAL || '30',
-      },
+      copilot: copilotConfig,
     };
 
     // Default to Ollama if no OpenAI key is provided
@@ -583,10 +593,10 @@ ${nextStep}`;
       const commands = parseBashCommands(modelResponse);
 
       if (commands.length > 0) {
-        const isMultiline = commands[0].includes('\n');
+        const isMultiline = commands[0]!.includes('\n');
         const formattedCommand = isMultiline 
-          ? `\n\`\`\`\n${commands[0]}\n\`\`\``
-          : `\`${commands[0]}\``;
+          ? `\n\`\`\`\n${commands[0]!}\n\`\`\``
+          : `\`${commands[0]!}\``;
         const executingCommandMarkdown = `⚡ **Executing command:** ${formattedCommand}`;
         await sendMarkdownMessage(executingCommandMarkdown, sendMessage);
         
@@ -595,7 +605,7 @@ ${nextStep}`;
         const { JailClient } = await import('./jailClient');
         const jailClient = new JailClient(jailHost, jailPort);
         
-        const commandOutput = await jailClient.execute(commands[0]);
+        const commandOutput = await jailClient.execute(commands[0]!);
         conversationHistory.push({ role: 'tool', content: commandOutput });
         
         // Smart output display: show small outputs directly, large outputs with prefix + spoiler

@@ -4,11 +4,11 @@ export function parseBashCommands(text: string): string[] {
   let match;
 
   while ((match = regex.exec(text)) !== null) {
-    commands.push(match[1].trim());
+    commands.push(match[1]!.trim());
   }
 
   if (commands.length > 0) {
-    return [commands[commands.length - 1]];
+    return [commands[commands.length - 1]!];
   }
 
   return [];
@@ -21,14 +21,14 @@ export function parsePlanAndNextStep(text: string): { plan?: string; nextStep?: 
   const planRegex = /<plan>\s*([\s\S]*?)\s*<\/plan>/i;
   const planMatch = text.match(planRegex);
   if (planMatch) {
-    result.plan = planMatch[1].trim();
+    result.plan = planMatch[1]!.trim();
   }
   
   // Extract next_step block
   const nextStepRegex = /<next_step>\s*([\s\S]*?)\s*<\/next_step>/i;
   const nextStepMatch = text.match(nextStepRegex);
   if (nextStepMatch) {
-    result.nextStep = nextStepMatch[1].trim();
+    result.nextStep = nextStepMatch[1]!.trim();
   }
   
   return result;

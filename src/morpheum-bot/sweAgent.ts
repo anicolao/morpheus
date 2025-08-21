@@ -1,4 +1,4 @@
-import { LLMClient } from './llmClient';
+import { type LLMClient } from './llmClient';
 import { JailClient } from './jailClient';
 import { parseBashCommands } from './responseParser';
 import { SYSTEM_PROMPT } from './prompts';
@@ -25,7 +25,7 @@ export class SWEAgent {
       const commands = parseBashCommands(modelResponse);
 
       if (commands.length > 0) {
-        const commandOutput = await this.jailClient.execute(commands[0]);
+        const commandOutput = await this.jailClient.execute(commands[0]!);
         this.conversationHistory.push({ role: 'tool', content: commandOutput });
       } else {
         // If the model doesn't return a command, we assume it's done.

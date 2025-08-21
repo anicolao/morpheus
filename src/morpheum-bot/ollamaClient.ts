@@ -1,4 +1,4 @@
-import { LLMClient } from './llmClient';
+import { type LLMClient } from './llmClient';
 
 export class OllamaClient implements LLMClient {
   constructor(private readonly apiUrl: string, private readonly model: string) {}
@@ -25,7 +25,7 @@ export class OllamaClient implements LLMClient {
 
     const data = await response.json();
     console.log(`--- OLLAMA RESPONSE (${this.model} @ ${this.apiUrl}) ---`);
-    console.log(data.response.split('\n').map(line => `  ${line}`).join('\n'));
+    console.log(data.response.split('\n').map((line: string) => `  ${line}`).join('\n'));
     console.log("-----------------------");
     return data.response;
   }
