@@ -572,13 +572,16 @@ export class CopilotClient implements LLMClient {
     const isDemo = session.id.startsWith('cop_demo_');
     const prefix = isDemo ? '[DEMO] ' : '';
     
-    // Create specific session progress URL if we have a PR, otherwise use generic URL
+    // Create specific session progress URL if we have a PR, otherwise link to issue, or use generic URL
     let progressUrl = `https://github.com/copilot/agents`;
     if (session.pullRequestUrl) {
       const prNumber = this.extractPRNumber(session.pullRequestUrl);
       if (prNumber) {
         progressUrl = `https://github.com/${this.owner}/${this.repo}/pull/${prNumber}/agent-sessions/${session.id}`;
       }
+    } else if (session.issueNumber) {
+      // Link to the GitHub issue where the session details are tracked
+      progressUrl = this.buildIssueUrl(session.issueNumber);
     }
     
     switch (session.status) {
