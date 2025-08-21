@@ -11,10 +11,39 @@ import * as net from "net";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
-// Helper function to send markdown messages with proper HTML formatting
+// Helper function to detect if text contains any markdown formatting
+function hasMarkdown(text: string): boolean {
+  // Check for various markdown patterns:
+  // - Links: [text](url)
+  // - Code blocks: ``` or `code`
+  // - Bold: **text** or __text__
+  // - Italic: *text* or _text_
+  // - Headings: # ## ### etc.
+  return (
+    /\[.+?\]\(https?:\/\/.+?\)/.test(text) ||  // Links
+    /```[\s\S]*?```/.test(text) ||             // Code blocks
+    /`[^`]+?`/.test(text) ||                   // Inline code
+    /\*\*[^*]+?\*\*/.test(text) ||             // Bold with **
+    /__[^_]+?__/.test(text) ||                 // Bold with __
+    /\*[^*]+?\*/.test(text) ||                 // Italic with *
+    /_[^_]+?_/.test(text) ||                   // Italic with _
+    /^#{1,6}\s/.test(text.trim())              // Headings
+  );
+}
+
+// Helper function to send plain text messages explicitly
+function sendPlainTextMessage(text: string, sendMessage: MessageSender): Promise<void> {
+  return sendMessage(text);
+}
+
+// Helper function to send markdown messages with proper HTML formatting - now smart!
 function sendMarkdownMessage(markdown: string, sendMessage: MessageSender): Promise<void> {
-  const html = formatMarkdown(markdown);
-  return sendMessage(markdown, html);
+  if (hasMarkdown(markdown)) {
+    const html = formatMarkdown(markdown);
+    return sendMessage(markdown, html);
+  } else {
+    return sendMessage(markdown);
+  }
 }
 
 export class MorpheumBot {
@@ -441,7 +470,7 @@ Configuration:
 - \`!gauntlet run --model claude --verbose\` - Run with verbose output
 
 ⚠️ **Note:** Gauntlet only works with OpenAI and Ollama providers, not Copilot.`;
-      await sendMessage(helpMessage);
+      await sendMarkdownMessage(helpMessage, sendMessage);
       return;
     }
 
@@ -461,7 +490,7 @@ Configuration:
 - \`refine-existing-codebase\` (Hard) - Improve existing code
 
 Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
-      await sendMessage(tasksMessage);
+      await sendMarkdownMessage(tasksMessage, sendMessage);
       return;
     }
 
@@ -690,7 +719,8 @@ ${spoilerContent}
     // since Copilot already understands repository context
     // The CopilotClient handles all status updates including issue creation
     const response = await this.currentLLMClient.sendStreaming(task, async (chunk) => {
-      await sendMessage(chunk);
+      // Use smart message routing to automatically detect and format markdown content
+      await sendMarkdownMessage(chunk, sendMessage);
     });
     
     conversationHistory.push({ role: 'assistant', content: response });
