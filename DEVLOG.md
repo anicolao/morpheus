@@ -10,6 +10,8 @@
 
 This log has been migrated to a directory-based structure to resolve constant merge conflicts. Each development log entry is now a separate file in `docs/_devlogs/`, and they are automatically aggregated into a unified view on the GitHub Pages site in reverse chronological order.
 
+**Latest update:** Added comprehensive documentation for the new system to CONTRIBUTING.md (2025-01-27)
+
 ## Changelog
 
 ---
