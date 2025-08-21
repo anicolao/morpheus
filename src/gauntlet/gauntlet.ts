@@ -402,7 +402,7 @@ async function runGauntlet(
     // Configure the bot to use the specified provider and model
     bot.configureForGauntlet(model, provider);
   } catch (error) {
-    console.error(`Error configuring bot: ${error.message}`);
+    console.error(`Error configuring bot: ${error instanceof Error ? error.message : String(error)}`);
     results[taskId] = { success: false };
     return;
   }
