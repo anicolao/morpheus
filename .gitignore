@@ -2,9 +2,17 @@
 .direnv/
 /node_modules
 
+# Build output directory
+/build/
+
+# TypeScript build artifacts (prevent any *.js, *.d.ts, *.d.ts.map files from being committed)
+*.js
+*.d.ts
+*.d.ts.map
+*.js.map
+
 # Bot generated files
 bot.json
-src/morpheum-bot/*.js
 .secrets
 # Secrets
 .env

@@ -1,1 +1,0 @@
-{"version":3,"file":"jailClient.d.ts","sourceRoot":"","sources":["jailClient.ts"],"names":[],"mappings":"AAEA,qBAAa,UAAU;IAEnB,OAAO,CAAC,QAAQ,CAAC,OAAO;IACxB,OAAO,CAAC,QAAQ,CAAC,IAAI;gBADJ,OAAO,EAAE,MAAM,EACf,IAAI,EAAE,MAAM;IAG/B,OAAO,CAAC,OAAO,EAAE,MAAM,GAAG,OAAO,CAAC,MAAM,CAAC;CA0C1C"}
