@@ -22,7 +22,7 @@ echo "✅ Configuring Nix in container..."
 echo 'experimental-features = nix-command flakes' > /etc/nix/nix.conf
 
 echo "✅ Installing tools with Nix..."
-nix profile install nixpkgs#{bash,bun,coreutils,dtach,procps,sed,socat}
+nix profile install nixpkgs#{bash,bun,coreutils,dtach,procps,gnused,socat}
 
 echo "✅ Jailed services starting in container..."
 AGENT_PORT="12001"
