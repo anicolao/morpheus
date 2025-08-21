@@ -193,7 +193,7 @@ describe('MorpheumBot', () => {
       await bot.processMessage('!llm switch invalid', 'user', mockSendMessage);
       
       expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('Usage: !llm switch <openai|ollama>')
+        expect.stringContaining('Usage: !llm switch <openai|ollama|copilot>')
       );
     });
 

@@ -18,6 +18,17 @@ docs/Gemfile.lock
 
 # Bot generated files
 bot.json
+src/morpheum-bot/*.js
+src/morpheum-bot/*.js.map
+src/morpheum-bot/*.d.ts
+src/morpheum-bot/*.d.ts.map
+src/gauntlet/*.js
+src/gauntlet/*.js.map
+src/ollama/*.js
+src/ollama/*.js.map
+jail/*.js
+jail/*.js.map
+*.tsbuildinfo
 .secrets
 # Secrets
 .env
