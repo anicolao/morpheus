@@ -13,6 +13,7 @@ export declare class MorpheumBot {
     private handleDirectOpenAICommand;
     private handleDirectOllamaCommand;
     private handleTask;
+    private runSWEAgentWithStreaming;
 }
 export {};
 //# sourceMappingURL=bot.d.ts.map
