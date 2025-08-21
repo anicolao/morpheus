@@ -31,6 +31,7 @@ if (!accessToken && (!username || !password)) {
 }
 
 let currentToken = accessToken;
+let currentRefreshToken: string | undefined;
 let tokenManager: TokenManager | undefined;
 let client: MatrixClient;
 
@@ -47,8 +48,15 @@ if (username && password) {
       password,
     });
     try {
-      currentToken = await tokenManager.getNewToken();
+      const result = await tokenManager.getNewToken();
+      currentToken = result.access_token;
+      currentRefreshToken = result.refresh_token;
       console.log("[Auth] Initial access token obtained successfully");
+      if (result.refresh_token) {
+        console.log("[Auth] Refresh token available for future use");
+      } else {
+        console.log("[Auth] No refresh token provided by server - will use password fallback");
+      }
     } catch (error) {
       console.error("[Auth] Failed to obtain initial access token:", error);
       process.exit(1);
@@ -62,9 +70,10 @@ if (username && password) {
     homeserverUrl,
     username,
     password,
-    onTokenRefresh: async (newToken: string) => {
+    onTokenRefresh: async (newToken: string, newRefreshToken?: string) => {
       console.log("[Auth] Updating client with new access token");
       currentToken = newToken;
+      currentRefreshToken = newRefreshToken;
       // Stop the old client
       await client.stop();
       // Create new client with new token
@@ -75,6 +84,11 @@ if (username && password) {
       console.log("[Auth] Client reconnected with new token");
     }
   });
+  
+  // Set initial refresh token if we have one
+  if (currentRefreshToken) {
+    tokenManager.setRefreshToken(currentRefreshToken);
+  }
 } else {
   console.log("[Auth] Using static ACCESS_TOKEN (no automatic refresh)");
 }

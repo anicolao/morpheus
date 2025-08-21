@@ -28,7 +28,10 @@ describe('TokenManager Integration', () => {
   it('should demonstrate complete token refresh workflow', async () => {
     // Setup mock client for successful token refresh
     const mockClient = {
-      loginWithPassword: vi.fn().mockResolvedValue({ access_token: 'new_fresh_token' })
+      loginWithPassword: vi.fn().mockResolvedValue({ 
+        access_token: 'new_fresh_token',
+        refresh_token: 'new_refresh_token_456'
+      })
     };
     mockCreateClient.mockReturnValue(mockClient);
 
@@ -53,7 +56,7 @@ describe('TokenManager Integration', () => {
     // Verify the workflow
     expect(result).toBe('operation_successful');
     expect(mockMatrixOperation).toHaveBeenCalledTimes(2); // Failed once, succeeded once
-    expect(tokenRefreshCallback).toHaveBeenCalledWith('new_fresh_token');
+    expect(tokenRefreshCallback).toHaveBeenCalledWith('new_fresh_token', 'new_refresh_token_456');
     expect(mockClient.loginWithPassword).toHaveBeenCalledWith('testbot', 'testpass');
   });
 

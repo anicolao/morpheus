@@ -26,18 +26,75 @@ describe('TokenManager', () => {
   });
 
   describe('getNewToken', () => {
-    it('should successfully get a new token', async () => {
+    it('should successfully get a new token using password', async () => {
       const mockClient = {
-        loginWithPassword: vi.fn().mockResolvedValue({ access_token: 'new_token_123' })
+        loginWithPassword: vi.fn().mockResolvedValue({ 
+          access_token: 'new_token_123',
+          refresh_token: 'refresh_token_456',
+          expires_in_ms: 3600000 
+        })
       };
       mockCreateClient.mockReturnValue(mockClient);
 
-      const token = await tokenManager.getNewToken();
+      const result = await tokenManager.getNewToken();
 
-      expect(token).toBe('new_token_123');
+      expect(result).toEqual({
+        access_token: 'new_token_123',
+        refresh_token: 'refresh_token_456',
+        expires_in_ms: 3600000,
+        device_id: undefined
+      });
       expect(mockCreateClient).toHaveBeenCalledWith({
         baseUrl: 'https://test.example.com'
       });
+      expect(mockClient.loginWithPassword).toHaveBeenCalledWith('testuser', 'testpass');
+    });
+
+    it('should successfully refresh using refresh token', async () => {
+      const mockClient = {
+        refreshToken: vi.fn().mockResolvedValue({ 
+          access_token: 'refreshed_token_123',
+          refresh_token: 'new_refresh_token_456',
+          expires_in_ms: 3600000 
+        })
+      };
+      mockCreateClient.mockReturnValue(mockClient);
+
+      // Set a refresh token
+      tokenManager.setRefreshToken('existing_refresh_token');
+
+      const result = await tokenManager.getNewToken();
+
+      expect(result).toEqual({
+        access_token: 'refreshed_token_123',
+        refresh_token: 'new_refresh_token_456',
+        expires_in_ms: 3600000
+      });
+      expect(mockClient.refreshToken).toHaveBeenCalledWith('existing_refresh_token');
+    });
+
+    it('should fallback to password when refresh token fails', async () => {
+      const mockClient = {
+        refreshToken: vi.fn().mockRejectedValue(new Error('Invalid refresh token')),
+        loginWithPassword: vi.fn().mockResolvedValue({ 
+          access_token: 'password_token_123',
+          refresh_token: 'new_refresh_token_789'
+        })
+      };
+      mockCreateClient.mockReturnValue(mockClient);
+
+      // Set a refresh token
+      tokenManager.setRefreshToken('invalid_refresh_token');
+
+      const result = await tokenManager.getNewToken();
+
+      expect(result).toEqual({
+        access_token: 'password_token_123',
+        refresh_token: 'new_refresh_token_789',
+        expires_in_ms: undefined,
+        device_id: undefined
+      });
+      expect(mockClient.refreshToken).toHaveBeenCalledWith('invalid_refresh_token');
       expect(mockClient.loginWithPassword).toHaveBeenCalledWith('testuser', 'testpass');
     });
 
@@ -81,20 +138,31 @@ describe('TokenManager', () => {
   describe('refreshToken', () => {
     it('should refresh token and call callback', async () => {
       const mockClient = {
-        loginWithPassword: vi.fn().mockResolvedValue({ access_token: 'refreshed_token_456' })
+        loginWithPassword: vi.fn().mockResolvedValue({ 
+          access_token: 'refreshed_token_456',
+          refresh_token: 'new_refresh_token_789' 
+        })
       };
       mockCreateClient.mockReturnValue(mockClient);
 
-      const token = await tokenManager.refreshToken();
+      const result = await tokenManager.refreshToken();
 
-      expect(token).toBe('refreshed_token_456');
-      expect(mockOnTokenRefresh).toHaveBeenCalledWith('refreshed_token_456');
+      expect(result).toEqual({
+        access_token: 'refreshed_token_456',
+        refresh_token: 'new_refresh_token_789',
+        expires_in_ms: undefined,
+        device_id: undefined
+      });
+      expect(mockOnTokenRefresh).toHaveBeenCalledWith('refreshed_token_456', 'new_refresh_token_789');
     });
 
     it('should prevent concurrent refresh attempts', async () => {
       const mockClient = {
         loginWithPassword: vi.fn().mockImplementation(() => new Promise(resolve => 
-          setTimeout(() => resolve({ access_token: 'refreshed_token_456' }), 100)
+          setTimeout(() => resolve({ 
+            access_token: 'refreshed_token_456',
+            refresh_token: 'new_refresh_token_789' 
+          }), 100)
         ))
       };
       mockCreateClient.mockReturnValue(mockClient);
@@ -121,7 +189,10 @@ describe('TokenManager', () => {
 
     it('should refresh token and retry when token error occurs', async () => {
       const mockClient = {
-        loginWithPassword: vi.fn().mockResolvedValue({ access_token: 'new_token_789' })
+        loginWithPassword: vi.fn().mockResolvedValue({ 
+          access_token: 'new_token_789',
+          refresh_token: 'new_refresh_token_123' 
+        })
       };
       mockCreateClient.mockReturnValue(mockClient);
 
@@ -135,7 +206,7 @@ describe('TokenManager', () => {
 
       expect(result).toBe('success_after_refresh');
       expect(mockFn).toHaveBeenCalledTimes(2);
-      expect(mockOnTokenRefresh).toHaveBeenCalledWith('new_token_789');
+      expect(mockOnTokenRefresh).toHaveBeenCalledWith('new_token_789', 'new_refresh_token_123');
     });
 
     it('should throw non-token errors without retry', async () => {
@@ -145,6 +216,45 @@ describe('TokenManager', () => {
       await expect(wrappedFn()).rejects.toThrow('Network error');
       expect(mockFn).toHaveBeenCalledTimes(1);
       expect(mockOnTokenRefresh).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('setRefreshToken', () => {
+    it('should store refresh token for later use', () => {
+      tokenManager.setRefreshToken('test_refresh_token');
+      // Verify it's set by checking if it's used in getNewToken
+      const mockClient = {
+        refreshToken: vi.fn().mockResolvedValue({ 
+          access_token: 'refreshed_token',
+          refresh_token: 'new_refresh_token',
+          expires_in_ms: 3600000 
+        })
+      };
+      mockCreateClient.mockReturnValue(mockClient);
+
+      return tokenManager.getNewToken().then(() => {
+        expect(mockClient.refreshToken).toHaveBeenCalledWith('test_refresh_token');
+      });
+    });
+
+    it('should clear refresh token when set to undefined', async () => {
+      // First set a refresh token
+      tokenManager.setRefreshToken('test_refresh_token');
+      
+      // Then clear it
+      tokenManager.setRefreshToken(undefined);
+      
+      // Should now use password authentication
+      const mockClient = {
+        loginWithPassword: vi.fn().mockResolvedValue({ 
+          access_token: 'password_token'
+        })
+      };
+      mockCreateClient.mockReturnValue(mockClient);
+
+      await tokenManager.getNewToken();
+      
+      expect(mockClient.loginWithPassword).toHaveBeenCalledWith('testuser', 'testpass');
     });
   });
 });
