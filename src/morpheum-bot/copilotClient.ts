@@ -717,9 +717,69 @@ export class CopilotClient implements LLMClient {
    * Get all active sessions (utility method for status commands)
    */
   async getActiveSessions(): Promise<CopilotSession[]> {
-    // TODO: Implement session tracking/storage
-    // For now, return empty array
-    return [];
+    try {
+      // Query for open issues assigned to copilot-swe-agent
+      const issues = await this.octokit.rest.issues.listForRepo({
+        owner: this.owner,
+        repo: this.repo,
+        assignee: 'copilot-swe-agent',
+        state: 'open',
+        per_page: 100, // Get up to 100 recent sessions
+      });
+
+      const activeSessions: CopilotSession[] = [];
+
+      for (const issue of issues.data) {
+        try {
+          // Get issue comments to find session ID
+          const comments = await this.octokit.rest.issues.listComments({
+            owner: this.owner,
+            repo: this.repo,
+            issue_number: issue.number,
+          });
+
+          // Look for session ID in comments (specifically the bot's assignment comment)
+          let sessionId: string | undefined;
+          for (const comment of comments.data) {
+            const sessionMatch = comment.body?.match(/Session ID: (cop_(?:real|demo)_[^\s\n]+)/);
+            if (sessionMatch) {
+              sessionId = sessionMatch[1];
+              break;
+            }
+          }
+
+          // If no session ID found in comments, try to construct one from issue number
+          // This handles cases where the session was created but comment format changed
+          if (!sessionId) {
+            // Check if this looks like a copilot issue
+            if (issue.title?.includes('Copilot Task:') || 
+                issue.body?.includes('GitHub Copilot Coding Agent Task')) {
+              // Try to extract timestamp from issue creation for real sessions
+              const issueCreatedTime = new Date(issue.created_at).getTime();
+              sessionId = `cop_real_${issue.number}_${issueCreatedTime}`;
+            }
+          }
+
+          if (sessionId) {
+            // Get current status for this session
+            const session = await this.getSessionStatus(sessionId, issue.number);
+            
+            // Only include sessions that are pending or in progress
+            if (session.status === 'pending' || session.status === 'in_progress') {
+              activeSessions.push(session);
+            }
+          }
+        } catch (error) {
+          // Skip this issue if we can't process it, but don't fail the whole operation
+          console.warn(`Failed to process issue #${issue.number} for session tracking:`, error);
+        }
+      }
+
+      return activeSessions;
+    } catch (error) {
+      console.error('Failed to fetch active sessions:', error);
+      return []; // Return empty array on error to maintain compatibility
+    }
   }
 
   /**
