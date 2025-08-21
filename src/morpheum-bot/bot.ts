@@ -11,16 +11,44 @@ import * as net from "net";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
-// Helper function to detect if a chunk contains markdown links
-function hasMarkdownLinks(text: string): boolean {
-  // Match markdown links like [text](url)
-  return /\[.+?\]\(https?:\/\/.+?\)/.test(text);
+// Helper function to detect if text contains any markdown formatting
+function hasMarkdown(text: string): boolean {
+  // Check for various markdown patterns:
+  // - Links: [text](url)
+  // - Code blocks: ``` or `code`
+  // - Bold: **text** or __text__
+  // - Italic: *text* or _text_
+  // - Headings: # ## ### etc.
+  return (
+    /\[.+?\]\(https?:\/\/.+?\)/.test(text) ||  // Links
+    /```[\s\S]*?```/.test(text) ||             // Code blocks
+    /`[^`]+?`/.test(text) ||                   // Inline code
+    /\*\*[^*]+?\*\*/.test(text) ||             // Bold with **
+    /__[^_]+?__/.test(text) ||                 // Bold with __
+    /\*[^*]+?\*/.test(text) ||                 // Italic with *
+    /_[^_]+?_/.test(text) ||                   // Italic with _
+    /^#{1,6}\s/.test(text.trim())              // Headings
+  );
+}
+
+// Helper function to send plain text messages explicitly
+function sendPlainTextMessage(text: string, sendMessage: MessageSender): Promise<void> {
+  return sendMessage(text);
 }
 
 // Helper function to send markdown messages with proper HTML formatting
 function sendMarkdownMessage(markdown: string, sendMessage: MessageSender): Promise<void> {
   const html = formatMarkdown(markdown);
   return sendMessage(markdown, html);
+}
+
+// Smart message sender that automatically detects markdown and routes appropriately
+function sendMessageSmart(text: string, sendMessage: MessageSender): Promise<void> {
+  if (hasMarkdown(text)) {
+    return sendMarkdownMessage(text, sendMessage);
+  } else {
+    return sendPlainTextMessage(text, sendMessage);
+  }
 }
 
 export class MorpheumBot {
@@ -447,7 +475,7 @@ Configuration:
 - \`!gauntlet run --model claude --verbose\` - Run with verbose output
 
 ⚠️ **Note:** Gauntlet only works with OpenAI and Ollama providers, not Copilot.`;
-      await sendMarkdownMessage(helpMessage, sendMessage);
+      await sendMessageSmart(helpMessage, sendMessage);
       return;
     }
 
@@ -467,7 +495,7 @@ Configuration:
 - \`refine-existing-codebase\` (Hard) - Improve existing code
 
 Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
-      await sendMarkdownMessage(tasksMessage, sendMessage);
+      await sendMessageSmart(tasksMessage, sendMessage);
       return;
     }
 
@@ -584,7 +612,7 @@ cd /path/to/morpheum
         const planMarkdown = `📋 **Plan:**
 
 ${plan}`;
-        await sendMarkdownMessage(planMarkdown, sendMessage);
+        await sendMessageSmart(planMarkdown, sendMessage);
       }
       
       // Display next step if found
@@ -592,7 +620,7 @@ ${plan}`;
         const nextStepMarkdown = `🎯 **Next Step:**
 
 ${nextStep}`;
-        await sendMarkdownMessage(nextStepMarkdown, sendMessage);
+        await sendMessageSmart(nextStepMarkdown, sendMessage);
       }
 
       // Parse bash commands from response
@@ -604,7 +632,7 @@ ${nextStep}`;
           ? `\n\`\`\`\n${commands[0]!}\n\`\`\``
           : `\`${commands[0]!}\``;
         const executingCommandMarkdown = `⚡ **Executing command:** ${formattedCommand}`;
-        await sendMarkdownMessage(executingCommandMarkdown, sendMessage);
+        await sendMessageSmart(executingCommandMarkdown, sendMessage);
         
         const jailHost = process.env.JAIL_HOST || "localhost";
         const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
@@ -630,7 +658,7 @@ ${nextStep}`;
 \`\`\`
 ${commandOutput}
 \`\`\``;
-          await sendMarkdownMessage(directOutputMarkdown, sendMessage);
+          await sendMessageSmart(directOutputMarkdown, sendMessage);
         } else {
           // Large output: show prefix + spoiler
           const maxPrefixLines = 15;
@@ -667,7 +695,7 @@ ${prefix.length < commandOutput.length ? '\n...(showing first ' + prefix.length 
 ${spoilerContent}
 \`\`\``;
           
-          await sendMarkdownMessage(prefixWithSpoilerMarkdown, sendMessage);
+          await sendMessageSmart(prefixWithSpoilerMarkdown, sendMessage);
         }
         
         // Check for early termination phrase
@@ -696,12 +724,8 @@ ${spoilerContent}
     // since Copilot already understands repository context
     // The CopilotClient handles all status updates including issue creation
     const response = await this.currentLLMClient.sendStreaming(task, async (chunk) => {
-      // Check if chunk contains markdown links and format accordingly
-      if (hasMarkdownLinks(chunk)) {
-        await sendMarkdownMessage(chunk, sendMessage);
-      } else {
-        await sendMessage(chunk);
-      }
+      // Use smart message routing to automatically detect and format markdown content
+      await sendMessageSmart(chunk, sendMessage);
     });
     
     conversationHistory.push({ role: 'assistant', content: response });
