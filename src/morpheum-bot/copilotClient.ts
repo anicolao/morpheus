@@ -1,5 +1,6 @@
 import { type LLMClient } from './llmClient';
 import { Octokit } from '@octokit/rest';
+import { validateGitOperationClaim, generateValidationWarning } from './gitValidation';
 
 /**
  * GitHub Copilot session status
@@ -675,6 +676,25 @@ export class CopilotClient implements LLMClient {
     
     if (result.commitSha) {
       message += `📝 Commit: ${result.commitSha}\n`;
+    }
+    
+    // Validate the claimed operations for real (non-demo) sessions
+    if (!isDemo && (result.commitSha || result.filesChanged.length > 0)) {
+      try {
+        const validation = await validateGitOperationClaim(
+          result.commitSha,
+          result.filesChanged
+        );
+        
+        const validationWarning = generateValidationWarning(validation, 'PR update');
+        if (validationWarning) {
+          message += `\n${validationWarning}\n`;
+        }
+      } catch (error) {
+        // Log validation error but don't fail the whole operation
+        console.warn('Failed to validate git operations:', error);
+        message += `\n⚠️ **Note**: Could not verify that claimed changes are actually present in the repository.\n`;
+      }
     }
     
     message += `\n${result.summary}`;

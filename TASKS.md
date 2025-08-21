@@ -197,9 +197,11 @@ export ANTHROPIC_AUTH_TOKEN=dummy-token
 
 - [ ] **Task 27: Investigate incorrect commit**
 
-  - [ ] `AGENTS.md` was checked in incorrectly.
-  - [ ] A change to the bot's source was missed.
-  - [ ] Investigate what went wrong and document it.
+  - [x] `AGENTS.md` was checked in incorrectly.
+  - [x] A change to the bot's source was missed.
+  - [x] Investigate what went wrong and document it.
+  - [x] **Root Cause**: Agents were claiming to perform git operations (commits, PR updates) but no actual code changes were being made
+  - [x] **Solution**: Implemented git validation system with warnings when claims don't match reality
 
 - [x] **Task 28: Create GitHub Pages Site**
 

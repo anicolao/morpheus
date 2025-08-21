@@ -7,6 +7,7 @@ import { execa } from "execa";
 import * as fs from "fs";
 import { formatMarkdown } from "./format-markdown";
 import { CopilotClient } from "./copilotClient";
+import { validateChangesCommitted, generateValidationWarning } from "./gitValidation";
 import * as net from "net";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
@@ -667,6 +668,19 @@ ${spoilerContent}
         // Check for early termination phrase
         if (commandOutput.includes("Job's done!")) {
           await sendMessage("✓ Job's done!");
+          
+          // Validate git state when job is done for non-jail operations
+          if (!commands[0]!.includes('jail') && !commands[0]!.includes('docker')) {
+            try {
+              const validation = await validateChangesCommitted();
+              const validationWarning = generateValidationWarning(validation, 'task completion');
+              if (validationWarning) {
+                await sendMessage(validationWarning);
+              }
+            } catch (error) {
+              console.warn('Failed to validate git state after task completion:', error);
+            }
+          }
           break;
         }
       } else {

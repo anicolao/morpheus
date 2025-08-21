@@ -17,6 +17,8 @@ This document outlines the expected behavior and best practices for all AI agent
     *   When creating new files, agents should follow the established naming conventions and directory structure.
 *   **Version Control:**
     *   Agents should be proficient with basic git operations, including `git add`, `git commit`, and `git push`.
+    *   **Important**: Agents must never claim to have performed git operations (commits, pushes, PR updates) that they haven't actually performed. The system now includes validation to detect and warn about false claims.
+    *   **Git Validation**: When agents claim to have made commits or file changes, the system will validate that these operations actually occurred and warn users if they didn't.
     *   Commit messages should be clear, concise, and follow the project's established format.
     *   Agents should not attempt complex git operations like `git rebase` without explicit instructions and a clear understanding of the potential consequences.
     *   Agents should prefer SSH over HTTPS for git repositories.
