@@ -5,6 +5,11 @@
 # Build output directory
 /build/
 
+# Jekyll build artifacts
+docs/_site/
+docs/.jekyll-cache/
+docs/Gemfile.lock
+
 # TypeScript build artifacts (prevent any *.js, *.d.ts, *.d.ts.map files from being committed)
 *.js
 *.d.ts
