@@ -373,11 +373,10 @@ export class CopilotClient implements LLMClient {
         (event.event === 'cross-referenced' && event.source?.issue?.pull_request)
       );
 
-      // Check if there's a linked pull request from Copilot
+      // Check if there's a linked pull request from Copilot (could be from any actor if Copilot created it)
       const pullRequestEvent = timeline.data.find(event => 
         event.event === 'cross-referenced' && 
-        event.source?.issue?.pull_request &&
-        event.actor?.login === 'copilot-swe-agent'
+        event.source?.issue?.pull_request
       );
 
       let status: CopilotSessionStatus = 'pending';
@@ -386,40 +385,45 @@ export class CopilotClient implements LLMClient {
       if (pullRequestEvent && pullRequestEvent.source?.issue?.pull_request) {
         // Copilot has created a PR, check its status
         const prNumber = pullRequestEvent.source.issue.number;
-        const pr = await this.octokit.rest.pulls.get({
-          owner: this.owner,
-          repo: this.repo,
-          pull_number: prNumber,
-        });
-
-        if (pr.data.state === 'open' && pr.data.draft) {
-          status = 'in_progress';
-        } else if (pr.data.state === 'open' && !pr.data.draft) {
-          status = 'completed';
-          
-          // Get commit details
-          const commits = await this.octokit.rest.pulls.listCommits({
+        try {
+          const pr = await this.octokit.rest.pulls.get({
             owner: this.owner,
             repo: this.repo,
             pull_number: prNumber,
           });
 
-          // Get files changed
-          const files = await this.octokit.rest.pulls.listFiles({
-            owner: this.owner,
-            repo: this.repo,
-            pull_number: prNumber,
-          });
+          if (pr.data.state === 'open' && pr.data.draft) {
+            status = 'in_progress';
+          } else if (pr.data.state === 'open' && !pr.data.draft) {
+            status = 'completed';
+            
+            // Get commit details
+            const commits = await this.octokit.rest.pulls.listCommits({
+              owner: this.owner,
+              repo: this.repo,
+              pull_number: prNumber,
+            });
 
-          result = {
-            summary: pr.data.body || 'GitHub Copilot has completed the task and created a pull request.',
-            pullRequestUrl: pr.data.html_url,
-            commitSha: commits.data[commits.data.length - 1]?.sha,
-            filesChanged: files.data.map(file => file.filename),
-            confidence: 0.9, // Default confidence for real Copilot sessions
-          };
-        } else if (pr.data.state === 'closed') {
-          status = pr.data.merged ? 'completed' : 'failed';
+            // Get files changed
+            const files = await this.octokit.rest.pulls.listFiles({
+              owner: this.owner,
+              repo: this.repo,
+              pull_number: prNumber,
+            });
+
+            result = {
+              summary: pr.data.body || 'GitHub Copilot has completed the task and created a pull request.',
+              pullRequestUrl: pr.data.html_url,
+              commitSha: commits.data[commits.data.length - 1]?.sha,
+              filesChanged: files.data.map(file => file.filename),
+              confidence: 0.9, // Default confidence for real Copilot sessions
+            };
+          } else if (pr.data.state === 'closed') {
+            status = pr.data.merged ? 'completed' : 'failed';
+          }
+        } catch (prError) {
+          console.warn(`Failed to fetch PR #${prNumber}, but treating as in_progress:`, prError);
+          status = 'in_progress'; // Assume it's still working if we can't fetch PR details
         }
       } else {
         // Check if Copilot has reacted to the issue (👀 reaction indicates it's working)
@@ -436,12 +440,28 @@ export class CopilotClient implements LLMClient {
         if (copilotReaction) {
           status = 'in_progress';
         } else {
-          // Check if it's been too long without activity (consider failed)
-          const sessionAge = Date.now() - parseInt(sessionId.split('_')[2]);
-          if (sessionAge > 300000) { // 5 minutes
+          // Check if Copilot is assigned to the issue (indicates it's working even without reaction)
+          const issueAssignees = issue.data.assignees || [];
+          const copilotAssigned = issueAssignees.some(assignee => assignee.login === 'copilot-swe-agent');
+          
+          if (copilotAssigned) {
+            // Check session age - extend timeout since Copilot might take longer
+            const sessionAge = Date.now() - parseInt(sessionId.split('_')[2]);
+            if (sessionAge > 900000) { // 15 minutes instead of 5
+              status = 'failed';
+              result = {
+                summary: 'GitHub Copilot coding agent did not complete the task within the expected timeframe.',
+                filesChanged: [],
+                confidence: 0.0,
+              };
+            } else {
+              status = 'in_progress'; // Still assigned, assume it's working
+            }
+          } else {
+            // Not assigned and no reaction - likely failed assignment
             status = 'failed';
             result = {
-              summary: 'No response from GitHub Copilot coding agent. The session may have failed.',
+              summary: 'GitHub Copilot coding agent assignment appears to have failed.',
               filesChanged: [],
               confidence: 0.0,
             };
