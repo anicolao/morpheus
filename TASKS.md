@@ -605,3 +605,11 @@ the Matrix bot serving as its primary user interface.
   - [x] Created comprehensive test suite to verify markdown detection, HTML formatting, and end-to-end streaming behavior
   - [x] Ensured fix is surgical and targeted - only affects Copilot status messages with GitHub links, preserves all existing functionality
   - [x] All 106 tests passing, confirming no regressions introduced
+
+- [x] **Ad Hoc: Fix Gauntlet Command Markdown Formatting in Matrix (Issue #38)**
+  - [x] Identified root cause: gauntlet help/list commands using `sendMessage()` instead of `sendMarkdownMessage()`
+  - [x] Fixed gauntlet help command to use `sendMarkdownMessage()` for proper HTML formatting
+  - [x] Fixed gauntlet list command to use `sendMarkdownMessage()` for proper HTML formatting
+  - [x] Added comprehensive test coverage for gauntlet command markdown formatting
+  - [x] Enhanced test mocks to handle gauntlet-specific content patterns
+  - [x] Verified all 105 tests pass with no regressions
