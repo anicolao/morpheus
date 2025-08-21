@@ -36,18 +36,13 @@ function sendPlainTextMessage(text: string, sendMessage: MessageSender): Promise
   return sendMessage(text);
 }
 
-// Helper function to send markdown messages with proper HTML formatting
+// Helper function to send markdown messages with proper HTML formatting - now smart!
 function sendMarkdownMessage(markdown: string, sendMessage: MessageSender): Promise<void> {
-  const html = formatMarkdown(markdown);
-  return sendMessage(markdown, html);
-}
-
-// Smart message sender that automatically detects markdown and routes appropriately
-function sendMessageSmart(text: string, sendMessage: MessageSender): Promise<void> {
-  if (hasMarkdown(text)) {
-    return sendMarkdownMessage(text, sendMessage);
+  if (hasMarkdown(markdown)) {
+    const html = formatMarkdown(markdown);
+    return sendMessage(markdown, html);
   } else {
-    return sendPlainTextMessage(text, sendMessage);
+    return sendMessage(markdown);
   }
 }
 
@@ -475,7 +470,7 @@ Configuration:
 - \`!gauntlet run --model claude --verbose\` - Run with verbose output
 
 ⚠️ **Note:** Gauntlet only works with OpenAI and Ollama providers, not Copilot.`;
-      await sendMessageSmart(helpMessage, sendMessage);
+      await sendMarkdownMessage(helpMessage, sendMessage);
       return;
     }
 
@@ -495,7 +490,7 @@ Configuration:
 - \`refine-existing-codebase\` (Hard) - Improve existing code
 
 Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
-      await sendMessageSmart(tasksMessage, sendMessage);
+      await sendMarkdownMessage(tasksMessage, sendMessage);
       return;
     }
 
@@ -612,7 +607,7 @@ cd /path/to/morpheum
         const planMarkdown = `📋 **Plan:**
 
 ${plan}`;
-        await sendMessageSmart(planMarkdown, sendMessage);
+        await sendMarkdownMessage(planMarkdown, sendMessage);
       }
       
       // Display next step if found
@@ -620,7 +615,7 @@ ${plan}`;
         const nextStepMarkdown = `🎯 **Next Step:**
 
 ${nextStep}`;
-        await sendMessageSmart(nextStepMarkdown, sendMessage);
+        await sendMarkdownMessage(nextStepMarkdown, sendMessage);
       }
 
       // Parse bash commands from response
@@ -632,7 +627,7 @@ ${nextStep}`;
           ? `\n\`\`\`\n${commands[0]!}\n\`\`\``
           : `\`${commands[0]!}\``;
         const executingCommandMarkdown = `⚡ **Executing command:** ${formattedCommand}`;
-        await sendMessageSmart(executingCommandMarkdown, sendMessage);
+        await sendMarkdownMessage(executingCommandMarkdown, sendMessage);
         
         const jailHost = process.env.JAIL_HOST || "localhost";
         const jailPort = parseInt(process.env.JAIL_PORT || "10001", 10);
@@ -658,7 +653,7 @@ ${nextStep}`;
 \`\`\`
 ${commandOutput}
 \`\`\``;
-          await sendMessageSmart(directOutputMarkdown, sendMessage);
+          await sendMarkdownMessage(directOutputMarkdown, sendMessage);
         } else {
           // Large output: show prefix + spoiler
           const maxPrefixLines = 15;
@@ -695,7 +690,7 @@ ${prefix.length < commandOutput.length ? '\n...(showing first ' + prefix.length 
 ${spoilerContent}
 \`\`\``;
           
-          await sendMessageSmart(prefixWithSpoilerMarkdown, sendMessage);
+          await sendMarkdownMessage(prefixWithSpoilerMarkdown, sendMessage);
         }
         
         // Check for early termination phrase
@@ -725,7 +720,7 @@ ${spoilerContent}
     // The CopilotClient handles all status updates including issue creation
     const response = await this.currentLLMClient.sendStreaming(task, async (chunk) => {
       // Use smart message routing to automatically detect and format markdown content
-      await sendMessageSmart(chunk, sendMessage);
+      await sendMarkdownMessage(chunk, sendMessage);
     });
     
     conversationHistory.push({ role: 'assistant', content: response });

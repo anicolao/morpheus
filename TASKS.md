@@ -605,6 +605,12 @@ the Matrix bot serving as its primary user interface.
   - [x] Created comprehensive test suite to verify markdown detection, HTML formatting, and end-to-end streaming behavior
   - [x] Ensured fix is surgical and targeted - only affects Copilot status messages with GitHub links, preserves all existing functionality
   - [x] All 106 tests passing, confirming no regressions introduced
+  - [x] **Follow-up: Refactored function naming based on user feedback**
+    - [x] Enhanced existing `sendMarkdownMessage()` function to automatically detect markdown content instead of creating new `sendMessageSmart()` function
+    - [x] Avoided function naming changes to reduce cognitive overhead and merge conflict potential
+    - [x] Generalized markdown detection to include links, code blocks, bold, italic, and headings
+    - [x] Replaced all message sending calls to use enhanced smart detection while preserving existing function names
+    - [x] All 110 tests continue to pass with comprehensive markdown support
 
 - [x] **Ad Hoc: Fix Gauntlet Command Markdown Formatting in Matrix (Issue #38)**
   - [x] Identified root cause: gauntlet help/list commands using `sendMessage()` instead of `sendMarkdownMessage()`
