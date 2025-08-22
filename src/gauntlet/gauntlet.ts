@@ -344,6 +344,9 @@ interface GauntletResult {
   };
 }
 
+// Type for progress callback function
+type ProgressCallback = (message: string, html?: string) => Promise<void>;
+
 async function evaluateSuccessCondition(
   task: GauntletTask,
   containerName: string,
@@ -392,8 +395,13 @@ async function runGauntlet(
   taskId: string,
   results: GauntletResult,
   verbose: boolean,
+  progressCallback?: ProgressCallback,
 ) {
   console.log(`Running gauntlet for model: ${model}, provider: ${provider}, task: ${taskId}`);
+
+  if (progressCallback) {
+    await progressCallback(`🎯 **Starting Task: ${taskId}**\n\n**Description:** ${tasks.find(t => t.id === taskId)?.prompt.slice(0, 100)}...`);
+  }
 
   // Create a bot instance configured with the specified model and provider
   const bot = new MorpheumBot();
@@ -403,6 +411,9 @@ async function runGauntlet(
     bot.configureForGauntlet(model, provider);
   } catch (error) {
     console.error(`Error configuring bot: ${error instanceof Error ? error.message : String(error)}`);
+    if (progressCallback) {
+      await progressCallback(`❌ **Task ${taskId} Failed**: Error configuring bot - ${error instanceof Error ? error.message : String(error)}`);
+    }
     results[taskId] = { success: false };
     return;
   }
@@ -410,6 +421,9 @@ async function runGauntlet(
   const task = tasks.find((t) => t.id === taskId);
   if (!task) {
     console.error(`Task with id ${taskId} not found.`);
+    if (progressCallback) {
+      await progressCallback(`❌ **Task ${taskId} Failed**: Task not found`);
+    }
     return;
   }
 
@@ -422,6 +436,9 @@ async function runGauntlet(
   };
 
   console.log("Stopping previous test containers...");
+  if (progressCallback) {
+    await progressCallback(`🧹 **Cleaning up**: Stopping previous test containers...`);
+  }
   // 1. Stop any previous test containers
   try {
     const { stdout } = await execa(
@@ -492,6 +509,9 @@ async function runGauntlet(
   console.log("Previous test containers stopped.");
 
   console.log("Creating new environment...");
+  if (progressCallback) {
+    await progressCallback(`🏗️ **Setting up environment**: Creating new container for task...`);
+  }
   // 2. Create a new environment
   const port = 10000 + (Date.now() % 1000);
   const containerName = await bot.processMessage(
@@ -501,20 +521,34 @@ async function runGauntlet(
   );
   if (!containerName) {
     console.error("Failed to create container.");
+    if (progressCallback) {
+      await progressCallback(`❌ **Task ${taskId} Failed**: Failed to create container`);
+    }
     results[taskId] = { success: false };
     return;
   }
   console.log(`New environment created: ${containerName}`);
+  if (progressCallback) {
+    await progressCallback(`✅ **Environment ready**: Container ${containerName} created successfully`);
+  }
 
   // Wait for the container to be ready
+  if (progressCallback) {
+    await progressCallback(`⏳ **Waiting**: Container readiness check...`);
+  }
   const isReady = await checkContainerReadiness(port, "localhost");
   if (!isReady) {
+    if (progressCallback) {
+      await progressCallback(`❌ **Task ${taskId} Failed**: Container did not become ready in time`);
+    }
     results[taskId] = { success: false };
     return;
   }
 
-
   // 3. Run the task
+  if (progressCallback) {
+    await progressCallback(`🤖 **Executing task**: Running AI model on task prompt...`);
+  }
   const result = await bot.processMessage(
     task.prompt,
     "gauntlet",
@@ -531,11 +565,46 @@ async function runGauntlet(
   console.log("--- END CAPTURED OUTPUT ---\n");
 
   // 4. Evaluate the output against the success condition
+  if (progressCallback) {
+    await progressCallback(`📋 **Evaluating**: Checking if task requirements are met...`);
+  }
   const success = await evaluateSuccessCondition(task, containerName, verbose);
   console.log(`\n--- TASK ${task.id} ---`);
   console.log(`Success: ${success}`);
   console.log("--- END TASK ---\\n");
+  
+  if (progressCallback) {
+    await progressCallback(`${success ? '✅' : '❌'} **Task ${taskId} ${success ? 'PASSED' : 'FAILED'}**`);
+  }
+  
   results[taskId] = { success };
+}
+
+// Helper function to create a progress table showing task status
+function createProgressTable(
+  tasksToRun: GauntletTask[], 
+  results: GauntletResult, 
+  nextTaskId: string | null
+): string {
+  const header = `📊 **Gauntlet Progress Table**
+
+| Task | Status |
+|------|--------|`;
+
+  const rows = tasksToRun.map(task => {
+    let status;
+    if (results[task.id] !== undefined) {
+      status = results[task.id]!.success ? '✅ PASS' : '❌ FAIL';
+    } else if (task.id === nextTaskId) {
+      status = '▶️ NEXT';
+    } else {
+      status = '⏳ PENDING';
+    }
+    
+    return `| ${task.id} | ${status} |`;
+  });
+
+  return [header, ...rows].join('\n');
 }
 
 // Export function for use by the bot
@@ -543,15 +612,39 @@ export async function executeGauntlet(
   model: string,
   provider: 'openai' | 'ollama' = 'ollama',
   taskId?: string,
-  verbose: boolean = false
+  verbose: boolean = false,
+  progressCallback?: ProgressCallback
 ): Promise<GauntletResult> {
   const results: GauntletResult = {};
   
+  // Determine which tasks to run
+  const tasksToRun = taskId ? [tasks.find(t => t.id === taskId)].filter(Boolean) as GauntletTask[] : tasks;
+  
+  // Create and display initial progress table
+  if (progressCallback) {
+    const progressTable = createProgressTable(tasksToRun, {}, null);
+    await progressCallback(progressTable);
+  }
+  
   if (taskId) {
-    await runGauntlet(model, provider, taskId, results, verbose);
+    await runGauntlet(model, provider, taskId, results, verbose, progressCallback);
   } else {
-    for (const task of tasks) {
-      await runGauntlet(model, provider, task.id, results, verbose);
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i]!;
+      
+      // Update progress table before starting each task
+      if (progressCallback) {
+        const progressTable = createProgressTable(tasksToRun, results, task.id);
+        await progressCallback(progressTable);
+      }
+      
+      await runGauntlet(model, provider, task.id, results, verbose, progressCallback);
+      
+      // Update progress table after completing each task
+      if (progressCallback) {
+        const progressTable = createProgressTable(tasksToRun, results, null);
+        await progressCallback(progressTable);
+      }
     }
   }
   
@@ -586,14 +679,12 @@ if (process.argv[1] === __filename) {
           throw new Error('--provider must be either "openai" or "ollama"');
         }
 
-        const results: GauntletResult = {};
-        if (options.task) {
-          await runGauntlet(options.model, options.provider, options.task, results, options.verbose);
-        } else {
-          for (const task of tasks) {
-            await runGauntlet(options.model, options.provider, task.id, results, options.verbose);
-          }
-        }
+        const results = await executeGauntlet(
+          options.model, 
+          options.provider, 
+          options.task, 
+          options.verbose
+        );
 
         console.log("\n--- GAUNTLET RESULTS ---");
         console.log(JSON.stringify(results, null, 2));

@@ -9,10 +9,17 @@ vi.mock('../gauntlet/gauntlet', () => ({
   executeGauntlet: vi.fn(),
   gauntletTasks: [
     {
-      id: 'test-task',
+      id: 'test-task-1',
       skill: 'Environment Management & Tooling',
       difficulty: 'Easy',
       prompt: 'Test task for validation',
+      successCondition: vi.fn()
+    },
+    {
+      id: 'test-task-2',
+      skill: 'Software Development & Refinement',
+      difficulty: 'Medium',
+      prompt: 'Another test task',
       successCondition: vi.fn()
     }
   ]
@@ -63,7 +70,7 @@ describe('Gauntlet Integration', () => {
     await bot.processMessage('!gauntlet run --model test-model --task test-task', 'test-user', mockSendMessage);
 
     // Verify executeGauntlet was called with correct arguments (default provider is ollama)
-    expect(mockExecuteGauntlet).toHaveBeenCalledWith('test-model', 'ollama', 'test-task', false);
+    expect(mockExecuteGauntlet).toHaveBeenCalledWith('test-model', 'ollama', 'test-task', false, expect.any(Function));
   });
 
   it('should handle gauntlet run command without task (all tasks)', async () => {
@@ -75,7 +82,7 @@ describe('Gauntlet Integration', () => {
     await bot.processMessage('!gauntlet run --model test-model --verbose', 'test-user', mockSendMessage);
 
     // Verify executeGauntlet was called with undefined task (all tasks) and verbose=true
-    expect(mockExecuteGauntlet).toHaveBeenCalledWith('test-model', 'ollama', undefined, true);
+    expect(mockExecuteGauntlet).toHaveBeenCalledWith('test-model', 'ollama', undefined, true, expect.any(Function));
   });
 
   it('should handle gauntlet run command with provider option', async () => {
@@ -91,7 +98,7 @@ describe('Gauntlet Integration', () => {
     await testBot.processMessage('!gauntlet run --model gpt-4 --provider openai --task test-task', 'test-user', mockSendMessage);
 
     // Verify executeGauntlet was called with openai provider
-    expect(mockExecuteGauntlet).toHaveBeenCalledWith('gpt-4', 'openai', 'test-task', false);
+    expect(mockExecuteGauntlet).toHaveBeenCalledWith('gpt-4', 'openai', 'test-task', false, expect.any(Function));
     
     // Clean up
     delete process.env.OPENAI_API_KEY;
@@ -172,5 +179,98 @@ describe('Gauntlet Integration', () => {
     expect(resultCall[0]).toContain('67%'); // Success rate
     expect(resultCall[0]).toContain('✅ PASS');
     expect(resultCall[0]).toContain('❌ FAIL');
+  });
+
+  it('should provide progress feedback during gauntlet execution', async () => {
+    const mockExecuteGauntlet = vi.mocked(executeGauntlet);
+    
+    // Mock the executeGauntlet function to capture the progress callback
+    let capturedProgressCallback: ((message: string, html?: string) => Promise<void>) | null = null;
+    mockExecuteGauntlet.mockImplementation(async (model, provider, taskId, verbose, progressCallback) => {
+      capturedProgressCallback = progressCallback || null;
+      
+      // Simulate progress updates if callback is provided
+      if (progressCallback) {
+        await progressCallback('📊 **Gauntlet Progress Table**\n\n| Task | Status |\n|------|--------|\n| test-task | ⏳ PENDING |');
+        await progressCallback('🎯 **Starting Task: test-task**');
+        await progressCallback('✅ **Task test-task PASSED**');
+      }
+      
+      return { 'test-task': { success: true } };
+    });
+
+    await bot.processMessage('!gauntlet run --model test-model --task test-task', 'test-user', mockSendMessage);
+
+    // Verify that a progress callback was provided
+    expect(capturedProgressCallback).toBeTruthy();
+    
+    // Verify that progress messages were sent
+    const progressMessages = mockSendMessage.mock.calls
+      .map(call => call[0])
+      .filter(msg => 
+        msg.includes('Gauntlet Progress Table') || 
+        msg.includes('Starting Task:') || 
+        msg.includes('PASSED')
+      );
+    
+    expect(progressMessages.length).toBeGreaterThan(0);
+    expect(progressMessages.some(msg => msg.includes('Gauntlet Progress Table'))).toBe(true);
+    expect(progressMessages.some(msg => msg.includes('Starting Task: test-task'))).toBe(true);
+    expect(progressMessages.some(msg => msg.includes('test-task PASSED'))).toBe(true);
+  });
+
+  it('should generate progress table with task status correctly', async () => {
+    const mockExecuteGauntlet = vi.mocked(executeGauntlet);
+    
+    // Mock to capture progress messages
+    let progressMessages: string[] = [];
+    mockExecuteGauntlet.mockImplementation(async (model, provider, taskId, verbose, progressCallback) => {
+      if (progressCallback) {
+        // Simulate initial progress table (all pending)
+        await progressCallback('📊 **Gauntlet Progress Table**\n\n| Task | Status |\n|------|--------|\n| test-task-1 | ⏳ PENDING |\n| test-task-2 | ⏳ PENDING |');
+        progressMessages.push('initial-table');
+        
+        // Simulate first task starting (next)
+        await progressCallback('📊 **Gauntlet Progress Table**\n\n| Task | Status |\n|------|--------|\n| test-task-1 | ▶️ NEXT |\n| test-task-2 | ⏳ PENDING |');
+        progressMessages.push('first-next');
+        
+        // Simulate first task completed (pass), second pending
+        await progressCallback('📊 **Gauntlet Progress Table**\n\n| Task | Status |\n|------|--------|\n| test-task-1 | ✅ PASS |\n| test-task-2 | ⏳ PENDING |');
+        progressMessages.push('first-pass');
+        
+        // Simulate second task starting (next)
+        await progressCallback('📊 **Gauntlet Progress Table**\n\n| Task | Status |\n|------|--------|\n| test-task-1 | ✅ PASS |\n| test-task-2 | ▶️ NEXT |');
+        progressMessages.push('second-next');
+        
+        // Simulate final state (both completed)
+        await progressCallback('📊 **Gauntlet Progress Table**\n\n| Task | Status |\n|------|--------|\n| test-task-1 | ✅ PASS |\n| test-task-2 | ❌ FAIL |');
+        progressMessages.push('final-state');
+      }
+      
+      return { 
+        'test-task-1': { success: true },
+        'test-task-2': { success: false }
+      };
+    });
+
+    await bot.processMessage('!gauntlet run --model test-model', 'test-user', mockSendMessage);
+
+    // Verify all expected progress states were called
+    expect(progressMessages).toContain('initial-table');
+    expect(progressMessages).toContain('first-next');
+    expect(progressMessages).toContain('first-pass');
+    expect(progressMessages).toContain('second-next');
+    expect(progressMessages).toContain('final-state');
+    
+    // Verify the table format is correct
+    const tableMessages = mockSendMessage.mock.calls
+      .map(call => call[0])
+      .filter(msg => msg.includes('Gauntlet Progress Table'));
+    
+    expect(tableMessages.length).toBeGreaterThan(0);
+    expect(tableMessages.some(msg => msg.includes('⏳ PENDING'))).toBe(true);
+    expect(tableMessages.some(msg => msg.includes('▶️ NEXT'))).toBe(true);
+    expect(tableMessages.some(msg => msg.includes('✅ PASS'))).toBe(true);
+    expect(tableMessages.some(msg => msg.includes('❌ FAIL'))).toBe(true);
   });
 });
