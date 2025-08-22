@@ -60,11 +60,11 @@ const tasks: GauntletTask[] = [
           containerName,
           "sh",
           "-c",
-          "which sed",
+          "cd /project && nix develop -c which sed",
         ],
         { cwd: "./jail" },
       );
-      return stdout.includes("/nix/store") && stdout.includes("sed");
+      return stdout.includes("/nix/store");
     },
   },
   {
