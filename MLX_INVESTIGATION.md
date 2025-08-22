@@ -8,9 +8,13 @@ MLX-Knife is a lightweight, ollama-like CLI for managing and running MLX models 
 
 ## Installation
 
+### Platform Requirements
+
+**Important**: MLX-Knife requires Apple Silicon (ARM64) hardware and is designed specifically for macOS with M1/M2/M3 processors. It will not work on Intel processors or Linux/Windows platforms.
+
 ### Via Nix (Recommended)
 
-The project's `flake.nix` has been updated to include MLX-Knife support:
+The project's `flake.nix` has been updated to include MLX-Knife support with automatic platform detection:
 
 ```nix
 # Development shell includes:
@@ -18,8 +22,8 @@ python3
 python3Packages.pip
 python3Packages.psutil
 
-# With shellHook to install MLX-Knife:
-pip install --user mlx-knife
+# With shellHook to install MLX-Knife on Apple Silicon only:
+# Automatically detects ARM64 platform and installs accordingly
 ```
 
 To enter the development environment:
@@ -28,15 +32,20 @@ To enter the development environment:
 nix develop
 ```
 
+The setup will automatically:
+- Detect if you're on Apple Silicon (ARM64) 
+- Install MLX-Knife only on compatible platforms
+- Show a warning on unsupported platforms (x86_64, etc.)
+
 ### Manual Installation
 
-If not using Nix, install MLX-Knife manually:
+If not using Nix, install MLX-Knife manually on Apple Silicon Macs:
 
 ```bash
 pip install mlx-knife
 ```
 
-Note: MLX-Knife is optimized for Apple Silicon and requires macOS with Apple Silicon (M1/M2/M3).
+**Note**: MLX-Knife is optimized for Apple Silicon and requires macOS with Apple Silicon (M1/M2/M3). Installation will fail or MLX libraries won't load on other platforms.
 
 ## Benchmark Script
 

@@ -28,14 +28,33 @@
             bun 
             claude-code 
             ollama
-            python3
-            python3Packages.pip
-            python3Packages.psutil
+            (python3.withPackages (ps: with ps; [
+              pip
+              psutil
+              # We'll create a virtual environment for mlx-knife since it's not in nixpkgs
+            ]))
           ];
           shellHook = ''
-            # Install mlx-knife for MLX model management and execution
-            echo "Installing mlx-knife..."
-            pip install --user mlx-knife
+            # Create and activate a virtual environment for mlx-knife
+            if [ ! -d ".venv" ]; then
+              echo "Creating virtual environment for mlx-knife..."
+              python3 -m venv .venv
+            fi
+            
+            source .venv/bin/activate
+            
+            # Install mlx-knife in the virtual environment (Apple Silicon only)
+            if [[ "$(uname -m)" == "arm64" ]] || [[ "$(uname -m)" == "aarch64" ]]; then
+              if ! python -c "import mlx_knife" 2>/dev/null; then
+                echo "Installing mlx-knife for Apple Silicon..."
+                pip install mlx-knife
+              else
+                echo "mlx-knife already installed"
+              fi
+            else
+              echo "Warning: mlx-knife requires Apple Silicon (ARM64). Skipping installation on $(uname -m)."
+              echo "MLX benchmark will not be available on this platform."
+            fi
           '';
         };
       }

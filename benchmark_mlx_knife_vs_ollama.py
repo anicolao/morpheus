@@ -82,6 +82,15 @@ def benchmark_mlx(model_name: str, prompt: str) -> Dict[str, Any]:
     """Benchmark MLX-Knife model performance."""
     print(f"🔪 Benchmarking MLX-Knife with model: {model_name}")
     
+    # Check if running on Apple Silicon
+    import platform
+    machine = platform.machine()
+    if machine not in ['arm64', 'aarch64']:
+        return {
+            "error": f"MLX-Knife requires Apple Silicon (ARM64). Current platform: {machine}",
+            "platform_warning": "MLX is designed specifically for Apple Silicon Macs"
+        }
+    
     # Check if mlx-knife is available
     try:
         result = subprocess.run(['mlxk', '--help'], capture_output=True, text=True, check=True)
@@ -168,6 +177,8 @@ def print_results(ollama_result: Dict[str, Any], mlx_result: Dict[str, Any]):
         print(f"  📝 Response Length: {mlx_result['estimated_tokens']} tokens")
     else:
         print(f"  ❌ Error: {mlx_result.get('error', 'Unknown error')}")
+        if mlx_result.get("platform_warning"):
+            print(f"  ⚠️  Note: {mlx_result['platform_warning']}")
     
     # Compare if both succeeded
     if ollama_result.get("success") and mlx_result.get("success"):
