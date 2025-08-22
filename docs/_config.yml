@@ -36,6 +36,12 @@ nav_links:
   - title: "GitHub"
     url: "https://github.com/anicolao/morpheum"
 
+# Cache control for better deployment updates
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
 # Collections
 collections:
   documentation:

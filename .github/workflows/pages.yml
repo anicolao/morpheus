@@ -12,6 +12,12 @@ on:
       - 'docs/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
+    inputs:
+      force_deployment:
+        description: 'Force deployment to refresh cache'
+        required: false
+        default: 'false'
+        type: boolean
 
 permissions:
   contents: read
@@ -53,6 +59,7 @@ jobs:
       - name: Build with Jekyll
         run: |
           cd docs
+          echo "Building Jekyll site with timestamp: $(date)"
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
