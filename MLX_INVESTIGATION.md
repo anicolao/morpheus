@@ -121,10 +121,38 @@ Full options:
 ```bash
 python3 benchmark_mlx_knife_vs_ollama.py \
   --model qwen2.5-coder:1.5b \
-  --mlx-model Phi-3-mini-4k-instruct-4bit \
+  --mlx-model microsoft/Phi-3-mini-4k-instruct-4bit \
   --prompt "Write a Python function to sort a list" \
   --skip-pull
 ```
+
+### Model Compatibility
+
+**Important**: Ollama and MLX-Knife use different model ecosystems and naming conventions:
+
+#### Ollama Models
+- Use Ollama's model registry (e.g., `qwen2.5-coder:1.5b`, `llama3:8b`)
+- Optimized for Ollama's runtime
+- Available via `ollama list` and `ollama pull <model>`
+
+#### MLX-Knife Models  
+- Use MLX-optimized models from Hugging Face (e.g., `microsoft/Phi-3-mini-4k-instruct-4bit`)
+- Pre-quantized for Apple Silicon performance
+- Available from MLX community: https://huggingface.co/mlx-community
+
+#### Default Models
+The benchmark script uses different default models for each platform:
+- **Ollama**: `qwen2.5-coder:1.5b` (good for coding tasks, ~1.5GB)
+- **MLX-Knife**: `microsoft/Phi-3-mini-4k-instruct-4bit` (MLX-optimized, ~2.4GB)
+
+#### Model Selection Tips
+- Use `--model` for Ollama model names
+- Use `--mlx-model` for MLX-Knife model names
+- Popular MLX models include:
+  - `microsoft/Phi-3-mini-4k-instruct-4bit` (recommended for general use)
+  - `microsoft/Phi-3-mini-128k-instruct-4bit` (longer context)
+  - `mlx-community/Llama-3.2-1B-Instruct-4bit` (lightweight)
+  - `mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit` (coding tasks)
 
 ### Enhanced Model Download Handling
 

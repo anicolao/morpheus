@@ -13,10 +13,15 @@ MLX-Knife provides an ollama-like CLI for MLX models on Apple Silicon.
 Usage examples:
   ./benchmark_mlx_knife_vs_ollama.py                    # Basic benchmark
   ./benchmark_mlx_knife_vs_ollama.py --skip-pull       # Only use existing models
-  ./benchmark_mlx_knife_vs_ollama.py --model phi3      # Test with a different model
+  ./benchmark_mlx_knife_vs_ollama.py --model phi3      # Test with a different Ollama model
+  ./benchmark_mlx_knife_vs_ollama.py --mlx-model microsoft/Phi-3-mini-128k-instruct-4bit  # Different MLX model
 
-Note: Model downloads can take 5-20 minutes depending on size and internet speed.
-Progress will be shown during downloads. Use --skip-pull to avoid downloading.
+Note: 
+- Ollama models and MLX models use different naming conventions
+- Default Ollama model: qwen2.5-coder:1.5b (good for coding tasks)
+- Default MLX model: microsoft/Phi-3-mini-4k-instruct-4bit (MLX-optimized)
+- Model downloads can take 5-20 minutes depending on size and internet speed.
+- Progress will be shown during downloads. Use --skip-pull to avoid downloading.
 """
 
 import time
@@ -287,8 +292,8 @@ def main():
                        help="Model name to benchmark (default: qwen2.5-coder:1.5b)")
     parser.add_argument("--prompt", default="Write a Python function to calculate the fibonacci sequence.",
                        help="Prompt to use for benchmarking")
-    parser.add_argument("--mlx-model", default=None,
-                       help="MLX-Knife model name (if different from --model)")
+    parser.add_argument("--mlx-model", default="microsoft/Phi-3-mini-4k-instruct-4bit",
+                       help="MLX-Knife model name (default: microsoft/Phi-3-mini-4k-instruct-4bit)")
     parser.add_argument("--skip-pull", action="store_true",
                        help="Skip pulling models if they're not already available")
     
@@ -296,7 +301,7 @@ def main():
     
     prompt = args.prompt
     ollama_model = args.model
-    mlx_model = args.mlx_model or args.model
+    mlx_model = args.mlx_model
     
     print("🚀 Starting benchmark comparison between Ollama and MLX-Knife")
     print(f"📝 Prompt: {prompt}")
