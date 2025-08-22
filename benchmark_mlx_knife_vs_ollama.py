@@ -14,14 +14,15 @@ Usage examples:
   ./benchmark_mlx_knife_vs_ollama.py                    # Basic benchmark
   ./benchmark_mlx_knife_vs_ollama.py --skip-pull       # Only use existing models
   ./benchmark_mlx_knife_vs_ollama.py --model phi3      # Test with a different Ollama model
-  ./benchmark_mlx_knife_vs_ollama.py --mlx-model microsoft/Phi-3-mini-128k-instruct-4bit  # Different MLX model
+  ./benchmark_mlx_knife_vs_ollama.py --mlx-model mlx-community/Phi-3-mini-4k-instruct-4bit  # Different MLX model
 
 Note: 
 - Ollama models and MLX models use different naming conventions
 - Default Ollama model: qwen2.5-coder:1.5b (good for coding tasks)
-- Default MLX model: microsoft/Phi-3-mini-4k-instruct-4bit (MLX-optimized)
+- Default MLX model: mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit (MLX-optimized)
 - Model downloads can take 5-20 minutes depending on size and internet speed.
 - Progress will be shown during downloads. Use --skip-pull to avoid downloading.
+- Models are matched for similar performance: Qwen2.5-Coder 1.5B in both Ollama and MLX formats.
 """
 
 import time
@@ -289,11 +290,11 @@ def print_results(ollama_result: Dict[str, Any], mlx_result: Dict[str, Any]):
 def main():
     parser = argparse.ArgumentParser(description="Benchmark MLX-Knife vs Ollama performance")
     parser.add_argument("--model", default="qwen2.5-coder:1.5b", 
-                       help="Model name to benchmark (default: qwen2.5-coder:1.5b)")
+                       help="Ollama model name to benchmark (default: qwen2.5-coder:1.5b)")
     parser.add_argument("--prompt", default="Write a Python function to calculate the fibonacci sequence.",
                        help="Prompt to use for benchmarking")
-    parser.add_argument("--mlx-model", default="microsoft/Phi-3-mini-4k-instruct-4bit",
-                       help="MLX-Knife model name (default: microsoft/Phi-3-mini-4k-instruct-4bit)")
+    parser.add_argument("--mlx-model", default="mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit",
+                       help="MLX-Knife model name (default: mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit)")
     parser.add_argument("--skip-pull", action="store_true",
                        help="Skip pulling models if they're not already available")
     

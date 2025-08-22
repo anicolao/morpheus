@@ -121,7 +121,7 @@ Full options:
 ```bash
 python3 benchmark_mlx_knife_vs_ollama.py \
   --model qwen2.5-coder:1.5b \
-  --mlx-model microsoft/Phi-3-mini-4k-instruct-4bit \
+  --mlx-model mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit \
   --prompt "Write a Python function to sort a list" \
   --skip-pull
 ```
@@ -136,23 +136,25 @@ python3 benchmark_mlx_knife_vs_ollama.py \
 - Available via `ollama list` and `ollama pull <model>`
 
 #### MLX-Knife Models  
-- Use MLX-optimized models from Hugging Face (e.g., `microsoft/Phi-3-mini-4k-instruct-4bit`)
+- Use MLX-optimized models from mlx-community on Hugging Face (e.g., `mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit`)
 - Pre-quantized for Apple Silicon performance
 - Available from MLX community: https://huggingface.co/mlx-community
+- Must use models with `mlx-community/` prefix for proper MLX compatibility
 
 #### Default Models
-The benchmark script uses different default models for each platform:
-- **Ollama**: `qwen2.5-coder:1.5b` (good for coding tasks, ~1.5GB)
-- **MLX-Knife**: `microsoft/Phi-3-mini-4k-instruct-4bit` (MLX-optimized, ~2.4GB)
+The benchmark script uses platform-optimized models that provide fair comparison:
+- **Ollama**: `qwen2.5-coder:1.5b` (GGUF format, ~1.5GB, 4-bit quantization)
+- **MLX-Knife**: `mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit` (MLX format, ~1.5GB, 4-bit quantization)
+
+This ensures we're comparing the same base model (Qwen2.5-Coder 1.5B) with similar quantization across both platforms.
 
 #### Model Selection Tips
-- Use `--model` for Ollama model names
-- Use `--mlx-model` for MLX-Knife model names
-- Popular MLX models include:
-  - `microsoft/Phi-3-mini-4k-instruct-4bit` (recommended for general use)
-  - `microsoft/Phi-3-mini-128k-instruct-4bit` (longer context)
-  - `mlx-community/Llama-3.2-1B-Instruct-4bit` (lightweight)
-  - `mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit` (coding tasks)
+- Use `--model` for Ollama model names (e.g., `qwen2.5-coder:1.5b`, `llama3.2:1b`)
+- Use `--mlx-model` for MLX-Knife model names (must be from mlx-community)
+- Recommended model pairs for fair comparison:
+  - Ollama: `qwen2.5-coder:1.5b` ↔ MLX: `mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit`
+  - Ollama: `llama3.2:1b` ↔ MLX: `mlx-community/Llama-3.2-1B-Instruct-4bit`
+  - Ollama: `phi3:mini` ↔ MLX: `mlx-community/Phi-3-mini-4k-instruct-4bit`
 
 ### Enhanced Model Download Handling
 
