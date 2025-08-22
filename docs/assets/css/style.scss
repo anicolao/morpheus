@@ -2,36 +2,57 @@
 ---
 
 @import "minima";
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-/* Morpheum Custom Styles */
+/* Morpheum Custom Styles - Neural Glow Theme */
 
-/* Color palette inspired by the logo */
+/* Neural Glow color palette sampled from the logo */
 :root {
-  --primary-color: #2c5282;    /* Deep blue */
-  --secondary-color: #4a90e2;  /* Light blue */
-  --accent-color: #38a169;     /* Green for success/actions */
-  --text-color: #2d3748;       /* Dark gray */
-  --light-bg: #f7fafc;         /* Very light blue-gray */
-  --border-color: #e2e8f0;     /* Light gray */
+  --background-dark: #0A061A;    /* Deep, dark indigo - primary background */
+  --accent-primary: #C932FE;     /* Vibrant magenta/purple - primary accent */
+  --accent-secondary: #00F5D4;   /* Luminous cyan/turquoise - secondary accent */
+  --text-primary: #F0F2F5;       /* Light off-white with hint of lavender */
+  --text-secondary: #8B80B6;     /* Muted purple-gray for secondary text */
+  --border-color: #2A2041;       /* Darker border for contrast */
+  --card-bg: #1A1535;            /* Slightly lighter than main background for cards */
+}
+
+/* Global typography and layout */
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--background-dark);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--text-primary);
+  letter-spacing: 1.5px;
+  font-weight: 700;
 }
 
 /* Header styling */
 .site-header {
-  background-color: var(--primary-color);
+  background-color: var(--background-dark);
   border-bottom: 1px solid var(--border-color);
 }
 
 .site-title {
   font-size: 26px;
-  font-weight: 600;
-  color: white !important;
+  font-weight: 700;
+  color: var(--text-primary) !important;
   text-decoration: none;
   display: flex;
   align-items: center;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1.5px;
 }
 
 .site-title:hover {
-  color: #e2e8f0 !important;
+  color: var(--accent-primary) !important;
+  text-shadow: 0px 0px 10px rgba(201, 50, 254, 0.5);
 }
 
 .site-logo {
@@ -42,28 +63,54 @@
 }
 
 .site-nav .page-link {
-  color: white;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .site-nav .page-link:hover {
-  color: #e2e8f0;
+  color: var(--accent-secondary);
   text-decoration: none;
+  text-shadow: 0px 0px 8px rgba(0, 245, 212, 0.6);
 }
 
-/* Hero section */
+/* Hero section with neural gradient */
 .hero {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--background-dark) 0%, #1A1535 50%, var(--background-dark) 100%);
+  color: var(--text-primary);
   padding: 4rem 0;
   text-align: center;
   margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    rgba(201, 50, 254, 0.1) 0%, 
+    transparent 50%, 
+    rgba(0, 245, 212, 0.1) 100%);
+  z-index: 1;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 2;
 }
 
 .hero h1 {
   font-size: 3rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero p {
@@ -71,6 +118,7 @@
   opacity: 0.9;
   max-width: 600px;
   margin: 0 auto;
+  color: var(--text-secondary);
 }
 
 .hero-logo {
@@ -78,6 +126,12 @@
   width: 80px;
   margin-bottom: 1rem;
   border-radius: 8px;
+  box-shadow: 0px 0px 30px rgba(201, 50, 254, 0.5);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.hero-logo:hover {
+  box-shadow: 0px 0px 40px rgba(201, 50, 254, 0.8);
 }
 
 /* Feature cards */
@@ -89,25 +143,31 @@
 }
 
 .feature-card {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid var(--secondary-color);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-secondary);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .feature-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0px 0px 20px rgba(0, 245, 212, 0.3);
+  border-left-color: var(--accent-primary);
 }
 
 .feature-card h3 {
-  color: var(--primary-color);
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
-/* Status indicators */
+.feature-card p {
+  color: var(--text-secondary);
+}
+
+/* Status indicators with neural glow */
 .status-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
@@ -119,47 +179,64 @@
 }
 
 .status-active {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: rgba(0, 245, 212, 0.2);
+  color: var(--accent-secondary);
+  border: 1px solid var(--accent-secondary);
+  box-shadow: 0px 0px 10px rgba(0, 245, 212, 0.3);
 }
 
 .status-planned {
-  background-color: #cce7ff;
-  color: #0066cc;
+  background-color: rgba(201, 50, 254, 0.2);
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  box-shadow: 0px 0px 10px rgba(201, 50, 254, 0.3);
 }
 
 .status-completed {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: rgba(139, 128, 182, 0.2);
+  color: var(--text-secondary);
+  border: 1px solid var(--text-secondary);
 }
 
-/* Call-to-action buttons */
+/* Neural Glow call-to-action buttons */
 .cta-button {
   display: inline-block;
-  background-color: var(--accent-color);
+  background-color: var(--accent-primary);
   color: white;
   padding: 0.75rem 1.5rem;
   text-decoration: none;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease-in-out;
+  border: none;
+  cursor: pointer;
+  /* The neural glow effect */
+  box-shadow: 0px 0px 20px rgba(201, 50, 254, 0.6);
 }
 
 .cta-button:hover {
-  background-color: #2f7d5e;
+  background-color: var(--accent-primary);
   color: white;
   text-decoration: none;
+  transform: translateY(-3px);
+  /* Intensify the glow on hover */
+  box-shadow: 0px 0px 30px rgba(201, 50, 254, 0.8);
 }
 
 .cta-button-secondary {
   background-color: transparent;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
+  color: var(--accent-secondary);
+  border: 2px solid var(--accent-secondary);
+  box-shadow: 0px 0px 15px rgba(0, 245, 212, 0.4);
 }
 
 .cta-button-secondary:hover {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--accent-secondary);
+  color: var(--background-dark);
+  box-shadow: 0px 0px 25px rgba(0, 245, 212, 0.7);
+  transform: translateY(-3px);
 }
 
 /* Content sections */
@@ -169,37 +246,52 @@
 }
 
 .content-section h2 {
-  color: var(--primary-color);
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   font-size: 2rem;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.content-section p {
+  color: var(--text-secondary);
 }
 
 /* Navigation improvements */
 .site-nav .menu-icon > svg {
-  fill: white;
+  fill: var(--text-primary);
 }
 
 /* Footer styling */
 .site-footer {
-  background-color: var(--light-bg);
+  background-color: var(--card-bg);
   border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
 }
 
-/* Code blocks */
+/* Code blocks with neural theme */
 pre, code {
   border-radius: 0.375rem;
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
 }
 
 .highlight {
   border-radius: 0.375rem;
   border: 1px solid var(--border-color);
+  background-color: var(--card-bg) !important;
 }
 
-/* Tables */
+/* Tables with neural styling */
 table {
   border-collapse: collapse;
   width: 100%;
   margin: 1rem 0;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 table th,
@@ -207,12 +299,49 @@ table td {
   border: 1px solid var(--border-color);
   padding: 0.75rem;
   text-align: left;
+  color: var(--text-primary);
 }
 
 table th {
-  background-color: var(--light-bg);
+  background-color: var(--background-dark);
   font-weight: 600;
-  color: var(--primary-color);
+  color: var(--accent-primary);
+}
+
+/* Page content wrapper with subtle neural glow */
+.page-content {
+  background-color: var(--background-dark);
+}
+
+.wrapper {
+  position: relative;
+}
+
+.wrapper::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(201, 50, 254, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 245, 212, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(201, 50, 254, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Links with neural glow */
+a {
+  color: var(--accent-secondary);
+  transition: all 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--accent-primary);
+  text-shadow: 0px 0px 8px rgba(201, 50, 254, 0.5);
+  text-decoration: none;
 }
 
 /* Responsive design */
