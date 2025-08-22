@@ -43,6 +43,12 @@
             
             source .venv/bin/activate
             
+            # Install required packages in the virtual environment
+            if ! python -c "import psutil" 2>/dev/null; then
+              echo "Installing psutil in virtual environment..."
+              pip install psutil
+            fi
+            
             # Install mlx-knife in the virtual environment (Apple Silicon only)
             if [[ "$(uname -m)" == "arm64" ]] || [[ "$(uname -m)" == "aarch64" ]]; then
               if ! python -c "import mlx_knife" 2>/dev/null; then
