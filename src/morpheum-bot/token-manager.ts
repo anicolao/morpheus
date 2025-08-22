@@ -171,4 +171,21 @@ export class TokenManager {
       }
     };
   }
+
+  /**
+   * Get token status information (without revealing actual token values)
+   */
+  getTokenStatus(): {
+    hasAccessToken: boolean;
+    hasRefreshToken: boolean;
+    hasCredentials: boolean;
+    refreshInProgress: boolean;
+  } {
+    return {
+      hasAccessToken: !!this.accessToken,
+      hasRefreshToken: !!this.currentRefreshToken,
+      hasCredentials: !!(this.username && this.password),
+      refreshInProgress: this.refreshInProgress
+    };
+  }
 }

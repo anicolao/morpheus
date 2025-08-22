@@ -99,7 +99,8 @@ if (username && password) {
   console.log("[Auth] Using static ACCESS_TOKEN (no automatic refresh)");
 }
 
-const bot = new MorpheumBot();
+// Create bot instance with tokenManager if available
+const bot = new MorpheumBot(tokenManager);
 
 function createMatrixClient(token: string): MatrixClient {
   // We'll want to make sure the bot doesn't have to do an initial sync every
