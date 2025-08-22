@@ -46,11 +46,11 @@ def benchmark_ollama(model_name: str, prompt: str, skip_pull: bool = False) -> D
             print(f"Model {model_name} not found. Pulling...")
             print("⏳ This may take several minutes for large models. Progress will be shown below:")
             print("-" * 60)
-            # Show progress during pull by not capturing stdout
+            # Show progress during pull by not capturing any output
             pull_result = subprocess.run(['ollama', 'pull', model_name], 
-                                       stderr=subprocess.PIPE, text=True, timeout=1200)
+                                       text=True, timeout=1200)
             if pull_result.returncode != 0:
-                return {"error": f"Failed to pull Ollama model: {pull_result.stderr}"}
+                return {"error": f"Failed to pull Ollama model (exit code: {pull_result.returncode})"}
             print("-" * 60)
             print("✅ Model pull completed successfully!")
     except subprocess.CalledProcessError as e:
@@ -159,14 +159,14 @@ def benchmark_mlx(model_name: str, prompt: str, skip_pull: bool = False) -> Dict
             print("-" * 60)
             
             # Try to pull the model - show output to user so they can see progress
-            # Don't capture output so progress is visible, but capture stderr for error handling
+            # Don't capture any output so progress is visible in real-time
             try:
+                print(f"Downloading {model_name}...")
                 pull_result = subprocess.run(['mlxk', 'pull', model_name], 
-                                           stderr=subprocess.PIPE, text=True, timeout=1200)  # 20 minutes
+                                           text=True, timeout=1200)  # 20 minutes
                 if pull_result.returncode != 0:
                     return {
-                        "error": f"Failed to pull model {model_name}",
-                        "stderr": pull_result.stderr,
+                        "error": f"Failed to pull model {model_name} (exit code: {pull_result.returncode})",
                         "suggestion": "Check if model name is correct or network connection"
                     }
                 print("-" * 60)
