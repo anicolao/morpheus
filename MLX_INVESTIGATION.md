@@ -1,28 +1,25 @@
-# MLX Investigation
+# MLX-Knife Investigation
 
-This document covers the investigation into using MLX (Machine Learning eXtensions) as an alternative to Ollama for running large language models in the Morpheum project.
+This document covers the investigation into using MLX-Knife as an alternative to Ollama for running large language models in the Morpheum project.
 
 ## Overview
 
-MLX is Apple's machine learning framework designed to run efficiently on Apple silicon. It provides an alternative to Ollama for running large language models, potentially offering better performance on Mac hardware.
+MLX-Knife is a lightweight, ollama-like CLI for managing and running MLX models on Apple Silicon. It provides a command-line interface similar to Ollama but leverages Apple's MLX framework for optimized performance on Mac hardware.
 
 ## Installation
 
 ### Via Nix (Recommended)
 
-The project's `flake.nix` has been updated to include MLX support:
+The project's `flake.nix` has been updated to include MLX-Knife support:
 
 ```nix
 # Development shell includes:
 python3
 python3Packages.pip
-python3Packages.numpy
-python3Packages.transformers
-python3Packages.torch
 python3Packages.psutil
 
-# With shellHook to install MLX packages:
-pip install --user mlx mlx-lm
+# With shellHook to install MLX-Knife:
+pip install --user mlx-knife
 ```
 
 To enter the development environment:
@@ -33,40 +30,40 @@ nix develop
 
 ### Manual Installation
 
-If not using Nix, install MLX manually:
+If not using Nix, install MLX-Knife manually:
 
 ```bash
-pip install mlx mlx-lm
+pip install mlx-knife
 ```
 
-Note: MLX is optimized for Apple Silicon and may not work optimally on other architectures.
+Note: MLX-Knife is optimized for Apple Silicon and requires macOS with Apple Silicon (M1/M2/M3).
 
 ## Benchmark Script
 
-A comprehensive benchmark script `benchmark_mlx_vs_ollama.py` has been created to compare performance between Ollama and MLX.
+A comprehensive benchmark script `benchmark_mlx_knife_vs_ollama.py` has been created to compare performance between Ollama and MLX-Knife.
 
 ### Usage
 
 Basic usage:
 ```bash
-python3 benchmark_mlx_vs_ollama.py
+python3 benchmark_mlx_knife_vs_ollama.py
 ```
 
 With custom model:
 ```bash
-python3 benchmark_mlx_vs_ollama.py --model qwen2.5-coder:7b
+python3 benchmark_mlx_knife_vs_ollama.py --model qwen2.5-coder:1.5b
 ```
 
 With custom prompt:
 ```bash
-python3 benchmark_mlx_vs_ollama.py --prompt "Explain quantum computing in simple terms"
+python3 benchmark_mlx_knife_vs_ollama.py --prompt "Explain quantum computing in simple terms"
 ```
 
 Full options:
 ```bash
-python3 benchmark_mlx_vs_ollama.py \
+python3 benchmark_mlx_knife_vs_ollama.py \
   --model qwen2.5-coder:1.5b \
-  --mlx-model microsoft/DialoGPT-medium \
+  --mlx-model Phi-3-mini-4k-instruct-4bit \
   --prompt "Write a Python function to sort a list"
 ```
 
@@ -96,20 +93,18 @@ The script provides a detailed comparison:
   💾 Memory Delta: 245.6 MB
   📝 Response Length: 105 tokens
 
-🔥 MLX RESULTS:
+🔪 MLX-KNIFE RESULTS:
   ✅ Success: True
-  📥 Model Load Time: 3.21s
-  ⚡ Inference Time: 7.89s
-  ⏱️  Total Time: 11.10s
-  🚀 Tokens/sec: 12.3
-  💾 Memory Delta: 189.2 MB
+  ⏱️  Total Time: 8.45s
+  🚀 Tokens/sec: 11.8
+  💾 Memory Delta: 156.3 MB
   📝 Response Length: 97 tokens
 
 🆚 COMPARISON:
-  🏃 Speed: MLX is 1.45x faster than Ollama
-  ⏰ Time: MLX is 1.11x faster than Ollama  
-  💾 Memory: MLX uses -56.4 MB less than Ollama
-  🏆 Winner: MLX (speed)
+  🏃 Speed: MLX-Knife is 1.39x faster than Ollama
+  ⏰ Time: MLX-Knife is 1.46x faster than Ollama  
+  💾 Memory: MLX-Knife uses -89.3 MB less than Ollama
+  🏆 Winner: MLX-Knife (speed)
 ```
 
 Results are also saved to `benchmark_results.json` for further analysis.
@@ -121,64 +116,94 @@ Results are also saved to `benchmark_results.json` for further analysis.
 - Compatible with existing `.ollama` model files in the repository
 - Supports models like `qwen2.5-coder:1.5b`, `deepseek-coder`, etc.
 
-### MLX Models
-- Uses HuggingFace model format
-- Automatically downloads models from HuggingFace Hub
-- Some popular options:
-  - `microsoft/DialoGPT-medium`
-  - `facebook/opt-125m`
-  - `gpt2`
+### MLX-Knife Models
+- Uses MLX model format from HuggingFace
+- Automatically downloads models from MLX Community on HuggingFace
+- Model name expansion: Short names like `Phi-3-mini-4k-instruct-4bit` automatically expand to `mlx-community/Phi-3-mini-4k-instruct-4bit`
+- Popular MLX models include:
+  - `Phi-3-mini-4k-instruct-4bit`
+  - `Mistral-7B-Instruct-v0.3-4bit`
+  - `Qwen2.5-Coder-1.5B-Instruct-4bit`
+  - `Mixtral-8x7B-Instruct-v0.1-4bit`
 
-Note: Model compatibility varies, and not all Ollama models have direct MLX equivalents.
+Note: MLX models are specifically optimized for Apple Silicon and may not be compatible with Ollama format.
+
+## MLX-Knife CLI
+
+MLX-Knife provides an ollama-like command line interface:
+
+```bash
+# List available models
+mlxk list
+
+# Download a model
+mlxk pull Phi-3-mini-4k-instruct-4bit
+
+# Run a model with a prompt
+mlxk run Phi-3-mini-4k-instruct-4bit "Write a Python function"
+
+# Interactive chat mode
+mlxk run Phi-3-mini-4k-instruct-4bit
+
+# Start API server (OpenAI-compatible)
+mlxk server --port 8000
+```
 
 ## Performance Considerations
 
-### Advantages of MLX
-- **Apple Silicon Optimization**: Designed specifically for M1/M2/M3 chips
+### Advantages of MLX-Knife
+- **Apple Silicon Optimization**: Built specifically for M1/M2/M3 chips using MLX framework
+- **Ollama-like Interface**: Familiar CLI commands similar to Ollama
 - **Memory Efficiency**: Often uses less memory than Ollama
-- **Speed**: Can be faster for inference on Apple hardware
-- **Integration**: Direct Python integration without external daemon
+- **Speed**: Optimized for inference on Apple hardware
+- **Model Management**: Built-in model download and caching
+- **API Server**: Includes OpenAI-compatible API server
 
 ### Advantages of Ollama
 - **Model Ecosystem**: Larger selection of pre-quantized models
-- **Ease of Use**: Simple installation and model management
-- **Cross-Platform**: Works on various architectures
-- **Stability**: Mature and well-tested
+- **Cross-Platform**: Works on various architectures (Linux, Windows, macOS)
+- **Stability**: Mature and well-tested platform
+- **Community**: Large user base and extensive documentation
 
 ## Implementation Notes
 
 ### Architecture Compatibility
-MLX is primarily designed for Apple Silicon. On other architectures:
-- May fall back to CPU computation
-- Performance benefits may be reduced
-- Some models may not load correctly
+MLX-Knife is specifically designed for Apple Silicon:
+- Requires macOS with Apple Silicon (M1/M2/M3)
+- Will not work on Intel Macs or other architectures
+- Performance benefits are exclusive to Apple Silicon
 
 ### Memory Management
-- MLX loads models directly into the Python process
+- MLX-Knife manages models through its own caching system
 - Ollama runs as a separate daemon process
-- Memory usage patterns differ significantly
+- Both tools manage memory efficiently but with different approaches
+
+### Command Line Interface
+- MLX-Knife provides CLI commands similar to Ollama (`mlxk` vs `ollama`)
+- Both support interactive chat modes
+- MLX-Knife includes additional features like health checks and API server
 
 ### Error Handling
 The benchmark script includes comprehensive error handling for:
-- Missing dependencies
-- Model loading failures
+- Missing mlx-knife installation
+- Model download failures
 - Timeout scenarios
-- Architecture incompatibilities
+- CLI command failures
 
 ## Future Development
 
 ### Potential Integration Points
-1. **Bot Enhancement**: Add MLX as an LLM provider option
-2. **Model Factory**: Extend existing factory pattern to include MLX clients
+1. **Bot Enhancement**: Add MLX-Knife as an LLM provider option
+2. **Model Factory**: Extend existing factory pattern to include MLX-Knife clients  
 3. **Performance Monitoring**: Integrate benchmarks into CI/CD pipeline
 4. **Adaptive Selection**: Automatically choose optimal backend based on hardware
 
 ### Recommended Next Steps
-1. Run comprehensive benchmarks on target hardware
-2. Evaluate model quality differences
-3. Consider hybrid approach using both backends
-4. Implement MLX provider in bot architecture if performance justifies it
+1. Run comprehensive benchmarks on Apple Silicon hardware
+2. Evaluate model quality differences between Ollama and MLX-Knife
+3. Consider hybrid approach using both backends based on hardware detection
+4. Implement MLX-Knife provider in bot architecture if performance justifies it
 
 ## Conclusion
 
-MLX provides a promising alternative to Ollama, especially for Apple Silicon hardware. The benchmark script enables data-driven decisions about which backend to use for specific use cases. Consider factors like target hardware, model availability, and performance requirements when choosing between the two approaches.
+MLX-Knife provides a promising ollama-like alternative specifically optimized for Apple Silicon hardware. The CLI interface makes it easy to compare with Ollama, and the benchmark script enables data-driven decisions about which backend to use for specific use cases. Consider factors like target hardware (Apple Silicon requirement), model availability, and performance requirements when choosing between the two approaches.

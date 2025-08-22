@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-Benchmark script to compare performance between Ollama and MLX for running large language models.
+Benchmark script to compare performance between Ollama and MLX-Knife for running large language models.
 
 This script measures:
 - Model loading time
 - Inference speed (tokens per second)
 - Memory usage
 - Response quality (qualitative)
+
+MLX-Knife provides an ollama-like CLI for MLX models on Apple Silicon.
 """
 
 import time
@@ -77,64 +79,69 @@ def benchmark_ollama(model_name: str, prompt: str) -> Dict[str, Any]:
         return {"error": f"Ollama inference failed: {e}"}
 
 def benchmark_mlx(model_name: str, prompt: str) -> Dict[str, Any]:
-    """Benchmark MLX model performance."""
-    print(f"🔥 Benchmarking MLX with model: {model_name}")
+    """Benchmark MLX-Knife model performance."""
+    print(f"🔪 Benchmarking MLX-Knife with model: {model_name}")
+    
+    # Check if mlx-knife is available
+    try:
+        result = subprocess.run(['mlxk', '--help'], capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        return {"error": f"Failed to access mlx-knife: {e}"}
+    except FileNotFoundError:
+        return {"error": "mlx-knife not found. Please install with: pip install mlx-knife"}
+    
+    # Check if model is available, if not try to pull it
+    try:
+        result = subprocess.run(['mlxk', 'list'], capture_output=True, text=True, check=True)
+        if model_name not in result.stdout:
+            print(f"Model {model_name} not found in MLX cache. Attempting to pull...")
+            # Try to pull the model - mlx-knife auto-expands short names to mlx-community/ prefix
+            pull_result = subprocess.run(['mlxk', 'pull', model_name], 
+                                       capture_output=True, text=True, timeout=600)
+            if pull_result.returncode != 0:
+                return {"error": f"Failed to pull model {model_name}: {pull_result.stderr}"}
+    except subprocess.CalledProcessError as e:
+        return {"error": f"Failed to list models: {e}"}
+    except subprocess.TimeoutExpired:
+        return {"error": "Model pull timed out after 10 minutes"}
+    
+    # Measure memory before
+    memory_before = get_memory_usage()
+    
+    # Start timing
+    start_time = time.time()
     
     try:
-        # Try to import MLX
-        import mlx.core as mx
-        import mlx_lm
+        # Run inference using mlx-knife CLI
+        cmd = ['mlxk', 'run', model_name, prompt, '--no-stream']
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=300)
         
-        # Measure memory before
-        memory_before = get_memory_usage()
+        end_time = time.time()
+        memory_after = get_memory_usage()
         
-        # Start timing for model loading
-        load_start = time.time()
+        # Parse response
+        response = result.stdout.strip()
+        total_time = end_time - start_time
         
-        # Load model using MLX
-        try:
-            model, tokenizer = mlx_lm.load(model_name)
-            load_end = time.time()
-            model_load_time = load_end - load_start
-            
-            # Start timing for inference
-            start_time = time.time()
-            
-            # Generate response
-            response = mlx_lm.generate(
-                model, 
-                tokenizer, 
-                prompt=prompt, 
-                max_tokens=100,
-                verbose=False
-            )
-            
-            end_time = time.time()
-            memory_after = get_memory_usage()
-            
-            # Calculate metrics
-            total_time = end_time - start_time
-            estimated_tokens = len(response.split())
-            tokens_per_second = estimated_tokens / total_time if total_time > 0 else 0
-            
-            return {
-                "success": True,
-                "response": response,
-                "model_load_time": model_load_time,
-                "inference_time": total_time,
-                "total_time": model_load_time + total_time,
-                "estimated_tokens": estimated_tokens,
-                "tokens_per_second": tokens_per_second,
-                "memory_before": memory_before,
-                "memory_after": memory_after,
-                "memory_delta": memory_after - memory_before
-            }
-            
-        except Exception as e:
-            return {"error": f"MLX model loading/inference failed: {e}"}
-            
-    except ImportError as e:
-        return {"error": f"MLX not available: {e}. Install with: pip install mlx mlx-lm"}
+        # Estimate token count (rough approximation)
+        estimated_tokens = len(response.split())
+        tokens_per_second = estimated_tokens / total_time if total_time > 0 else 0
+        
+        return {
+            "success": True,
+            "response": response,
+            "total_time": total_time,
+            "estimated_tokens": estimated_tokens,
+            "tokens_per_second": tokens_per_second,
+            "memory_before": memory_before,
+            "memory_after": memory_after,
+            "memory_delta": memory_after - memory_before
+        }
+        
+    except subprocess.TimeoutExpired:
+        return {"error": "MLX-Knife inference timed out after 5 minutes"}
+    except subprocess.CalledProcessError as e:
+        return {"error": f"MLX-Knife inference failed: {e.stderr if e.stderr else str(e)}"}
 
 def print_results(ollama_result: Dict[str, Any], mlx_result: Dict[str, Any]):
     """Print comparison results in a nice format."""
@@ -152,12 +159,9 @@ def print_results(ollama_result: Dict[str, Any], mlx_result: Dict[str, Any]):
     else:
         print(f"  ❌ Error: {ollama_result.get('error', 'Unknown error')}")
     
-    print("\n🔥 MLX RESULTS:")
+    print("\n🔪 MLX-KNIFE RESULTS:")
     if mlx_result.get("success"):
         print(f"  ✅ Success: {mlx_result['success']}")
-        if 'model_load_time' in mlx_result:
-            print(f"  📥 Model Load Time: {mlx_result['model_load_time']:.2f}s")
-            print(f"  ⚡ Inference Time: {mlx_result['inference_time']:.2f}s")
         print(f"  ⏱️  Total Time: {mlx_result['total_time']:.2f}s")
         print(f"  🚀 Tokens/sec: {mlx_result['tokens_per_second']:.2f}")
         print(f"  💾 Memory Delta: {mlx_result['memory_delta']:.2f} MB")
@@ -172,25 +176,25 @@ def print_results(ollama_result: Dict[str, Any], mlx_result: Dict[str, Any]):
         time_ratio = ollama_result['total_time'] / mlx_result['total_time'] if mlx_result['total_time'] > 0 else 0
         memory_diff = mlx_result['memory_delta'] - ollama_result['memory_delta']
         
-        print(f"  🏃 Speed: MLX is {speed_ratio:.2f}x {'faster' if speed_ratio > 1 else 'slower'} than Ollama")
-        print(f"  ⏰ Time: MLX is {time_ratio:.2f}x {'faster' if time_ratio > 1 else 'slower'} than Ollama")
-        print(f"  💾 Memory: MLX uses {memory_diff:+.2f} MB {'more' if memory_diff > 0 else 'less'} than Ollama")
+        print(f"  🏃 Speed: MLX-Knife is {speed_ratio:.2f}x {'faster' if speed_ratio > 1 else 'slower'} than Ollama")
+        print(f"  ⏰ Time: MLX-Knife is {time_ratio:.2f}x {'faster' if time_ratio > 1 else 'slower'} than Ollama")
+        print(f"  💾 Memory: MLX-Knife uses {memory_diff:+.2f} MB {'more' if memory_diff > 0 else 'less'} than Ollama")
         
         if speed_ratio > 1:
-            print(f"  🏆 Winner: MLX (speed)")
+            print(f"  🏆 Winner: MLX-Knife (speed)")
         elif time_ratio > 1:
-            print(f"  🏆 Winner: MLX (total time)")
+            print(f"  🏆 Winner: MLX-Knife (total time)")
         else:
             print(f"  🏆 Winner: Ollama")
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark MLX vs Ollama performance")
+    parser = argparse.ArgumentParser(description="Benchmark MLX-Knife vs Ollama performance")
     parser.add_argument("--model", default="qwen2.5-coder:1.5b", 
                        help="Model name to benchmark (default: qwen2.5-coder:1.5b)")
     parser.add_argument("--prompt", default="Write a Python function to calculate the fibonacci sequence.",
                        help="Prompt to use for benchmarking")
     parser.add_argument("--mlx-model", default=None,
-                       help="MLX model name (if different from --model)")
+                       help="MLX-Knife model name (if different from --model)")
     
     args = parser.parse_args()
     
@@ -198,10 +202,10 @@ def main():
     ollama_model = args.model
     mlx_model = args.mlx_model or args.model
     
-    print("🚀 Starting benchmark comparison between Ollama and MLX")
+    print("🚀 Starting benchmark comparison between Ollama and MLX-Knife")
     print(f"📝 Prompt: {prompt}")
     print(f"🦙 Ollama Model: {ollama_model}")
-    print(f"🔥 MLX Model: {mlx_model}")
+    print(f"🔪 MLX-Knife Model: {mlx_model}")
     print("-" * 80)
     
     # Run benchmarks

@@ -30,15 +30,12 @@
             ollama
             python3
             python3Packages.pip
-            python3Packages.numpy
-            python3Packages.transformers
-            python3Packages.torch
             python3Packages.psutil
           ];
           shellHook = ''
-            # Install MLX packages that may not be available in nixpkgs
-            echo "Installing MLX packages..."
-            pip install --user mlx mlx-lm
+            # Install mlx-knife for MLX model management and execution
+            echo "Installing mlx-knife..."
+            pip install --user mlx-knife
           '';
         };
       }
