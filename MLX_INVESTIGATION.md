@@ -42,10 +42,54 @@ The setup will automatically:
 If not using Nix, install MLX-Knife manually on Apple Silicon Macs:
 
 ```bash
+# Create virtual environment (recommended)
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install MLX framework dependencies
+pip install mlx mlx-lm
+
+# Install MLX-Knife
 pip install mlx-knife
+
+# Verify installation
+mlxk --help
 ```
 
 **Note**: MLX-Knife is optimized for Apple Silicon and requires macOS with Apple Silicon (M1/M2/M3). Installation will fail or MLX libraries won't load on other platforms.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"mlxk command not found"**
+   - Ensure you're in the virtual environment: `source .venv/bin/activate`
+   - Check if mlx-knife is installed: `pip list | grep mlx-knife`
+   - Try reinstalling: `pip install --upgrade mlx-knife`
+
+2. **"Failed to list models" error**
+   - Make sure MLX framework is installed: `pip install mlx mlx-lm`
+   - Verify MLX works: `python3 -c "import mlx; print('MLX OK')"`
+   - Check platform compatibility: `uname -m` should show `arm64`
+
+3. **Virtual environment issues in Nix**
+   - The setup creates `.venv/` automatically on Apple Silicon
+   - If issues persist, delete `.venv/` and re-run `nix develop`
+   - Use the diagnostic script: `python3 test_mlx_knife.py`
+
+### Diagnostic Tool
+
+A diagnostic script is provided to help troubleshoot installation issues:
+
+```bash
+python3 test_mlx_knife.py
+```
+
+This script will:
+- Check platform compatibility
+- Verify Python imports (mlx, mlx-lm, mlx-knife)
+- Test command-line tools
+- Provide specific error messages and suggestions
 
 ## Benchmark Script
 

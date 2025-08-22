@@ -95,9 +95,40 @@ def benchmark_mlx(model_name: str, prompt: str) -> Dict[str, Any]:
     try:
         result = subprocess.run(['mlxk', '--help'], capture_output=True, text=True, check=True)
     except subprocess.CalledProcessError as e:
-        return {"error": f"Failed to access mlx-knife: {e}"}
+        return {
+            "error": f"mlx-knife command failed: {e}",
+            "stderr": e.stderr if hasattr(e, 'stderr') else '',
+            "debug_info": "mlxk command exists but returned error code"
+        }
     except FileNotFoundError:
-        return {"error": "mlx-knife not found. Please install with: pip install mlx-knife"}
+        # Check if we're in a virtual environment and suggest activation
+        venv_path = os.path.join(os.getcwd(), '.venv', 'bin', 'mlxk')
+        if os.path.exists(venv_path):
+            return {
+                "error": "mlx-knife not found in PATH. Virtual environment may not be activated.",
+                "suggestion": "Try: source .venv/bin/activate && python3 benchmark_mlx_knife_vs_ollama.py"
+            }
+        else:
+            return {
+                "error": "mlx-knife not found. Please install with: pip install mlx-knife",
+                "note": "MLX-Knife requires Apple Silicon and MLX framework"
+            }
+    
+    # Check MLX framework availability
+    try:
+        result = subprocess.run(['python3', '-c', 'import mlx; import mlx_lm; print("MLX OK")'], 
+                               capture_output=True, text=True, check=True)
+        if "MLX OK" not in result.stdout:
+            return {
+                "error": "MLX framework not properly installed",
+                "suggestion": "Install with: pip install mlx mlx-lm"
+            }
+    except subprocess.CalledProcessError as e:
+        return {
+            "error": "MLX framework missing or broken",
+            "detail": e.stderr if e.stderr else str(e),
+            "suggestion": "Install MLX framework first: pip install mlx mlx-lm"
+        }
     
     # Check if model is available, if not try to pull it
     try:
@@ -108,9 +139,20 @@ def benchmark_mlx(model_name: str, prompt: str) -> Dict[str, Any]:
             pull_result = subprocess.run(['mlxk', 'pull', model_name], 
                                        capture_output=True, text=True, timeout=600)
             if pull_result.returncode != 0:
-                return {"error": f"Failed to pull model {model_name}: {pull_result.stderr}"}
+                return {
+                    "error": f"Failed to pull model {model_name}",
+                    "stderr": pull_result.stderr,
+                    "stdout": pull_result.stdout,
+                    "suggestion": "Check if model name is correct or network connection"
+                }
     except subprocess.CalledProcessError as e:
-        return {"error": f"Failed to list models: {e}"}
+        return {
+            "error": f"Failed to list models: {e}",
+            "stderr": e.stderr if hasattr(e, 'stderr') else '',
+            "stdout": e.stdout if hasattr(e, 'stdout') else '',
+            "debug_cmd": "mlxk list",
+            "suggestion": "Check if mlx-knife is properly installed and MLX framework is available"
+        }
     except subprocess.TimeoutExpired:
         return {"error": "Model pull timed out after 10 minutes"}
     
@@ -179,6 +221,16 @@ def print_results(ollama_result: Dict[str, Any], mlx_result: Dict[str, Any]):
         print(f"  ❌ Error: {mlx_result.get('error', 'Unknown error')}")
         if mlx_result.get("platform_warning"):
             print(f"  ⚠️  Note: {mlx_result['platform_warning']}")
+        if mlx_result.get("suggestion"):
+            print(f"  💡 Suggestion: {mlx_result['suggestion']}")
+        if mlx_result.get("stderr"):
+            print(f"  🐛 STDERR: {mlx_result['stderr']}")
+        if mlx_result.get("stdout"):
+            print(f"  📋 STDOUT: {mlx_result['stdout']}")
+        if mlx_result.get("debug_cmd"):
+            print(f"  🔍 Failed Command: {mlx_result['debug_cmd']}")
+        if mlx_result.get("debug_info"):
+            print(f"  🔧 Debug: {mlx_result['debug_info']}")
     
     # Compare if both succeeded
     if ollama_result.get("success") and mlx_result.get("success"):
