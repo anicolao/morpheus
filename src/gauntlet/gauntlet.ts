@@ -434,7 +434,11 @@ async function runGauntlet(
       console.log("BOT (HTML):", html);
     }
     if (progressCallback) {
-      await progressCallback(message, html);
+      if (html) {
+        await progressCallback(message, html);
+      } else {
+        await progressCallback(message);
+      }
     }
   };
 
