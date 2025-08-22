@@ -9,6 +9,14 @@ This script measures:
 - Response quality (qualitative)
 
 MLX-Knife provides an ollama-like CLI for MLX models on Apple Silicon.
+
+Usage examples:
+  ./benchmark_mlx_knife_vs_ollama.py                    # Basic benchmark
+  ./benchmark_mlx_knife_vs_ollama.py --skip-pull       # Only use existing models
+  ./benchmark_mlx_knife_vs_ollama.py --model phi3      # Test with a different model
+
+Note: Model downloads can take 5-20 minutes depending on size and internet speed.
+Progress will be shown during downloads. Use --skip-pull to avoid downloading.
 """
 
 import time
@@ -25,7 +33,7 @@ def get_memory_usage() -> float:
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / 1024 / 1024
 
-def benchmark_ollama(model_name: str, prompt: str) -> Dict[str, Any]:
+def benchmark_ollama(model_name: str, prompt: str, skip_pull: bool = False) -> Dict[str, Any]:
     """Benchmark Ollama model performance."""
     print(f"🦙 Benchmarking Ollama with model: {model_name}")
     
@@ -33,8 +41,18 @@ def benchmark_ollama(model_name: str, prompt: str) -> Dict[str, Any]:
     try:
         result = subprocess.run(['ollama', 'list'], capture_output=True, text=True, check=True)
         if model_name not in result.stdout:
+            if skip_pull:
+                return {"error": f"Model {model_name} not found and --skip-pull was specified"}
             print(f"Model {model_name} not found. Pulling...")
-            subprocess.run(['ollama', 'pull', model_name], check=True)
+            print("⏳ This may take several minutes for large models. Progress will be shown below:")
+            print("-" * 60)
+            # Show progress during pull by not capturing stdout
+            pull_result = subprocess.run(['ollama', 'pull', model_name], 
+                                       stderr=subprocess.PIPE, text=True, timeout=1200)
+            if pull_result.returncode != 0:
+                return {"error": f"Failed to pull Ollama model: {pull_result.stderr}"}
+            print("-" * 60)
+            print("✅ Model pull completed successfully!")
     except subprocess.CalledProcessError as e:
         return {"error": f"Failed to access Ollama: {e}"}
     except FileNotFoundError:
@@ -78,7 +96,7 @@ def benchmark_ollama(model_name: str, prompt: str) -> Dict[str, Any]:
     except subprocess.CalledProcessError as e:
         return {"error": f"Ollama inference failed: {e}"}
 
-def benchmark_mlx(model_name: str, prompt: str) -> Dict[str, Any]:
+def benchmark_mlx(model_name: str, prompt: str, skip_pull: bool = False) -> Dict[str, Any]:
     """Benchmark MLX-Knife model performance."""
     print(f"🔪 Benchmarking MLX-Knife with model: {model_name}")
     
@@ -134,16 +152,29 @@ def benchmark_mlx(model_name: str, prompt: str) -> Dict[str, Any]:
     try:
         result = subprocess.run(['mlxk', 'list'], capture_output=True, text=True, check=True)
         if model_name not in result.stdout:
+            if skip_pull:
+                return {"error": f"Model {model_name} not found and --skip-pull was specified"}
             print(f"Model {model_name} not found in MLX cache. Attempting to pull...")
-            # Try to pull the model - mlx-knife auto-expands short names to mlx-community/ prefix
-            pull_result = subprocess.run(['mlxk', 'pull', model_name], 
-                                       capture_output=True, text=True, timeout=600)
-            if pull_result.returncode != 0:
+            print("⏳ This may take several minutes for large models. Progress will be shown below:")
+            print("-" * 60)
+            
+            # Try to pull the model - show output to user so they can see progress
+            # Don't capture output so progress is visible, but capture stderr for error handling
+            try:
+                pull_result = subprocess.run(['mlxk', 'pull', model_name], 
+                                           stderr=subprocess.PIPE, text=True, timeout=1200)  # 20 minutes
+                if pull_result.returncode != 0:
+                    return {
+                        "error": f"Failed to pull model {model_name}",
+                        "stderr": pull_result.stderr,
+                        "suggestion": "Check if model name is correct or network connection"
+                    }
+                print("-" * 60)
+                print("✅ Model pull completed successfully!")
+            except subprocess.TimeoutExpired:
                 return {
-                    "error": f"Failed to pull model {model_name}",
-                    "stderr": pull_result.stderr,
-                    "stdout": pull_result.stdout,
-                    "suggestion": "Check if model name is correct or network connection"
+                    "error": f"Model pull timed out after 20 minutes",
+                    "suggestion": "Try a smaller model or check your internet connection"
                 }
     except subprocess.CalledProcessError as e:
         return {
@@ -154,7 +185,7 @@ def benchmark_mlx(model_name: str, prompt: str) -> Dict[str, Any]:
             "suggestion": "Check if mlx-knife is properly installed and MLX framework is available"
         }
     except subprocess.TimeoutExpired:
-        return {"error": "Model pull timed out after 10 minutes"}
+        return {"error": "Model pull timed out after 20 minutes"}
     
     # Measure memory before
     memory_before = get_memory_usage()
@@ -258,6 +289,8 @@ def main():
                        help="Prompt to use for benchmarking")
     parser.add_argument("--mlx-model", default=None,
                        help="MLX-Knife model name (if different from --model)")
+    parser.add_argument("--skip-pull", action="store_true",
+                       help="Skip pulling models if they're not already available")
     
     args = parser.parse_args()
     
@@ -269,11 +302,13 @@ def main():
     print(f"📝 Prompt: {prompt}")
     print(f"🦙 Ollama Model: {ollama_model}")
     print(f"🔪 MLX-Knife Model: {mlx_model}")
+    if args.skip_pull:
+        print("⚠️  Skip pull enabled - will only use already downloaded models")
     print("-" * 80)
     
     # Run benchmarks
-    ollama_result = benchmark_ollama(ollama_model, prompt)
-    mlx_result = benchmark_mlx(mlx_model, prompt)
+    ollama_result = benchmark_ollama(ollama_model, prompt, args.skip_pull)
+    mlx_result = benchmark_mlx(mlx_model, prompt, args.skip_pull)
     
     # Print results
     print_results(ollama_result, mlx_result)

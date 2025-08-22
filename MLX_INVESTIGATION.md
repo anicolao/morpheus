@@ -112,12 +112,38 @@ With custom prompt:
 python3 benchmark_mlx_knife_vs_ollama.py --prompt "Explain quantum computing in simple terms"
 ```
 
+Skip model downloads (use only existing models):
+```bash
+python3 benchmark_mlx_knife_vs_ollama.py --skip-pull
+```
+
 Full options:
 ```bash
 python3 benchmark_mlx_knife_vs_ollama.py \
   --model qwen2.5-coder:1.5b \
   --mlx-model Phi-3-mini-4k-instruct-4bit \
-  --prompt "Write a Python function to sort a list"
+  --prompt "Write a Python function to sort a list" \
+  --skip-pull
+```
+
+### Enhanced Model Download Handling
+
+The benchmark script now properly handles model downloads:
+
+- **Progress visibility**: Downloads show real-time progress instead of appearing "hung"
+- **Extended timeouts**: Model pulls now have 20-minute timeout instead of 10 minutes
+- **Skip option**: Use `--skip-pull` to avoid downloading models (useful for testing)
+- **Better error messages**: Clear feedback when downloads fail with specific suggestions
+
+Example output during model download:
+```
+Model qwen2.5-coder:1.5b not found in MLX cache. Attempting to pull...
+⏳ This may take several minutes for large models. Progress will be shown below:
+------------------------------------------------------------
+Downloading model... [progress bars and status updates shown here]
+------------------------------------------------------------
+✅ Model pull completed successfully!
+```
 ```
 
 ### Measured Metrics
