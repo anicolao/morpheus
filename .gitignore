@@ -32,3 +32,6 @@ jail/*.js.map
 .secrets
 # Secrets
 .env
+
+# Benchmark output files
+benchmark_results.json
