@@ -7,17 +7,17 @@
 
 /* Morpheum Custom Styles - Neural Glow Theme */
 /* Cache bust: {{ site.time | date: "%Y%m%d%H%M%S" }} */
-/* Force cache refresh: 2025-08-22-12:12 */
+/* Force cache refresh: 2025-08-22-12:30 - Alternate color palette */
 
-/* Neural Glow color palette sampled from the logo */
+/* Neural Glow color palette - Alternate Color Scheme */
 :root {
-  --background-dark: #0A061A;    /* Deep, dark indigo - primary background */
-  --accent-primary: #C932FE;     /* Vibrant magenta/purple - primary accent */
-  --accent-secondary: #00F5D4;   /* Luminous cyan/turquoise - secondary accent */
-  --text-primary: #F0F2F5;       /* Light off-white with hint of lavender */
-  --text-secondary: #8B80B6;     /* Muted purple-gray for secondary text */
-  --border-color: #2A2041;       /* Darker border for contrast */
-  --card-bg: #1A1535;            /* Slightly lighter than main background for cards */
+  --background-dark: #08141A;    /* Dark blue-green tone - primary background */
+  --accent-primary: #9EFD38;     /* Bright lime green - primary accent */
+  --accent-secondary: #327BFE;   /* Bright blue - secondary accent */
+  --text-primary: #E5F2F5;       /* Light blue-tinted white - primary text */
+  --text-secondary: #6B8096;     /* Blue-gray - secondary text */
+  --border-color: #2A3540;       /* Darker blue-green border for contrast */
+  --card-bg: #0F1E24;            /* Slightly lighter than main background for cards */
 }
 
 /* Global typography and layout */
@@ -54,7 +54,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .site-title:hover {
   color: var(--accent-primary) !important;
-  text-shadow: 0px 0px 10px rgba(201, 50, 254, 0.5);
+  text-shadow: 0px 0px 10px rgba(158, 253, 56, 0.5);
 }
 
 .site-logo {
@@ -72,12 +72,12 @@ h1, h2, h3, h4, h5, h6 {
 .site-nav .page-link:hover {
   color: var(--accent-secondary);
   text-decoration: none;
-  text-shadow: 0px 0px 8px rgba(0, 245, 212, 0.6);
+  text-shadow: 0px 0px 8px rgba(50, 123, 254, 0.6);
 }
 
 /* Hero section with neural gradient */
 .hero {
-  background: linear-gradient(135deg, var(--background-dark) 0%, #1A1535 50%, var(--background-dark) 100%);
+  background: linear-gradient(135deg, var(--background-dark) 0%, #0F1E24 50%, var(--background-dark) 100%);
   color: var(--text-primary);
   padding: 4rem 0;
   text-align: center;
@@ -94,9 +94,9 @@ h1, h2, h3, h4, h5, h6 {
   right: 0;
   bottom: 0;
   background: linear-gradient(45deg, 
-    rgba(201, 50, 254, 0.1) 0%, 
+    rgba(158, 253, 56, 0.1) 0%, 
     transparent 50%, 
-    rgba(0, 245, 212, 0.1) 100%);
+    rgba(50, 123, 254, 0.1) 100%);
   z-index: 1;
 }
 
@@ -128,12 +128,12 @@ h1, h2, h3, h4, h5, h6 {
   width: 80px;
   margin-bottom: 1rem;
   border-radius: 8px;
-  box-shadow: 0px 0px 30px rgba(201, 50, 254, 0.5);
+  box-shadow: 0px 0px 30px rgba(158, 253, 56, 0.5);
   transition: box-shadow 0.3s ease-in-out;
 }
 
 .hero-logo:hover {
-  box-shadow: 0px 0px 40px rgba(201, 50, 254, 0.8);
+  box-shadow: 0px 0px 40px rgba(158, 253, 56, 0.8);
 }
 
 /* Feature cards */
@@ -156,7 +156,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .feature-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0px 0px 20px rgba(0, 245, 212, 0.3);
+  box-shadow: 0px 0px 20px rgba(50, 123, 254, 0.3);
   border-left-color: var(--accent-primary);
 }
 
@@ -181,21 +181,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .status-active {
-  background-color: rgba(0, 245, 212, 0.2);
+  background-color: rgba(50, 123, 254, 0.2);
   color: var(--accent-secondary);
   border: 1px solid var(--accent-secondary);
-  box-shadow: 0px 0px 10px rgba(0, 245, 212, 0.3);
+  box-shadow: 0px 0px 10px rgba(50, 123, 254, 0.3);
 }
 
 .status-planned {
-  background-color: rgba(201, 50, 254, 0.2);
+  background-color: rgba(158, 253, 56, 0.2);
   color: var(--accent-primary);
   border: 1px solid var(--accent-primary);
-  box-shadow: 0px 0px 10px rgba(201, 50, 254, 0.3);
+  box-shadow: 0px 0px 10px rgba(158, 253, 56, 0.3);
 }
 
 .status-completed {
-  background-color: rgba(139, 128, 182, 0.2);
+  background-color: rgba(107, 128, 150, 0.2);
   color: var(--text-secondary);
   border: 1px solid var(--text-secondary);
 }
@@ -215,7 +215,7 @@ h1, h2, h3, h4, h5, h6 {
   border: none;
   cursor: pointer;
   /* The neural glow effect */
-  box-shadow: 0px 0px 20px rgba(201, 50, 254, 0.6);
+  box-shadow: 0px 0px 20px rgba(158, 253, 56, 0.6);
 }
 
 .cta-button:hover {
@@ -224,20 +224,20 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
   transform: translateY(-3px);
   /* Intensify the glow on hover */
-  box-shadow: 0px 0px 30px rgba(201, 50, 254, 0.8);
+  box-shadow: 0px 0px 30px rgba(158, 253, 56, 0.8);
 }
 
 .cta-button-secondary {
   background-color: transparent;
   color: var(--accent-secondary);
   border: 2px solid var(--accent-secondary);
-  box-shadow: 0px 0px 15px rgba(0, 245, 212, 0.4);
+  box-shadow: 0px 0px 15px rgba(50, 123, 254, 0.4);
 }
 
 .cta-button-secondary:hover {
   background-color: var(--accent-secondary);
   color: var(--background-dark);
-  box-shadow: 0px 0px 25px rgba(0, 245, 212, 0.7);
+  box-shadow: 0px 0px 25px rgba(50, 123, 254, 0.7);
   transform: translateY(-3px);
 }
 
@@ -327,9 +327,9 @@ table th {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(ellipse at 20% 50%, rgba(201, 50, 254, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(0, 245, 212, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 40% 80%, rgba(201, 50, 254, 0.03) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 50%, rgba(158, 253, 56, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(50, 123, 254, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(158, 253, 56, 0.03) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
 }
@@ -342,7 +342,7 @@ a {
 
 a:hover {
   color: var(--accent-primary);
-  text-shadow: 0px 0px 8px rgba(201, 50, 254, 0.5);
+  text-shadow: 0px 0px 8px rgba(158, 253, 56, 0.5);
   text-decoration: none;
 }
 
