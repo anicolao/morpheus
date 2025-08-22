@@ -35,7 +35,7 @@ let currentRefreshToken: string | undefined;
 let tokenManager: TokenManager | undefined;
 let client: MatrixClient;
 
-// Setup token manager if username/password are provided
+// Setup token manager based on available credentials
 if (username && password) {
   console.log("[Auth] Using username/password authentication with automatic token refresh");
   
@@ -70,6 +70,7 @@ if (username && password) {
     homeserverUrl,
     username,
     password,
+    accessToken: currentToken,
     onTokenRefresh: async (newToken: string, newRefreshToken?: string) => {
       console.log("[Auth] Updating client with new access token");
       currentToken = newToken;
@@ -89,6 +90,11 @@ if (username && password) {
   if (currentRefreshToken) {
     tokenManager.setRefreshToken(currentRefreshToken);
   }
+} else if (accessToken) {
+  console.log("[Auth] Using ACCESS_TOKEN-only mode");
+  console.log("[Auth] Note: Automatic token refresh requires USERNAME and PASSWORD");
+  console.log("[Auth] To enable refresh tokens, set USERNAME and PASSWORD environment variables");
+  console.log("[Auth] Bot will continue with static token but may stop working when token expires");
 } else {
   console.log("[Auth] Using static ACCESS_TOKEN (no automatic refresh)");
 }

@@ -66,14 +66,42 @@ Both scenarios work fine - the bot will automatically use the best method availa
 
 ## How to Obtain Refresh Tokens
 
-**Refresh tokens are obtained automatically** - you don't need to manually generate them. Here's how it works:
+**Refresh tokens are obtained automatically during initial login** - you don't need to manually generate them. Here's how it works:
 
-### Automatic Process
+### Automatic Process (Recommended)
 1. **Initial Login**: When you provide `USERNAME` and `PASSWORD`, the bot logs into your Matrix server
 2. **Token Request**: During login, the bot requests both an access token and a refresh token
 3. **Server Response**: If your Matrix server supports refresh tokens (Synapse 1.38.0+, recent Dendrite), it returns both tokens
 4. **Storage**: The bot stores the refresh token in memory and uses it for future token refreshes
 5. **Fallback**: If refresh tokens aren't supported or fail, the bot automatically falls back to password authentication
+
+### Limitation: Cannot Get Refresh Tokens from Existing Access Tokens
+
+**Important**: The Matrix Client-Server API specification does not provide a way to convert an existing `ACCESS_TOKEN` into a refresh token. Refresh tokens can only be obtained during the initial authentication process when logging in with username and password.
+
+This means:
+- ✅ **If you have USERNAME/PASSWORD**: The bot can get refresh tokens automatically
+- ❌ **If you only have ACCESS_TOKEN**: No refresh tokens can be obtained - the token will eventually expire
+- ⚠️ **Servers with CAPTCHA**: You'll need to obtain the initial token manually, then use it with USERNAME/PASSWORD for refresh capability
+
+### Workaround for CAPTCHA-Protected Servers
+
+If your Matrix server requires CAPTCHA for login, you can use this hybrid approach:
+
+1. **Manual Initial Login**: Log in manually through a web browser or Matrix client to complete the CAPTCHA
+2. **Extract Credentials**: Get your access token from the manual login session  
+3. **Provide Both**: Set both `ACCESS_TOKEN` (from manual login) and `USERNAME`/`PASSWORD` in environment variables
+4. **Automatic Refresh**: The bot will start with your manual token but can refresh it automatically using credentials
+
+```bash
+# Hybrid approach for CAPTCHA-protected servers
+export HOMESERVER_URL="https://matrix.example.com"
+export ACCESS_TOKEN="your_manually_obtained_token"  # From manual login
+export USERNAME="mybot"                              # For refresh capability  
+export PASSWORD="your_password"                      # For refresh capability
+```
+
+This way, you bypass the initial CAPTCHA requirement but still get automatic refresh functionality.
 
 ### Server Compatibility
 - ✅ **Synapse 1.38.0+**: Full refresh token support
@@ -223,7 +251,7 @@ PASSWORD=your_password
 **When to use**: Production environments where you want automatic token management.
 **Result**: Bot will automatically obtain initial tokens and refresh them as needed.
 
-### Scenario C: Initial Token + Auto-Refresh Fallback
+### Scenario C: Initial Token + Auto-Refresh Fallback (Recommended for CAPTCHA servers)
 Use this if you want to start with a specific token but have automatic refresh as backup:
 
 ```bash
@@ -233,8 +261,20 @@ USERNAME=your_username
 PASSWORD=your_password
 ```
 
-**When to use**: When migrating from static tokens to auto-refresh, or when you have specific token requirements.
+**When to use**: When migrating from static tokens to auto-refresh, when your server requires CAPTCHA for initial login, or when you have specific token requirements.
 **Result**: Bot starts with your provided token, but can refresh it automatically when it expires.
+**CAPTCHA Solution**: This approach allows you to manually complete CAPTCHA once to get the initial token, then enables automatic refresh for future authentications.
+
+### Scenario D: ACCESS_TOKEN Only (Limited - No Auto-Refresh)
+Use this only when automatic refresh is not needed or possible:
+
+```bash
+HOMESERVER_URL=https://matrix.example.com
+ACCESS_TOKEN=your_static_token_here
+```
+
+**When to use**: Development, testing, short-term bots, or when you manage token rotation manually.
+**Limitation**: When the token expires, the bot will stop working until you manually provide a new token.
 
 ### Important Notes
 
@@ -242,6 +282,8 @@ PASSWORD=your_password
 - **Security**: Store credentials in secure environment variables, not in code or config files
 - **Homeserver URL**: Include the full URL with protocol (`https://` or `http://`)
 - **Token Precedence**: If both `ACCESS_TOKEN` and `USERNAME`/`PASSWORD` are provided, the bot starts with `ACCESS_TOKEN` but can refresh using credentials when needed
+- **CAPTCHA Workaround**: For servers requiring CAPTCHA, manually obtain an initial `ACCESS_TOKEN` through a web browser, then provide both the token and credentials for refresh capability
+- **Matrix API Limitation**: Refresh tokens cannot be obtained from existing access tokens - they must be acquired during initial username/password authentication
 
 ## Implementation Details
 
@@ -430,6 +472,36 @@ docker run -e HOMESERVER_URL="https://matrix.example.com" \
            -e PASSWORD="secure_password" \
            morpheum-bot
 ```
+
+### Example 7: CAPTCHA-Protected Server Setup
+
+If your Matrix server requires CAPTCHA for initial login:
+
+```bash
+# Step 1: Manual login to complete CAPTCHA
+# - Open your Matrix server in a web browser
+# - Log in manually and complete any CAPTCHA challenges
+# - Extract your access token from developer tools or your Matrix client
+
+# Step 2: Configure with hybrid approach
+export HOMESERVER_URL="https://matrix.example.com"
+export ACCESS_TOKEN="syt_your_manually_obtained_token_here"  # From manual login
+export USERNAME="mybot"                                      # For refresh capability
+export PASSWORD="your_secure_password"                       # For refresh capability
+
+# Step 3: Start the bot
+./src/morpheum-bot/index.ts
+```
+
+**Expected output:**
+```
+[Auth] Using provided access token with fallback refresh capability
+[Auth] Initial access token obtained successfully
+[Auth] Refresh token available for future use
+Matrix client started and ready!
+```
+
+This approach bypasses CAPTCHA for the initial connection while enabling automatic refresh for all future authentications.
 
 ### Example 6: Development and Testing
 
