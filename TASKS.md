@@ -8,7 +8,7 @@
 
 This file has been migrated to a directory-based structure to resolve constant merge conflicts. Each task is now a separate file in `docs/_tasks/`, and they are automatically aggregated into a unified view on the GitHub Pages site.
 
-**Latest update:** Added comprehensive documentation for the new system to CONTRIBUTING.md (2025-01-27)
+**Latest update:** Fixed HTML parameter handling in gauntlet progress callback (2025-01-28)
 
 ## Morpheum v0.1: The "Matrix Milestone"
 

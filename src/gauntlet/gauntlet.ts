@@ -433,6 +433,13 @@ async function runGauntlet(
     if (html) {
       console.log("BOT (HTML):", html);
     }
+    if (progressCallback) {
+      if (html) {
+        await progressCallback(message, html);
+      } else {
+        await progressCallback(message);
+      }
+    }
   };
 
   console.log("Stopping previous test containers...");
@@ -547,7 +554,7 @@ async function runGauntlet(
 
   // 3. Run the task
   if (progressCallback) {
-    await progressCallback(`🤖 **Executing task**: Running AI model on task prompt...`);
+    await progressCallback(`🤖 **Executing task**: ${task.prompt}`);
   }
   const result = await bot.processMessage(
     task.prompt,
