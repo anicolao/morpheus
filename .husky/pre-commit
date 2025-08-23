@@ -54,11 +54,12 @@ fi
 devlog_files=$(echo "$STAGED_FILES" | grep "docs/_devlogs/" || true)
 task_files=$(echo "$STAGED_FILES" | grep "docs/_tasks/" || true)
 
-# Allow commits that only modify documentation files without requiring devlog/task entries
+# Allow commits that only modify certain documentation files without requiring devlog/task entries
 doc_only_commit="false"
 if [ -n "$STAGED_FILES" ]; then
-  # Check if all staged files are documentation-only (README, docs/, etc.)
-  non_doc_files=$(echo "$STAGED_FILES" | grep -v -E "(README\.md|docs/|\.md$|\.txt$|\.yml$|\.yaml$|package\.json|package-lock\.json|\.gitignore)" || true)
+  # Check if all staged files are documentation-only (only files in docs/ directory and certain config files)
+  # README.md is NOT considered documentation-only since it's a core project file
+  non_doc_files=$(echo "$STAGED_FILES" | grep -v -E "(^docs/|\.yml$|\.yaml$|package\.json|package-lock\.json|\.gitignore)" || true)
   if [ -z "$non_doc_files" ]; then
     doc_only_commit="true"
   fi
