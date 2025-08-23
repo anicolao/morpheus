@@ -28,11 +28,18 @@ This document outlines the expected behavior and best practices for all AI agent
 *   **Error Handling:**
     *   If an agent encounters an error or is unable to complete a task, it should report the issue clearly and provide any relevant context or logs.
     *   Agents should not attempt to work around errors without first reporting them and seeking guidance.
-*   **Development Log (`DEVLOG.md`):**
-    *   The [`DEVLOG.md`](DEVLOG.md) is a critical component of this project. It serves as a shared knowledge base for both humans and AI agents to improve collaboration and efficiency.
-    *   Agents must log a summary of their work in [`DEVLOG.md`](DEVLOG.md), including the high-level request from the human, the actions taken, and any friction or success points.
+*   **Development Log (Directory-Based System):**
+    *   Development logs are a critical component for shared knowledge between humans and AI agents to improve collaboration and efficiency.
+    *   **NEW WORKFLOW:** Agents must create individual log files in `docs/_devlogs/` using the format `{YYYY-MM-DD}-{description}.md` instead of editing `DEVLOG.md` directly.
+    *   Each log file must include YAML front matter with `title`, `date`, `author`, and `tags` fields, followed by sections like "Actions Taken," "Friction/Success Points," and "Technical Learnings."
     *   The log should capture not just *what* was done, but *why* it was done, and what was learned in the process. For example, if a new technique is discovered (e.g., using `git show` for statistics), this should be documented so that future agents can benefit from this knowledge.
-    *   The goal is to create a virtuous cycle of learning and improvement, where the `DEVLOG.md` becomes a repository of best practices and lessons learned.
+    *   Files are automatically aggregated into a unified view at https://anicolao.github.io/morpheum/status/devlogs/ in reverse chronological order.
+    *   **CRITICAL:** Do NOT edit `DEVLOG.md` directly - this violates the merge conflict prevention system and will be blocked by pre-commit hooks.
+*   **Task Management (Directory-Based System):**
+    *   Tasks are managed using individual files in `docs/_tasks/` using the format `task-{number}-{description}.md` instead of editing `TASKS.md` directly.
+    *   Each task file must include YAML front matter with `title`, `order`, `status`, `phase`, and `category` fields.
+    *   Files are automatically aggregated into a unified view at https://anicolao.github.io/morpheum/status/tasks/ in forward chronological order.
+    *   **CRITICAL:** Do NOT edit `TASKS.md` directly - this violates the merge conflict prevention system and will be blocked by pre-commit hooks.
 *   **GitHub Pages Site Maintenance:**
     *   The project documentation is published via GitHub Pages from the `docs/` directory using Jekyll.
     *   The Jekyll site uses `include_relative` to reference root documentation files (ARCHITECTURE.md, VISION.md, etc.) maintaining a single source of truth.

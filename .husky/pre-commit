@@ -21,21 +21,33 @@ fi
 # Staged files
 STAGED_FILES=$(git diff --cached --name-only)
 
-# Check if either DEVLOG.md or TASKS.md has staged changes
-devlog_staged=$(echo "$STAGED_FILES" | grep -c "DEVLOG.md")
-tasks_staged=$(echo "$STAGED_FILES" | grep -c "TASKS.md")
+# Check if someone is trying to edit the legacy DEVLOG.md or TASKS.md files
+devlog_staged=$(echo "$STAGED_FILES" | grep -c "DEVLOG.md" || true)
+tasks_staged=$(echo "$STAGED_FILES" | grep -c "TASKS.md" || true)
 
-# If one is staged but not the other, exit with an error
-if [ "$devlog_staged" -ne "$tasks_staged" ]; then
-  echo "Error: DEVLOG.md and TASKS.md must be staged or unstaged together." >&2
+if [ "$devlog_staged" -gt 0 ] || [ "$tasks_staged" -gt 0 ]; then
+  echo "ERROR: Direct modification of DEVLOG.md and TASKS.md is no longer allowed!" >&2
+  echo "" >&2
+  echo "📍 NEW WORKFLOW: These files have been restructured to eliminate merge conflicts." >&2
+  echo "" >&2
+  echo "Instead of editing these files directly:" >&2
+  echo "" >&2
+  echo "✅ For development log entries:" >&2
+  echo "   - Create a new file in docs/_devlogs/ with format: {YYYY-MM-DD}-{description}.md" >&2
+  echo "   - Include YAML front matter with title, date, author, and tags" >&2
+  echo "   - See: https://anicolao.github.io/morpheum/documentation/contributing/" >&2
+  echo "" >&2
+  echo "✅ For new tasks:" >&2
+  echo "   - Create a new file in docs/_tasks/ with format: task-{number}-{description}.md" >&2
+  echo "   - Include YAML front matter with title, order, status, phase, and category" >&2
+  echo "   - See: https://anicolao.github.io/morpheum/documentation/contributing/" >&2
+  echo "" >&2
+  echo "🔗 Unified views are automatically generated at:" >&2
+  echo "   - Tasks: https://anicolao.github.io/morpheum/status/tasks/" >&2
+  echo "   - Devlogs: https://anicolao.github.io/morpheum/status/devlogs/" >&2
+  echo "" >&2
+  echo "This change prevents merge conflicts and enables unlimited concurrent contributors." >&2
   exit 1
-fi
-
-# If both are unstaged, but there are other staged files, require them to be updated.
-if [ "$devlog_staged" -eq 0 ] && [ -n "$STAGED_FILES" ]; then
-    echo "Error: DEVLOG.md and TASKS.md have not been updated or staged." >&2
-    echo "Please update them and stage them before committing." >&2
-    exit 1
 fi
 
 

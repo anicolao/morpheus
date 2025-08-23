@@ -6,5 +6,5 @@ phase: "Morpheum v0.1: The Matrix Milestone"
 category: "Matrix Bot Development"
 ---
 
-- [x] The bot should be able to read and write to the `DEVLOG.md` and `TASKS.md` files.
-- [x] Create commands to add entries to the `DEVLOG.md` and to update the status of tasks in `TASKS.md`.
+- [x] The bot should be able to read the legacy `DEVLOG.md` and `TASKS.md` files and create new files in `docs/_devlogs/` and `docs/_tasks/` directories.
+- [x] Create commands to add entries to `docs/_devlogs/` and to create new task files in `docs/_tasks/`.
