@@ -1,23 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { cleanStdoutForJSON } from './gauntlet';
 
 describe('XML Converter Output Cleaning', () => {
-  // Helper function that mimics the cleaning logic in gauntlet.ts
-  function cleanStdoutForJSON(stdout: string): string {
-    let cleanStdout = stdout;
-    
-    // Remove lines containing flake.nix shellHook messages
-    cleanStdout = cleanStdout.replace(/^.*✅.*$/gm, '').trim();
-    
-    // If the output still doesn't look like JSON, try to extract JSON block
-    if (!cleanStdout.startsWith('{') && !cleanStdout.startsWith('[')) {
-      const jsonMatch = cleanStdout.match(/(\{.*\}|\[.*\])/s);
-      if (jsonMatch) {
-        cleanStdout = jsonMatch[1];
-      }
-    }
-    
-    return cleanStdout;
-  }
 
   it('should clean flake.nix shellHook output from stdout', () => {
     // Simulate stdout with flake.nix pollution and JSON output
