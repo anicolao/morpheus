@@ -16,8 +16,8 @@ export function cleanStdoutForJSON(stdout: string): string {
   
   // If the output still doesn't look like JSON, try to extract JSON block
   if (!cleanStdout.startsWith('{') && !cleanStdout.startsWith('[')) {
-    const jsonMatch = cleanStdout.match(/(\{.*\}|\[.*\])/s);
-    if (jsonMatch) {
+    const jsonMatch = cleanStdout.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+    if (jsonMatch && jsonMatch[1]) {
       cleanStdout = jsonMatch[1];
     }
   }
@@ -694,6 +694,11 @@ const __dirname = dirname(__filename);
 if (process.argv[1] === __filename) {
   console.log("Gauntlet script started");
 
+  // Normalize Unicode dashes in command line arguments before parsing
+  const normalizedArgv = process.argv.map(arg => 
+    arg.replace(/—/g, '--').replace(/–/g, '--')
+  );
+
   program
     .name("gauntlet")
     .description("A CLI tool to run the Morpheum AI Model Evaluation Gauntlet");
@@ -728,5 +733,5 @@ if (process.argv[1] === __filename) {
       }
     });
 
-  program.parse(process.argv);
+  program.parse(normalizedArgv);
 }

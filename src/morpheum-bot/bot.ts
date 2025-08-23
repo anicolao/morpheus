@@ -9,6 +9,7 @@ import * as fs from "fs";
 import { formatMarkdown } from "./format-markdown";
 import { CopilotClient } from "./copilotClient";
 import * as net from "net";
+import { normalizeArgsArray } from "./dash-normalizer";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
 
@@ -246,7 +247,7 @@ Available commands:
 - \`!copilot cancel <session-id>\` - Cancel a copilot session
 - \`!gauntlet help\` - Show gauntlet evaluation help
 - \`!gauntlet list\` - List available gauntlet tasks
-- \`!gauntlet run --model <model> [--provider <openai|ollama>] [--task <task>]\` - Run gauntlet evaluation
+- \`!gauntlet run --model <model> [--provider <openai|ollama>] [--task <task>]\` - Run gauntlet evaluation (supports Unicode dashes like —model)
 
 For regular tasks, just type your request without a command prefix.`;
       await sendMessage(message);
@@ -489,6 +490,10 @@ Configuration:
 - \`--task <task>\` - Optional. Specific task ID to run (runs all tasks if not specified)
 - \`--verbose\` - Optional. Enable verbose output
 
+**Unicode Dash Support:**
+All arguments support Unicode dashes (— or –) which are automatically converted to regular dashes.
+Examples: \`—model\`, \`–verbose\`, \`—provider\` work the same as \`--model\`, \`--verbose\`, \`--provider\`.
+
 **Available Tasks:**
 - \`add-jq\` - Add jq tool to environment (Easy)
 - \`check-sed-available\` - Check sed tool availability (Easy) 
@@ -538,18 +543,20 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
   }
 
   private async runGauntletEvaluation(args: string[], sendMessage: MessageSender) {
-    // Parse arguments
+    // Parse arguments - normalize Unicode dashes first
+    const normalizedArgs = normalizeArgsArray(args);
+    
     let model: string | null = null;
     let provider: 'openai' | 'ollama' = 'ollama';
     let task: string | null = null;
     let verbose = false;
 
-    for (let i = 0; i < args.length; i++) {
-      if (args[i] === '--model' || args[i] === '-m') {
-        model = args[i + 1] || null;
+    for (let i = 0; i < normalizedArgs.length; i++) {
+      if (normalizedArgs[i] === '--model' || normalizedArgs[i] === '-m') {
+        model = normalizedArgs[i + 1] || null;
         i++; // Skip next argument
-      } else if (args[i] === '--provider' || args[i] === '-p') {
-        const providerArg = args[i + 1];
+      } else if (normalizedArgs[i] === '--provider' || normalizedArgs[i] === '-p') {
+        const providerArg = normalizedArgs[i + 1];
         if (providerArg && ['openai', 'ollama'].includes(providerArg)) {
           provider = providerArg as 'openai' | 'ollama';
         } else {
@@ -557,10 +564,10 @@ Use \`!gauntlet run --model <model> --task <task-id>\` to run a specific task.`;
           return;
         }
         i++; // Skip next argument
-      } else if (args[i] === '--task' || args[i] === '-t') {
-        task = args[i + 1] || null;
+      } else if (normalizedArgs[i] === '--task' || normalizedArgs[i] === '-t') {
+        task = normalizedArgs[i + 1] || null;
         i++; // Skip next argument
-      } else if (args[i] === '--verbose' || args[i] === '-v') {
+      } else if (normalizedArgs[i] === '--verbose' || normalizedArgs[i] === '-v') {
         verbose = true;
       }
     }
