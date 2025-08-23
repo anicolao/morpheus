@@ -7,7 +7,7 @@ category: "Testing and Evaluation"
 ---
 
 - [ ] Run comprehensive gauntlet tests against all available local models
-- [ ] Test gauntlet against proprietary models (GPT-4, Claude, etc.) for comparison
+- [ ] Test gauntlet against proprietary models (GPT-4, Gemini, etc.) for comparison
 - [ ] Establish performance benchmarks and scoring metrics
 - [ ] Analyze failure patterns across different model types and sizes
 - [ ] Document common failure points and edge cases
