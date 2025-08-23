@@ -10,7 +10,7 @@ This initial phase focused on bootstrapping the project and establishing the bas
 
 *   A dedicated Matrix room for the Morpheum project was created and serves as the central hub for all project-related communication.
 
-### 2. Bot Development: The "Morpheum Bot" (In Progress)
+### 2. Bot Development: The "Morpheum Bot" (Done)
 
 The core of this milestone was the development of the "Morpheum Bot" to act as the primary interface between developers and the GitHub repository.
 
@@ -21,16 +21,16 @@ The core of this milestone was the development of the "Morpheum Bot" to act as t
     *   A basic bot framework using TypeScript and the `matrix-bot-sdk` has been set up.
     *   The bot is configured to join the project's Matrix room and respond to basic commands.
 
-*   **GitHub Integration (To Do):**
-    *   A mechanism for instructing AI agents to perform GitHub-related actions (e.g., creating repositories, issues, pull requests, and managing their approval and merging) still needs to be implemented.
+*   **GitHub Integration (Done):**
+    *   A comprehensive GitHub integration has been implemented via `CopilotClient` that can create issues, manage pull requests, track GitHub Copilot sessions, and perform repository operations using both REST and GraphQL APIs.
 
-*   **Agent Integration (To Do):**
-    *   The bot's agent is now invoked by mentioning the bot's name (`@botname: <prompt>`). The underlying logic to handle a wide range of commands is the current focus of development.
+*   **Agent Integration (Done):**
+    *   The bot's agent is fully operational and invoked by mentioning the bot's name (`@botname: <prompt>`). The underlying logic handles a wide range of commands including SWE-Agent operations, gauntlet testing, task management, and GitHub operations.
 
-### 3. Workflow Transition (To Do)
+### 3. Workflow Transition (Done)
 
-*   **Dogfooding:** The project is actively using the bot for its own development ("dogfooding"), but this is an ongoing process.
-*   **Documentation:** Project documentation is continuously updated to reflect the latest workflow.
+*   **Dogfooding (Done):** The project is actively using the bot for its own development ("dogfooding") with Matrix-based workflows, GitHub Copilot integration, and automated task management.
+*   **Documentation (Done):** Project documentation has been restructured to use directory-based systems (eliminating merge conflicts) and is continuously updated to reflect the current workflow state.
 
 ## Morpheum v0.2: Agent Advancement (Current Focus)
 
@@ -48,10 +48,10 @@ The primary goal for the current phase is to enhance the intelligence, reliabili
 
 ### 2. Enhanced Tooling and Environment
 
-*   **OpenAI API Integration:**
-    *   Complete the integration with the OpenAI API, allowing the bot to leverage models like GPT-4 for tasks that require more advanced reasoning.
-*   **Jail Environment Enhancements:**
-    *   Improve the jailed development environment to support a wider range of project types and dependencies.
+*   **OpenAI API Integration (Done):**
+    *   Complete integration with the OpenAI API has been implemented, allowing the bot to leverage models like GPT-4 for tasks that require more advanced reasoning. The bot supports both OpenAI and Ollama backends with automatic fallback.
+*   **Jail Environment Enhancements (Done):**
+    *   A comprehensive jailed development environment has been implemented supporting Nix-based containerization, Docker integration, and TCP-based agent communication for secure, isolated code execution.
 
 ### 3. Workflow and Usability
 
