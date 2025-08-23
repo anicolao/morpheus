@@ -239,4 +239,33 @@ describe('CopilotClient', () => {
     const result = await client.cancelSession('test-session-id');
     expect(result).toBe(true);
   });
+
+  it('should include iframe HTML for GitHub Copilot progress tracking in streaming updates', async () => {
+    // Mock demo mode (GraphQL fails)
+    mockOctokit.graphql
+      .mockRejectedValueOnce(new Error('API not available'));
+
+    const chunks: Array<{ text: string, html?: string }> = [];
+    const onChunk = vi.fn((text: string, html?: string) => {
+      chunks.push({ text, html });
+    });
+
+    await client.sendStreaming('Fix authentication bug', onChunk);
+    
+    // Find the iframe chunk
+    const iframeChunk = chunks.find(chunk => 
+      chunk.text.includes('Track detailed progress below:') && chunk.html
+    );
+    
+    expect(iframeChunk).toBeDefined();
+    expect(iframeChunk!.html).toContain('<iframe');
+    expect(iframeChunk!.html).toContain('src="https://github.com/owner/repo/issues/123"');
+    expect(iframeChunk!.html).toContain('🤖 [DEMO] GitHub Copilot Progress');
+    expect(iframeChunk!.html).toContain('sandbox="allow-scripts allow-same-origin allow-popups"');
+    expect(iframeChunk!.html).toContain('Track progress here ↗');
+    
+    // Verify fallback text is present
+    expect(iframeChunk!.text).toContain('📊 Track detailed progress below:');
+    expect(iframeChunk!.text).toContain('https://github.com/owner/repo/issues/123');
+  }, 20000);
 });

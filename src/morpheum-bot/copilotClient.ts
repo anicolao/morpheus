@@ -135,6 +135,13 @@ export class CopilotClient implements LLMClient {
         const issueUrl = this.buildIssueUrl(session.issueNumber);
         onChunk(`✅ **Issue [#${session.issueNumber}](${issueUrl}) created**\n`);
         onChunk(`🚀 Starting GitHub Copilot session for [#${session.issueNumber}](${issueUrl})...\n`);
+        
+        // Generate and send iframe for progress tracking
+        const iframeHtml = this.generateCopilotIframeHtml(session);
+        if (iframeHtml) {
+          const fallbackText = `📊 Track detailed progress below:\n${issueUrl}\n`;
+          onChunk(fallbackText, iframeHtml);
+        }
       }
       
       // Send initial status
@@ -794,5 +801,63 @@ export class CopilotClient implements LLMClient {
     // TODO: Implement session cancellation via GitHub API
     console.log(`Cancelling session ${sessionId}`);
     return true;
+  }
+
+  /**
+   * Validate GitHub iframe URL for security
+   */
+  private validateCopilotIframeUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url);
+      
+      // Must be GitHub
+      if (parsed.hostname !== 'github.com') {
+        return false;
+      }
+      
+      // Extract repo from path
+      const pathParts = parsed.pathname.split('/');
+      if (pathParts.length < 3) {
+        return false;
+      }
+      
+      const repo = `${pathParts[1]}/${pathParts[2]}`;
+      return repo === this.repository;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Generate iframe HTML for GitHub Copilot progress tracking
+   */
+  private generateCopilotIframeHtml(session: CopilotSession): string {
+    if (!session.issueNumber) {
+      return '';
+    }
+
+    const issueUrl = this.buildIssueUrl(session.issueNumber);
+    const progressUrl = `${issueUrl}`;  // Use the issue URL directly as GitHub's interface
+    
+    // Validate URL for security
+    if (!this.validateCopilotIframeUrl(progressUrl)) {
+      console.warn('Invalid iframe URL detected, skipping iframe generation');
+      return '';
+    }
+
+    const isDemo = session.id.startsWith('cop_demo_');
+    const prefix = isDemo ? '[DEMO] ' : '';
+    
+    const iframeHtml = `
+      <h4>🤖 ${prefix}GitHub Copilot Progress</h4>
+      <p><a href="${issueUrl}" target="_blank">📊 Open in GitHub ↗</a></p>
+      <iframe src="${progressUrl}" width="100%" height="600px" 
+              frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups"
+              title="Copilot progress for ${this.repository} issue #${session.issueNumber}">
+        <p>Your Matrix client doesn't support iframes. <a href="${progressUrl}" target="_blank">Track progress here ↗</a></p>
+      </iframe>
+    `;
+    
+    return iframeHtml;
   }
 }
