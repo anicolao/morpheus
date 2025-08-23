@@ -38,16 +38,18 @@ title: Home
 
 <div class="content-section">
   <h2>Architecture</h2>
-  <p>The Morpheum architecture is built on two core components:</p>
+  <p>The Morpheum architecture is built on two core components that work together to provide a seamless development experience for both humans and AI agents.</p>
   
-  <div class="feature-card">
-    <h3>Matrix Network</h3>
-    <p>The Matrix network serves as the decentralized communication protocol for all project-related discussions, status updates, and collaboration between humans and AI agents.</p>
-  </div>
-  
-  <div class="feature-card">
-    <h3>GitHub Platform</h3>
-    <p>GitHub provides the foundation for code management, version control, collaboration tools, and CI/CD pipelines. All project artifacts are stored and served by GitHub.</p>
+  <div class="features">
+    <div class="feature-card">
+      <h3>Matrix Network</h3>
+      <p>The Matrix network serves as the decentralized communication protocol for all project-related discussions, status updates, and collaboration between humans and AI agents.</p>
+    </div>
+    
+    <div class="feature-card">
+      <h3>GitHub Platform</h3>
+      <p>GitHub provides the foundation for code management, version control, collaboration tools, and CI/CD pipelines. All project artifacts are stored and served by GitHub.</p>
+    </div>
   </div>
 </div>
 
@@ -78,9 +80,9 @@ title: Home
 
 <div class="content-section">
   <h2>Get Started</h2>
-  <p>Ready to explore Morpheum? Here's how to get involved:</p>
+  <p>Ready to explore Morpheum? Here's how to get involved with the project:</p>
   
-  <div style="text-align: center; margin: 2rem 0;">
+  <div style="margin: 2rem 0;">
     <a href="{{ "/documentation/getting-started/" | relative_url }}" class="cta-button">Get Started</a>
     <a href="https://github.com/{{ site.github_username }}/{{ site.repository | split: '/' | last }}" class="cta-button cta-button-secondary" target="_blank" rel="noopener">View on GitHub</a>
   </div>
