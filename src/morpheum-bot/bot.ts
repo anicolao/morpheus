@@ -793,8 +793,21 @@ ${spoilerContent}
     // since Copilot already understands repository context
     // The CopilotClient handles all status updates including issue creation
     const response = await this.currentLLMClient.sendStreaming(task, async (chunk) => {
-      // Use smart message routing to automatically detect and format markdown content
-      await sendMarkdownMessage(chunk, sendMessage);
+      // Handle special dual messages for iframe content
+      if (chunk.startsWith('__DUAL_MESSAGE__')) {
+        try {
+          const data = JSON.parse(chunk.substring('__DUAL_MESSAGE__'.length));
+          // Send both text and HTML versions for Matrix clients
+          await sendMessage(data.text, data.html);
+        } catch (error) {
+          console.error('Failed to parse dual message:', error);
+          // Fallback to treating it as regular text
+          await sendMarkdownMessage(chunk, sendMessage);
+        }
+      } else {
+        // Use smart message routing to automatically detect and format markdown content
+        await sendMarkdownMessage(chunk, sendMessage);
+      }
     });
     
     conversationHistory.push({ role: 'assistant', content: response });

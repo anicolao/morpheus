@@ -228,8 +228,11 @@ describe('CopilotClient', () => {
     // Check that status updates include session tracking - should link to the issue since no PR exists yet
     expect(chunks.some(chunk => chunk.includes('Track progress on issue [#123](https://github.com/owner/repo/issues/123)'))).toBe(true);
     
-    // Check that all chunks end with newlines (except potentially the final result)
-    const statusChunks = chunks.filter(chunk => !chunk.includes('GitHub Copilot session completed!'));
+    // Check that all chunks end with newlines (except potentially the final result and dual messages)
+    const statusChunks = chunks.filter(chunk => 
+      !chunk.includes('GitHub Copilot session completed!') && 
+      !chunk.startsWith('__DUAL_MESSAGE__')
+    );
     statusChunks.forEach(chunk => {
       expect(chunk).toMatch(/\n$/);
     });
@@ -252,21 +255,26 @@ describe('CopilotClient', () => {
 
     await client.sendStreaming('Fix authentication bug', onChunk);
     
-    // Find the progress tracking chunk
-    const progressChunk = chunks.find(chunk => 
-      chunk.includes('GitHub Copilot Progress Tracking') && chunk.includes('<iframe')
+    // Find the dual message chunk containing iframe info
+    const dualMessageChunk = chunks.find(chunk => 
+      chunk.startsWith('__DUAL_MESSAGE__')
     );
     
-    expect(progressChunk).toBeDefined();
-    expect(progressChunk!).toContain('<iframe');
-    expect(progressChunk!).toContain('src="https://github.com/owner/repo/issues/123"');
-    expect(progressChunk!).toContain('🤖 [DEMO] Live Progress Tracking');
-    expect(progressChunk!).toContain('sandbox="allow-scripts allow-same-origin allow-popups"');
-    expect(progressChunk!).toContain('Track progress here ↗');
-    expect(progressChunk!).toContain('Open GitHub Issue #123 ↗');
+    expect(dualMessageChunk).toBeDefined();
     
-    // Verify fallback text is present
-    expect(progressChunk!).toContain('📊 **[DEMO] GitHub Copilot Progress Tracking**');
-    expect(progressChunk!).toContain('For all other Matrix clients');
+    // Parse the dual message
+    const dualMessageData = JSON.parse(dualMessageChunk!.substring('__DUAL_MESSAGE__'.length));
+    
+    // Verify text version
+    expect(dualMessageData.text).toContain('📊 **[DEMO] GitHub Copilot Progress Tracking**');
+    expect(dualMessageData.text).toContain('🔗 **Issue:** [#123](https://github.com/owner/repo/issues/123)');
+    
+    // Verify HTML version contains iframe
+    expect(dualMessageData.html).toContain('<iframe');
+    expect(dualMessageData.html).toContain('src="https://github.com/owner/repo/issues/123"');
+    expect(dualMessageData.html).toContain('🤖 [DEMO] Live Progress Tracking');
+    expect(dualMessageData.html).toContain('sandbox="allow-scripts allow-same-origin allow-popups"');
+    expect(dualMessageData.html).toContain('Open Issue #123 ↗');
+    expect(dualMessageData.html).toContain('📊 Issue Tracking:');
   }, 20000);
 });
