@@ -344,7 +344,7 @@ const tasks: GauntletTask[] = [
           packages = with pkgs; [
             bun
             jq
-            sed
+            gnused
             pythonEnv
             curl
             which
@@ -431,7 +431,8 @@ EOF`,
 
         // Check if response is valid JSON with expected fields
         try {
-          const response = JSON.parse(stdout);
+          const cleanStdout = cleanStdoutForJSON(stdout);
+          const response = JSON.parse(cleanStdout);
           return response.status === "ok" && response.timestamp;
         } catch {
           return false;
