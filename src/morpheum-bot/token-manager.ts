@@ -95,14 +95,50 @@ export class TokenManager {
       // Fall back to username/password authentication if available
       if (this.username && this.password) {
         console.log('[TokenManager] Using username/password authentication');
-        const loginResult = await client.loginWithPassword(this.username, this.password);
         
-        return {
-          access_token: loginResult.access_token,
-          refresh_token: loginResult.refresh_token,
-          expires_in_ms: loginResult.expires_in_ms,
-          device_id: loginResult.device_id
-        };
+        // Try different username formats as Matrix servers can be picky
+        const usernameFormats = [
+          this.username, // As provided
+        ];
+        
+        // Add @ prefix if not present
+        if (!this.username.startsWith('@')) {
+          usernameFormats.push(`@${this.username}`);
+        }
+        
+        // Add domain suffix if not present and we can extract domain from homeserver URL
+        if (!this.username.includes(':')) {
+          try {
+            const domain = new URL(this.homeserverUrl).hostname;
+            const baseUsername = this.username.startsWith('@') ? this.username : `@${this.username}`;
+            usernameFormats.push(`${baseUsername}:${domain}`);
+          } catch (e) {
+            console.log('[TokenManager] Could not extract domain from homeserver URL for username formatting');
+          }
+        }
+        
+        let lastError: any;
+        for (const usernameFormat of usernameFormats) {
+          try {
+            console.log(`[TokenManager] Trying username format: ${usernameFormat}`);
+            const loginResult = await client.loginWithPassword(usernameFormat, this.password);
+            console.log(`[TokenManager] Login successful with username format: ${usernameFormat}`);
+            
+            return {
+              access_token: loginResult.access_token,
+              refresh_token: loginResult.refresh_token,
+              expires_in_ms: loginResult.expires_in_ms,
+              device_id: loginResult.device_id
+            };
+          } catch (error: any) {
+            console.log(`[TokenManager] Login failed with username format "${usernameFormat}": ${error.message}`);
+            lastError = error;
+            // Continue to next format
+          }
+        }
+        
+        // If all formats failed, throw the last error
+        throw lastError;
       }
 
       // If we only have access token and no refresh token, we can't get a new token
