@@ -8,6 +8,7 @@ import { execa } from "execa";
 import * as fs from "fs";
 import { formatMarkdown } from "./format-markdown";
 import { CopilotClient } from "./copilotClient";
+import { getTaskFiles, filterUncompletedTasks, assembleTasksMarkdown } from "./task-utils";
 import * as net from "net";
 
 type MessageSender = (message: string, html?: string) => Promise<void>;
@@ -251,7 +252,10 @@ Available commands:
 For regular tasks, just type your request without a command prefix.`;
       await sendMessage(message);
     } else if (body.startsWith("!tasks")) {
-      const content = await fs.promises.readFile("TASKS.md", "utf8");
+      // Read task files from the new directory structure and show only uncompleted tasks
+      const allTasks = await getTaskFiles("docs/_tasks");
+      const uncompletedTasks = filterUncompletedTasks(allTasks);
+      const content = assembleTasksMarkdown(uncompletedTasks);
       const html = formatMarkdown(content);
       await sendMessage(content, html);
     } else if (body.startsWith("!devlog")) {

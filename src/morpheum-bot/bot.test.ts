@@ -11,8 +11,26 @@ const mockFs = vi.hoisted(() => ({
         return Promise.resolve('# Tasks\n\nThis file tracks the current and upcoming tasks for the Morpheum project.');
       } else if (filename === 'DEVLOG.md') {
         return Promise.resolve('# DEVLOG\n\n## Morpheum Development Log\n\nThis log tracks the development of morpheum.');
+      } else if (filename.includes('docs/_tasks/task-100-restructure-tasks-devlog.md')) {
+        return Promise.resolve(`---
+title: "Restructure TASKS.md and DEVLOG.md to Eliminate Merge Conflicts"
+order: 100
+status: in-progress
+phase: "Morpheum v0.2: Agent Advancement"
+category: "Process Improvement"
+---
+
+- [x] Analyze current merge conflict issues with centralized TASKS.md and DEVLOG.md files
+- [x] Design directory-based structure for individual task and devlog entries
+- [ ] Migrate remaining content from existing TASKS.md and DEVLOG.md files`);
       }
       return Promise.resolve('# Test Content\nThis is test content.');
+    }),
+    readdir: vi.fn().mockImplementation((dirname: string) => {
+      if (dirname === 'docs/_tasks') {
+        return Promise.resolve(['task-100-restructure-tasks-devlog.md']);
+      }
+      return Promise.resolve([]);
     }),
   },
 }));
@@ -71,6 +89,8 @@ vi.mock('./format-markdown', () => ({
     // Simple mock that converts the test content to expected HTML
     if (content === '# Test Content\nThis is test content.') {
       return '<h1>Test Content</h1>\n<p>This is test content.</p>\n';
+    } else if (content.startsWith('# Tasks (Uncompleted)')) {
+      return '<h1>Tasks (Uncompleted)</h1>\n<h3>Restructure TASKS.md and DEVLOG.md to Eliminate Merge Conflicts</h3>\n<p><strong>Status:</strong> in-progress</p>\n';
     } else if (content.startsWith('# Tasks')) {
       return '<h1>Tasks</h1>\n<p>This file tracks the current and upcoming tasks for the Morpheum project.</p>\n';
     } else if (content.startsWith('# DEVLOG')) {
@@ -319,13 +339,17 @@ Job's done! The program has been created successfully.
   });
 
   describe('File Commands', () => {
-    it('should show tasks from TASKS.md', async () => {
+    it('should show uncompleted tasks from docs/_tasks directory', async () => {
       await bot.processMessage('!tasks', 'user', mockSendMessage);
       
-      expect(mockSendMessage).toHaveBeenCalledWith(
-        expect.stringContaining('# Tasks'),
-        expect.stringContaining('<h1>Tasks</h1>')
-      );
+      // Verify the markdown content is correct
+      const [markdown, html] = mockSendMessage.mock.calls[0];
+      expect(markdown).toContain('# Tasks (Uncompleted)');
+      expect(markdown).toContain('Restructure TASKS.md and DEVLOG.md');
+      expect(markdown).toContain('**Status:** in-progress');
+      
+      // Verify the HTML is correctly generated from the markdown
+      expect(html).toContain('<h1>Tasks (Uncompleted)</h1>');
     });
 
     it('should show devlog from DEVLOG.md', async () => {
