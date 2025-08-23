@@ -276,7 +276,7 @@ This log has been migrated to a directory-based structure to resolve constant me
     - Wrapper function for automatic retry after token refresh
     - Prevention of concurrent refresh attempts with proper error handling
   - **Bot Integration:** Modified `src/morpheum-bot/index.ts` to:
-    - Support multiple authentication scenarios (ACCESS_TOKEN only, USERNAME/PASSWORD only, or both)
+    - Support multiple authentication scenarios (ACCESS_TOKEN only, MATRIX_USERNAME/MATRIX_PASSWORD only, or both)
     - Automatically obtain initial token if not provided
     - Handle graceful client reconnection after token refresh
     - Wrap message handlers with token refresh capability while maintaining backward compatibility

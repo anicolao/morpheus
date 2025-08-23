@@ -3,6 +3,7 @@ import { OllamaClient } from "./ollamaClient";
 import { OpenAIClient } from "./openai";
 import { JailClient } from "./jailClient";
 import { type LLMClient, type LLMConfig, createLLMClient } from "./llmClient";
+import { TokenManager } from "./token-manager";
 import { execa } from "execa";
 import * as fs from "fs";
 import { formatMarkdown } from "./format-markdown";
@@ -48,6 +49,7 @@ function sendMarkdownMessage(markdown: string, sendMessage: MessageSender): Prom
 
 export class MorpheumBot {
   private sweAgent: SWEAgent;
+  private tokenManager?: TokenManager;
 
   private currentLLMClient: LLMClient;
   private currentLLMProvider: 'openai' | 'ollama' | 'copilot';
@@ -57,7 +59,9 @@ export class MorpheumBot {
     copilot: { apiKey?: string; repository?: string; baseUrl: string; pollInterval: string };
   };
 
-  constructor() {
+  constructor(tokenManager?: TokenManager) {
+    this.tokenManager = tokenManager;
+    
     // Initialize LLM configurations from environment variables
     const openaiConfig: { apiKey?: string; model: string; baseUrl: string } = {
       model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
@@ -229,6 +233,8 @@ Available commands:
 - \`!help\` - Show this help message
 - \`!tasks\` - Show current tasks
 - \`!devlog\` - Show development log
+- \`!tokens\` - Show Matrix authentication token status
+- \`!token refresh\` - Manually refresh Matrix authentication token
 - \`!llm status\` - Show current LLM provider and configuration
 - \`!llm switch openai [model] [baseUrl]\` - Switch to OpenAI (requires OPENAI_API_KEY env var)
 - \`!llm switch ollama [model] [baseUrl]\` - Switch to Ollama
@@ -252,6 +258,10 @@ For regular tasks, just type your request without a command prefix.`;
       const content = await fs.promises.readFile("DEVLOG.md", "utf8");
       const html = formatMarkdown(content);
       await sendMessage(content, html);
+    } else if (body.startsWith("!tokens")) {
+      await this.handleTokensCommand(sendMessage);
+    } else if (body.startsWith("!token refresh")) {
+      await this.handleTokenRefreshCommand(sendMessage);
     } else if (body.startsWith("!llm")) {
       await this.handleLLMCommand(body, sendMessage);
     } else if (body.startsWith("!openai")) {
@@ -772,5 +782,77 @@ ${spoilerContent}
     
     conversationHistory.push({ role: 'assistant', content: response });
     return conversationHistory;
+  }
+
+  /**
+   * Handle !tokens command - show token status without revealing values
+   */
+  private async handleTokensCommand(sendMessage: MessageSender) {
+    if (!this.tokenManager) {
+      await sendMessage(
+        `Matrix Token Status: Static token mode
+- Authentication: Using ACCESS_TOKEN environment variable
+- Automatic refresh: Not available (requires MATRIX_USERNAME and MATRIX_PASSWORD)
+- Recommendation: Set MATRIX_USERNAME and MATRIX_PASSWORD environment variables to enable automatic token refresh`
+      );
+      return;
+    }
+
+    const status = this.tokenManager.getTokenStatus();
+    const statusMessage = `Matrix Token Status:
+- Access Token: ${status.hasAccessToken ? '✅ Available' : '❌ Not available'}
+- Refresh Token: ${status.hasRefreshToken ? '✅ Available' : '❌ Not available'}
+- Credentials: ${status.hasCredentials ? '✅ Username/password configured' : '❌ Username/password not configured'}
+- Refresh Status: ${status.refreshInProgress ? '🔄 Refresh in progress' : '⏸️ Idle'}
+
+${status.hasCredentials && status.hasAccessToken ? 
+  '✅ Automatic token refresh is enabled and working' : 
+  '⚠️  Token refresh may not work properly - ensure MATRIX_USERNAME and MATRIX_PASSWORD are set'}`;
+
+    await sendMessage(statusMessage);
+  }
+
+  /**
+   * Handle !token refresh command - manually trigger token refresh
+   */
+  private async handleTokenRefreshCommand(sendMessage: MessageSender) {
+    if (!this.tokenManager) {
+      await sendMessage(
+        `❌ Manual token refresh not available
+- Current mode: Static token (ACCESS_TOKEN only)
+- To enable refresh: Set MATRIX_USERNAME and MATRIX_PASSWORD environment variables and restart bot`
+      );
+      return;
+    }
+
+    const status = this.tokenManager.getTokenStatus();
+    if (!status.hasCredentials) {
+      await sendMessage(
+        `❌ Cannot refresh token: Missing credentials
+- MATRIX_USERNAME and MATRIX_PASSWORD environment variables are required for token refresh
+- Current configuration only supports static ACCESS_TOKEN mode`
+      );
+      return;
+    }
+
+    if (status.refreshInProgress) {
+      await sendMessage('⚠️ Token refresh already in progress, please wait...');
+      return;
+    }
+
+    try {
+      await sendMessage('🔄 Starting manual token refresh...');
+      const result = await this.tokenManager.refreshToken();
+      await sendMessage(
+        `✅ Token refresh successful!
+- New access token: Obtained
+- Refresh token: ${result.refresh_token ? 'Updated' : 'Not provided by server'}
+- Expires: ${result.expires_in_ms ? `${Math.round(result.expires_in_ms / 1000 / 60)} minutes` : 'Unknown'}
+- Device ID: ${result.device_id || 'Not provided'}`
+      );
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await sendMessage(`❌ Token refresh failed: ${errorMessage}`);
+    }
   }
 }

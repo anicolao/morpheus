@@ -32,8 +32,8 @@ Set up your environment with username and password authentication:
 
 ```bash
 export HOMESERVER_URL="https://matrix.example.com"
-export USERNAME="mybot"  # Without the @homeserver part
-export PASSWORD="your_secure_password"
+export MATRIX_USERNAME="mybot"  # Without the @homeserver part
+export MATRIX_PASSWORD="your_secure_password"
 ```
 
 **Important**: Do NOT set `ACCESS_TOKEN` when using refresh tokens. The bot will obtain the initial token automatically.
@@ -69,7 +69,7 @@ Both scenarios work fine - the bot will automatically use the best method availa
 **Refresh tokens are obtained automatically during initial login** - you don't need to manually generate them. Here's how it works:
 
 ### Automatic Process (Recommended)
-1. **Initial Login**: When you provide `USERNAME` and `PASSWORD`, the bot logs into your Matrix server
+1. **Initial Login**: When you provide `MATRIX_USERNAME` and `MATRIX_PASSWORD`, the bot logs into your Matrix server
 2. **Token Request**: During login, the bot requests both an access token and a refresh token
 3. **Server Response**: If your Matrix server supports refresh tokens (Synapse 1.38.0+, recent Dendrite), it returns both tokens
 4. **Storage**: The bot stores the refresh token in memory and uses it for future token refreshes
@@ -80,9 +80,9 @@ Both scenarios work fine - the bot will automatically use the best method availa
 **Important**: The Matrix Client-Server API specification does not provide a way to convert an existing `ACCESS_TOKEN` into a refresh token. Refresh tokens can only be obtained during the initial authentication process when logging in with username and password.
 
 This means:
-- ✅ **If you have USERNAME/PASSWORD**: The bot can get refresh tokens automatically
+- ✅ **If you have MATRIX_USERNAME/MATRIX_PASSWORD**: The bot can get refresh tokens automatically
 - ❌ **If you only have ACCESS_TOKEN**: No refresh tokens can be obtained - the token will eventually expire
-- ⚠️ **Servers with CAPTCHA**: You'll need to obtain the initial token manually, then use it with USERNAME/PASSWORD for refresh capability
+- ⚠️ **Servers with CAPTCHA**: You'll need to obtain the initial token manually, then use it with MATRIX_USERNAME/MATRIX_PASSWORD for refresh capability
 
 ### Workaround for CAPTCHA-Protected Servers
 
@@ -90,15 +90,15 @@ If your Matrix server requires CAPTCHA for login, you can use this hybrid approa
 
 1. **Manual Initial Login**: Log in manually through a web browser or Matrix client to complete the CAPTCHA
 2. **Extract Credentials**: Get your access token from the manual login session  
-3. **Provide Both**: Set both `ACCESS_TOKEN` (from manual login) and `USERNAME`/`PASSWORD` in environment variables
+3. **Provide Both**: Set both `ACCESS_TOKEN` (from manual login) and `MATRIX_USERNAME`/`MATRIX_PASSWORD` in environment variables
 4. **Automatic Refresh**: The bot will start with your manual token but can refresh it automatically using credentials
 
 ```bash
 # Hybrid approach for CAPTCHA-protected servers
 export HOMESERVER_URL="https://matrix.example.com"
 export ACCESS_TOKEN="your_manually_obtained_token"  # From manual login
-export USERNAME="mybot"                              # For refresh capability  
-export PASSWORD="your_password"                      # For refresh capability
+export MATRIX_USERNAME="mybot"                              # For refresh capability  
+export MATRIX_PASSWORD="your_password"                      # For refresh capability
 ```
 
 This way, you bypass the initial CAPTCHA requirement but still get automatic refresh functionality.
@@ -147,8 +147,8 @@ To test if refresh tokens are working, you can force a token error by temporaril
 ```bash
 export HOMESERVER_URL="https://matrix.example.com"
 export ACCESS_TOKEN="invalid_token_for_testing"
-export USERNAME="mybot"
-export PASSWORD="your_password"
+export MATRIX_USERNAME="mybot"
+export MATRIX_PASSWORD="your_password"
 ./src/morpheum-bot/index.ts
 ```
 
@@ -158,7 +158,7 @@ The bot should detect the invalid token and automatically refresh it.
 
 #### Issue: "Cannot find username/password"
 **Symptoms**: Bot exits with error about missing credentials
-**Solution**: Ensure both `USERNAME` and `PASSWORD` are set in environment variables
+**Solution**: Ensure both `MATRIX_USERNAME` and `MATRIX_PASSWORD` are set in environment variables
 
 #### Issue: "Refresh token failed, falling back to password"
 **Symptoms**: Logs show fallback to password authentication
@@ -195,8 +195,8 @@ The bot should detect the invalid token and automatically refresh it.
 ```bash
 # Set your credentials
 export HOMESERVER_URL="https://matrix.example.com"
-export USERNAME="mybot"
-export PASSWORD="your_password"
+export MATRIX_USERNAME="mybot"
+export MATRIX_PASSWORD="your_password"
 
 # Start the bot and watch for successful login
 ./src/morpheum-bot/index.ts
@@ -244,8 +244,8 @@ Use this for production bots that should handle token expiration automatically:
 
 ```bash
 HOMESERVER_URL=https://matrix.example.com
-USERNAME=your_username  # Without @homeserver.com suffix
-PASSWORD=your_password
+MATRIX_USERNAME=your_username  # Without @homeserver.com suffix
+MATRIX_PASSWORD=your_password
 ```
 
 **When to use**: Production environments where you want automatic token management.
@@ -257,8 +257,8 @@ Use this if you want to start with a specific token but have automatic refresh a
 ```bash
 HOMESERVER_URL=https://matrix.example.com
 ACCESS_TOKEN=your_initial_token
-USERNAME=your_username  
-PASSWORD=your_password
+MATRIX_USERNAME=your_username  
+MATRIX_PASSWORD=your_password
 ```
 
 **When to use**: When migrating from static tokens to auto-refresh, when your server requires CAPTCHA for initial login, or when you have specific token requirements.
@@ -281,7 +281,7 @@ ACCESS_TOKEN=your_static_token_here
 - **Username Format**: Use just the username part (e.g., `mybot`), not the full Matrix ID (`@mybot:matrix.org`)
 - **Security**: Store credentials in secure environment variables, not in code or config files
 - **Homeserver URL**: Include the full URL with protocol (`https://` or `http://`)
-- **Token Precedence**: If both `ACCESS_TOKEN` and `USERNAME`/`PASSWORD` are provided, the bot starts with `ACCESS_TOKEN` but can refresh using credentials when needed
+- **Token Precedence**: If both `ACCESS_TOKEN` and `MATRIX_USERNAME`/`MATRIX_PASSWORD` are provided, the bot starts with `ACCESS_TOKEN` but can refresh using credentials when needed
 - **CAPTCHA Workaround**: For servers requiring CAPTCHA, manually obtain an initial `ACCESS_TOKEN` through a web browser, then provide both the token and credentials for refresh capability
 - **Matrix API Limitation**: Refresh tokens cannot be obtained from existing access tokens - they must be acquired during initial username/password authentication
 
@@ -354,8 +354,8 @@ Non-token errors are passed through without refresh attempt:
 # Then configure the environment:
 
 export HOMESERVER_URL="https://matrix.org"
-export USERNAME="morpheum_bot"  # The username you created
-export PASSWORD="your_secure_bot_password"
+export MATRIX_USERNAME="morpheum_bot"  # The username you created
+export MATRIX_PASSWORD="your_secure_bot_password"
 
 # Start the bot
 ./src/morpheum-bot/index.ts
@@ -380,8 +380,8 @@ export HOMESERVER_URL="https://matrix.example.com"
 export ACCESS_TOKEN="your_existing_token"
 
 # Add auto-refresh capability
-export USERNAME="your_bot_username"
-export PASSWORD="your_bot_password"
+export MATRIX_USERNAME="your_bot_username"
+export MATRIX_PASSWORD="your_bot_password"
 
 # Restart the bot - it will use your existing token but enable auto-refresh
 ./src/morpheum-bot/index.ts
@@ -401,7 +401,7 @@ For production, use a startup script or systemd service:
 source /etc/morpheum-bot/credentials.env
 
 # Verify required variables
-if [[ -z "$HOMESERVER_URL" || -z "$USERNAME" || -z "$PASSWORD" ]]; then
+if [[ -z "$HOMESERVER_URL" || -z "$MATRIX_USERNAME" || -z "$MATRIX_PASSWORD" ]]; then
     echo "Error: Missing required environment variables"
     exit 1
 fi
@@ -468,8 +468,8 @@ CMD ["./src/morpheum-bot/index.ts"]
 ```bash
 # docker-compose.yml or run command
 docker run -e HOMESERVER_URL="https://matrix.example.com" \
-           -e USERNAME="dockerbot" \
-           -e PASSWORD="secure_password" \
+           -e MATRIX_USERNAME="dockerbot" \
+           -e MATRIX_PASSWORD="secure_password" \
            morpheum-bot
 ```
 
@@ -486,8 +486,8 @@ If your Matrix server requires CAPTCHA for initial login:
 # Step 2: Configure with hybrid approach
 export HOMESERVER_URL="https://matrix.example.com"
 export ACCESS_TOKEN="syt_your_manually_obtained_token_here"  # From manual login
-export USERNAME="mybot"                                      # For refresh capability
-export PASSWORD="your_secure_password"                       # For refresh capability
+export MATRIX_USERNAME="mybot"                                      # For refresh capability
+export MATRIX_PASSWORD="your_secure_password"                       # For refresh capability
 
 # Step 3: Start the bot
 ./src/morpheum-bot/index.ts
@@ -510,8 +510,8 @@ For development, create a `.env` file (add to `.gitignore`):
 ```bash
 # .env file (DO NOT COMMIT TO GIT)
 HOMESERVER_URL=https://matrix.org
-USERNAME=dev_bot_username
-PASSWORD=dev_bot_password
+MATRIX_USERNAME=dev_bot_username
+MATRIX_PASSWORD=dev_bot_password
 
 # Optional: Enable debug logging
 DEBUG=matrix-bot:*
@@ -563,7 +563,7 @@ npm test -- src/morpheum-bot/token-manager
 
 ## Backwards Compatibility
 
-Existing bots using only `ACCESS_TOKEN` continue to work unchanged. Token auto-refresh is only enabled when both `USERNAME` and `PASSWORD` are provided.
+Existing bots using only `ACCESS_TOKEN` continue to work unchanged. Token auto-refresh is only enabled when both `MATRIX_USERNAME` and `MATRIX_PASSWORD` are provided.
 
 ## Future Enhancements
 

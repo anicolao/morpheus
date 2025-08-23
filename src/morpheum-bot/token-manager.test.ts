@@ -257,4 +257,42 @@ describe('TokenManager', () => {
       expect(mockClient.loginWithPassword).toHaveBeenCalledWith('testuser', 'testpass');
     });
   });
+
+  describe('getTokenStatus', () => {
+    it('should return correct status information', () => {
+      const tokenManagerWithToken = new TokenManager({
+        homeserverUrl: 'https://test.example.com',
+        username: 'testuser',
+        password: 'testpass',
+        accessToken: 'test_access_token'
+      });
+      
+      tokenManagerWithToken.setRefreshToken('test_refresh_token');
+      
+      const status = tokenManagerWithToken.getTokenStatus();
+      
+      expect(status).toEqual({
+        hasAccessToken: true,
+        hasRefreshToken: true,
+        hasCredentials: true,
+        refreshInProgress: false
+      });
+    });
+
+    it('should return correct status when missing credentials', () => {
+      const tokenManagerNoCredentials = new TokenManager({
+        homeserverUrl: 'https://test.example.com',
+        accessToken: 'test_access_token'
+      });
+      
+      const status = tokenManagerNoCredentials.getTokenStatus();
+      
+      expect(status).toEqual({
+        hasAccessToken: true,
+        hasRefreshToken: false,
+        hasCredentials: false,
+        refreshInProgress: false
+      });
+    });
+  });
 });

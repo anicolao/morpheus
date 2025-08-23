@@ -11,7 +11,7 @@ tags: ["documentation", "matrix", "authentication", "user-experience"]
 
 - **Actions Taken:**
 
-  - **Added Quick Start Guide:** Created 4-step process that clearly explains how to set up Matrix authentication with automatic refresh tokens, emphasizing that users only need to provide USERNAME/PASSWORD
+  - **Added Quick Start Guide:** Created 4-step process that clearly explains how to set up Matrix authentication with automatic refresh tokens, emphasizing that users only need to provide MATRIX_USERNAME/MATRIX_PASSWORD
   - **Clarified automatic refresh token process:** Added "How to Obtain Refresh Tokens" section explaining that refresh tokens are obtained automatically during login - no manual steps required
   - **Added comprehensive troubleshooting:** Created "Verification and Troubleshooting" section with:
     - Log message examples showing successful refresh token operation
