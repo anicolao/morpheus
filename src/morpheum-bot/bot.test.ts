@@ -276,6 +276,46 @@ describe('MorpheumBot', () => {
         expect.stringContaining("Job's done!")
       );
     });
+
+    it('should detect Job\'s done! in next_step block and complete task', async () => {
+      // Mock the OpenAI client to return a response with next_step containing "Job's done!"
+      const mockOpenAIClient = {
+        send: vi.fn().mockResolvedValue('OpenAI response'),
+        sendStreaming: vi.fn().mockImplementation((prompt, onChunk) => {
+          const responseWithJobsDone = `<plan>
+1. Create the hello world program
+2. Test it works
+</plan>
+
+<next_step>
+Job's done! The program has been created successfully.
+</next_step>`;
+          return Promise.resolve(responseWithJobsDone);
+        }),
+      };
+
+      // Create a fresh bot instance for this test to override the mock
+      const testBot = new (await import('./bot')).MorpheumBot();
+      // Replace the LLM client internally
+      (testBot as any).currentLLMClient = mockOpenAIClient;
+
+      await testBot.processMessage('Create a simple hello world program', 'user', mockSendMessage);
+
+      // Verify that the plan was displayed
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('📋 **Plan:**'),
+        expect.any(String)
+      );
+
+      // Verify that the next step was displayed  
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.stringContaining('🎯 **Next Step:**'),
+        expect.any(String)
+      );
+
+      // Verify that completion was detected from next_step
+      expect(mockSendMessage).toHaveBeenCalledWith("✓ Job's done!");
+    });
   });
 
   describe('File Commands', () => {

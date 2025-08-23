@@ -678,6 +678,12 @@ ${plan}`;
 
 ${nextStep}`;
         await sendMarkdownMessage(nextStepMarkdown, sendMessage);
+        
+        // Check for task completion phrase in next step
+        if (nextStep.includes("Job's done!")) {
+          await sendMessage("✓ Job's done!");
+          break;
+        }
       }
 
       // Parse bash commands from response
