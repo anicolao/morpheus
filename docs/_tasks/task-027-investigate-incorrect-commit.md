@@ -1,13 +1,13 @@
 ---
 title: "Investigate incorrect commit"
 order: 19
-status: open
+status: completed
 phase: "Morpheum v0.1: The Matrix Milestone"
 category: "Development"
 ---
 
-- [ ] **Task 27: Investigate incorrect commit**
+- [x] **Task 27: Investigate incorrect commit**
 
-  - [ ] `AGENTS.md` was checked in incorrectly.
-  - [ ] A change to the bot's source was missed.
-  - [ ] Investigate what went wrong and document it.
+  - [x] `AGENTS.md` was checked in incorrectly.
+  - [x] A change to the bot's source was missed.
+  - [x] Investigate what went wrong and document it.
