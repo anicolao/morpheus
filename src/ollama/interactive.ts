@@ -7,6 +7,16 @@ import { URL } from 'url';
 const DEFAULT_BASE_URL = 'http://localhost:11434';
 
 /**
+ * Normalize Unicode dashes to ASCII dashes.
+ * Converts em dash (—) and en dash (–) to double dash (--).
+ */
+function normalizeDashes(arg: string): string {
+  return arg
+    .replace(/—/g, '--')  // em dash (U+2014) to double dash
+    .replace(/–/g, '--'); // en dash (U+2013) to double dash
+}
+
+/**
  * Parses command-line arguments to get the base URL and model name.
  * @returns An object containing the baseUrl and model name.
  */
@@ -15,12 +25,15 @@ function parseArgs(): { baseUrl: string; model: string } {
   let baseUrl = DEFAULT_BASE_URL;
   let model: string | null = null;
 
-  for (let i = 0; i < args.length; i++) {
-    if ((args[i] === '--url' || args[i] === '-u') && i + 1 < args.length) {
-      baseUrl = args[i + 1]!;
+  // Normalize Unicode dashes in arguments first
+  const normalizedArgs = args.map(normalizeDashes);
+
+  for (let i = 0; i < normalizedArgs.length; i++) {
+    if ((normalizedArgs[i] === '--url' || normalizedArgs[i] === '-u') && i + 1 < normalizedArgs.length) {
+      baseUrl = normalizedArgs[i + 1]!;
       i++;
-    } else if ((args[i] === '--model' || args[i] === '-m') && i + 1 < args.length) {
-      model = args[i + 1]!;
+    } else if ((normalizedArgs[i] === '--model' || normalizedArgs[i] === '-m') && i + 1 < normalizedArgs.length) {
+      model = normalizedArgs[i + 1]!;
       i++;
     } else {
       console.error(`Unknown argument: ${args[i]}`);
