@@ -69,4 +69,24 @@ even more output`;
     expect(cleanStdout.includes('John Doe')).toBe(true);
     expect(cleanStdout.includes('✅')).toBe(false);
   });
+
+  it('should clean empty stdout polluted by flake.nix shellHook', () => {
+    // Test the specific case for resolve-python-dependency validation
+    const pollutedStdout = '✅ DOCKER_HOST automatically set to Colima\'s socket.\n';
+    
+    // Apply the same cleaning logic used in resolve-python-dependency
+    const cleanStdout = pollutedStdout.replace(/^.*✅.*$/gm, '').trim();
+    
+    expect(cleanStdout).toBe('');
+    expect(cleanStdout === '').toBe(true);
+  });
+
+  it('should clean empty stdout with only the shellHook message', () => {
+    // Test case where only the shellHook message is present (most common case)
+    const pollutedStdout = '✅ DOCKER_HOST automatically set to Colima\'s socket.';
+    
+    const cleanStdout = pollutedStdout.replace(/^.*✅.*$/gm, '').trim();
+    
+    expect(cleanStdout).toBe('');
+  });
 });
