@@ -50,5 +50,53 @@ if [ "$devlog_staged" -gt 0 ] || [ "$tasks_staged" -gt 0 ]; then
   exit 1
 fi
 
+# Check if this commit includes required devlog and task entries
+devlog_files=$(echo "$STAGED_FILES" | grep "docs/_devlogs/" || true)
+task_files=$(echo "$STAGED_FILES" | grep "docs/_tasks/" || true)
+
+# Allow commits that only modify documentation files without requiring devlog/task entries
+doc_only_commit="false"
+if [ -n "$STAGED_FILES" ]; then
+  # Check if all staged files are documentation-only (README, docs/, etc.)
+  non_doc_files=$(echo "$STAGED_FILES" | grep -v -E "(README\.md|docs/|\.md$|\.txt$|\.yml$|\.yaml$|package\.json|package-lock\.json|\.gitignore)" || true)
+  if [ -z "$non_doc_files" ]; then
+    doc_only_commit="true"
+  fi
+fi
+
+# For non-documentation commits, require both devlog and task entries
+if [ "$doc_only_commit" = "false" ]; then
+  missing_requirements=""
+  
+  if [ -z "$devlog_files" ]; then
+    missing_requirements="${missing_requirements}- A devlog entry in docs/_devlogs/\n"
+  fi
+  
+  if [ -z "$task_files" ]; then
+    missing_requirements="${missing_requirements}- A task entry in docs/_tasks/\n"
+  fi
+  
+  if [ -n "$missing_requirements" ]; then
+    echo "ERROR: Every commit must include both devlog and task entries!" >&2
+    echo "" >&2
+    echo "📋 MISSING REQUIREMENTS for this commit:" >&2
+    echo -e "$missing_requirements" >&2
+    echo "📍 REQUIRED WORKFLOW:" >&2
+    echo "" >&2
+    echo "✅ For development log entries:" >&2
+    echo "   - Create a new file in docs/_devlogs/ with format: {YYYY-MM-DD}-{description}.md" >&2
+    echo "   - Include YAML front matter with title, date, author, and tags" >&2
+    echo "" >&2
+    echo "✅ For task entries:" >&2
+    echo "   - Create or update a file in docs/_tasks/ with format: task-{number}-{description}.md" >&2
+    echo "   - Include YAML front matter with title, order, status, phase, and category" >&2
+    echo "" >&2
+    echo "🔗 See examples and guidelines at:" >&2
+    echo "   - https://anicolao.github.io/morpheum/documentation/contributing/" >&2
+    echo "" >&2
+    echo "This ensures every change is documented and tracked properly." >&2
+    exit 1
+  fi
+fi
 
 exit 0
