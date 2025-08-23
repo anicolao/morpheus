@@ -120,9 +120,23 @@ const tasks: GauntletTask[] = [
         );
         
         // Check if output is valid JSON and contains expected data
-        const parsed = JSON.parse(stdout);
+        // Filter out flake.nix shellHook output that pollutes stdout
+        let cleanStdout = stdout;
+        
+        // Remove lines containing flake.nix shellHook messages
+        cleanStdout = cleanStdout.replace(/^.*✅.*$/gm, '').trim();
+        
+        // If the output still doesn't look like JSON, try to extract JSON block
+        if (!cleanStdout.startsWith('{') && !cleanStdout.startsWith('[')) {
+          const jsonMatch = cleanStdout.match(/(\{.*\}|\[.*\])/s);
+          if (jsonMatch) {
+            cleanStdout = jsonMatch[1];
+          }
+        }
+        
+        const parsed = JSON.parse(cleanStdout);
         return parsed && typeof parsed === 'object' && 
-               (stdout.includes('John Doe') || stdout.includes('john@example.com'));
+               (cleanStdout.includes('John Doe') || cleanStdout.includes('john@example.com'));
       } catch (error) {
         // Try alternative script name or execution method
         try {
@@ -141,9 +155,23 @@ const tasks: GauntletTask[] = [
             { cwd: "./jail" },
           );
           
-          const parsed = JSON.parse(stdout);
+          // Filter out flake.nix shellHook output that pollutes stdout
+          let cleanStdout = stdout;
+          
+          // Remove lines containing flake.nix shellHook messages
+          cleanStdout = cleanStdout.replace(/^.*✅.*$/gm, '').trim();
+          
+          // If the output still doesn't look like JSON, try to extract JSON block
+          if (!cleanStdout.startsWith('{') && !cleanStdout.startsWith('[')) {
+            const jsonMatch = cleanStdout.match(/(\{.*\}|\[.*\])/s);
+            if (jsonMatch) {
+              cleanStdout = jsonMatch[1];
+            }
+          }
+          
+          const parsed = JSON.parse(cleanStdout);
           return parsed && typeof parsed === 'object' && 
-                 (stdout.includes('John Doe') || stdout.includes('john@example.com'));
+                 (cleanStdout.includes('John Doe') || cleanStdout.includes('john@example.com'));
         } catch (secondError) {
           return false;
         }
