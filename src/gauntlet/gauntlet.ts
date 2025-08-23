@@ -195,7 +195,9 @@ const tasks: GauntletTask[] = [
         ],
         { cwd: "./jail" },
       );
-      return stdout === "";
+      // Clean stdout from flake.nix shellHook pollution
+      const cleanStdout = stdout.replace(/^.*✅.*$/gm, '').trim();
+      return cleanStdout === "";
     },
   },
   {
