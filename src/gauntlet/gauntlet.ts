@@ -33,6 +33,7 @@ interface GauntletTask {
     | "Software Development & Refinement";
   difficulty: "Easy" | "Medium" | "Hard";
   prompt: string;
+  setupContainer?: (containerName: string) => Promise<void>;
   successCondition: (containerName: string) => Promise<boolean>;
 }
 
@@ -282,6 +283,33 @@ const tasks: GauntletTask[] = [
     difficulty: "Hard",
     prompt:
       'Here is a basic web server file in /project/server.js:\n\n```javascript\nimport Bun from "bun";\n\nBun.serve({\n  port: 3000,\n  fetch(request) {\n    return new Response("Hello, Morpheum!");\n  },\n});\n\nconsole.log("Server running on http://localhost:3000");\n```\n\nModify the existing web server. Add a new API endpoint at "/api/v1/status" that responds with the JSON object: {"status": "ok", "timestamp": "CURRENT_ISO_TIMESTAMP"}.',
+    setupContainer: async (containerName) => {
+      await execa(
+        "nix",
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          `cd /project && cat > server.js << 'EOF'
+import Bun from "bun";
+
+Bun.serve({
+  port: 3000,
+  fetch(request) {
+    return new Response("Hello, Morpheum!");
+  },
+});
+
+console.log("Server running on http://localhost:3000");
+EOF`,
+        ],
+        { cwd: "./jail" },
+      );
+    },
     successCondition: async (containerName) => {
       try {
         // Start the modified server in the background
@@ -552,43 +580,19 @@ async function runGauntlet(
   }
 
   // 2.5. Pre-task setup for tasks that need existing files
-  if (task.id === "refine-existing-codebase") {
+  if (task.setupContainer) {
     if (progressCallback) {
-      await progressCallback(`📁 **Setting up**: Creating initial server.js file for modification...`);
+      await progressCallback(`📁 **Setting up**: Running container setup for task ${taskId}...`);
     }
     try {
-      await execa(
-        "nix",
-        [
-          "develop",
-          "-c",
-          "docker",
-          "exec",
-          containerName,
-          "sh",
-          "-c",
-          `cd /project && cat > server.js << 'EOF'
-import Bun from "bun";
-
-Bun.serve({
-  port: 3000,
-  fetch(request) {
-    return new Response("Hello, Morpheum!");
-  },
-});
-
-console.log("Server running on http://localhost:3000");
-EOF`,
-        ],
-        { cwd: "./jail" },
-      );
+      await task.setupContainer(containerName);
       if (progressCallback) {
-        await progressCallback(`✅ **Setup complete**: Initial server.js file created`);
+        await progressCallback(`✅ **Setup complete**: Container setup finished for task ${taskId}`);
       }
     } catch (error) {
-      console.error(`Error setting up initial file for task ${taskId}:`, error);
+      console.error(`Error setting up container for task ${taskId}:`, error);
       if (progressCallback) {
-        await progressCallback(`❌ **Task ${taskId} Failed**: Error setting up initial file - ${error instanceof Error ? error.message : String(error)}`);
+        await progressCallback(`❌ **Task ${taskId} Failed**: Error setting up container - ${error instanceof Error ? error.message : String(error)}`);
       }
       results[taskId] = { success: false };
       return;
