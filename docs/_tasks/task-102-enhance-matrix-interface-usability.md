@@ -11,6 +11,6 @@ category: "User Interface"
 - [ ] Design more intuitive command syntax and help system
 - [ ] Add command auto-completion or suggestion features
 - [ ] Implement progress indicators for long-running operations
-- [ ] **Add fine-grained progress tracking for Copilot sessions** - Replicate GitHub's web interface experience with step-by-step progress updates, thoughts, collapsed sections showing command output, file analysis results, and reasoning instead of generic "analyzing codebase" messages
+- [ ] **Add GitHub Copilot progress tracking via iframe integration** - Embed GitHub's native progress interface directly in Matrix client to show real-time Copilot agent progress including thoughts, file analysis, and command outputs instead of basic polling messages
 - [ ] Create user-friendly onboarding flow for new Matrix room users
 - [ ] Add support for rich message formatting (tables, code highlighting, etc.)
