@@ -284,6 +284,85 @@ const tasks: GauntletTask[] = [
     prompt:
       'Here is a basic web server file in /project/server.js:\n\n```javascript\nimport Bun from "bun";\n\nBun.serve({\n  port: 3000,\n  fetch(request) {\n    return new Response("Hello, Morpheum!");\n  },\n});\n\nconsole.log("Server running on http://localhost:3000");\n```\n\nModify the existing web server. Add a new API endpoint at "/api/v1/status" that responds with the JSON object: {"status": "ok", "timestamp": "CURRENT_ISO_TIMESTAMP"}.',
     setupContainer: async (containerName) => {
+      // First, ensure /project directory exists
+      await execa(
+        "nix",
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "mkdir",
+          "-p",
+          "/project",
+        ],
+        { cwd: "./jail" },
+      );
+
+      // Create a flake.nix in /project for nix develop to work
+      await execa(
+        "nix",
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          `cat > /project/flake.nix << 'EOF'
+{
+  description = "Gauntlet project environment";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    systems.url = "github:nix-systems/default";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
+  };
+
+  outputs = {
+    nixpkgs,
+    flake-utils,
+    ...
+  }:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
+        pkgs = import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = true;
+          };
+        };
+        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+          requests
+        ]);
+      in {
+        devShells.default = pkgs.mkShell {
+          packages = with pkgs; [
+            bun
+            jq
+            sed
+            pythonEnv
+            curl
+            which
+            hugo
+          ];
+          shellHook = ''
+            echo "✅ Gauntlet project environment ready"
+          '';
+        };
+      }
+    );
+}
+EOF`,
+        ],
+        { cwd: "./jail" },
+      );
+
+      // Create the initial server.js file
       await execa(
         "nix",
         [
