@@ -135,6 +135,12 @@ export class CopilotClient implements LLMClient {
         const issueUrl = this.buildIssueUrl(session.issueNumber);
         onChunk(`✅ **Issue [#${session.issueNumber}](${issueUrl}) created**\n`);
         onChunk(`🚀 Starting GitHub Copilot session for [#${session.issueNumber}](${issueUrl})...\n`);
+        
+        // Generate and send iframe information for progress tracking
+        const iframeInfo = this.generateCopilotProgressInfo(session);
+        if (iframeInfo) {
+          onChunk(iframeInfo);
+        }
       }
       
       // Send initial status
@@ -794,5 +800,66 @@ export class CopilotClient implements LLMClient {
     // TODO: Implement session cancellation via GitHub API
     console.log(`Cancelling session ${sessionId}`);
     return true;
+  }
+
+  /**
+   * Validate GitHub iframe URL for security
+   */
+  private validateCopilotIframeUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url);
+      
+      // Must be GitHub
+      if (parsed.hostname !== 'github.com') {
+        return false;
+      }
+      
+      // Extract repo from path
+      const pathParts = parsed.pathname.split('/');
+      if (pathParts.length < 3) {
+        return false;
+      }
+      
+      const repo = `${pathParts[1]}/${pathParts[2]}`;
+      return repo === this.repository;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Generate progress tracking information for GitHub Copilot sessions
+   */
+  private generateCopilotProgressInfo(session: CopilotSession): string {
+    if (!session.issueNumber) {
+      return '';
+    }
+
+    const issueUrl = this.buildIssueUrl(session.issueNumber);
+    const isDemo = session.id.startsWith('cop_demo_');
+    const prefix = isDemo ? '[DEMO] ' : '';
+    
+    // Return rich markdown message with embedded iframe for compatible clients
+    const progressMessage = `
+📊 **${prefix}GitHub Copilot Progress Tracking**
+
+🔗 **Direct Link:** [Open GitHub Issue #${session.issueNumber} ↗](${issueUrl})
+
+💡 **For Matrix Web clients that support HTML rendering:**
+<div style="border: 1px solid #d1d5da; border-radius: 6px; padding: 16px; margin: 8px 0;">
+  <h4 style="margin: 0 0 12px 0;">🤖 ${prefix}Live Progress Tracking</h4>
+  <p style="margin: 0 0 12px 0;"><a href="${issueUrl}" target="_blank">📊 Open in GitHub ↗</a></p>
+  <iframe src="${issueUrl}" width="100%" height="600px" 
+          frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups"
+          style="border: 1px solid #d1d5da; border-radius: 4px;"
+          title="Copilot progress for ${this.repository} issue #${session.issueNumber}">
+    <p>Your Matrix client doesn't support iframes. <a href="${issueUrl}" target="_blank">Track progress here ↗</a></p>
+  </iframe>
+</div>
+
+📱 **For all other Matrix clients:** Use the direct link above to track progress.
+`;
+    
+    return progressMessage.trim() + '\n';
   }
 }

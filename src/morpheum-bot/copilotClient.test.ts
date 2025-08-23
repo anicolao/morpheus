@@ -239,4 +239,34 @@ describe('CopilotClient', () => {
     const result = await client.cancelSession('test-session-id');
     expect(result).toBe(true);
   });
+
+  it('should include iframe HTML for GitHub Copilot progress tracking in streaming updates', async () => {
+    // Mock demo mode (GraphQL fails)
+    mockOctokit.graphql
+      .mockRejectedValueOnce(new Error('API not available'));
+
+    const chunks: string[] = [];
+    const onChunk = vi.fn((text: string) => {
+      chunks.push(text);
+    });
+
+    await client.sendStreaming('Fix authentication bug', onChunk);
+    
+    // Find the progress tracking chunk
+    const progressChunk = chunks.find(chunk => 
+      chunk.includes('GitHub Copilot Progress Tracking') && chunk.includes('<iframe')
+    );
+    
+    expect(progressChunk).toBeDefined();
+    expect(progressChunk!).toContain('<iframe');
+    expect(progressChunk!).toContain('src="https://github.com/owner/repo/issues/123"');
+    expect(progressChunk!).toContain('🤖 [DEMO] Live Progress Tracking');
+    expect(progressChunk!).toContain('sandbox="allow-scripts allow-same-origin allow-popups"');
+    expect(progressChunk!).toContain('Track progress here ↗');
+    expect(progressChunk!).toContain('Open GitHub Issue #123 ↗');
+    
+    // Verify fallback text is present
+    expect(progressChunk!).toContain('📊 **[DEMO] GitHub Copilot Progress Tracking**');
+    expect(progressChunk!).toContain('For all other Matrix clients');
+  }, 20000);
 });
