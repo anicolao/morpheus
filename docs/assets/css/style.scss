@@ -2,65 +2,112 @@
 ---
 
 @import "minima";
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-/* Morpheum Custom Styles - Neural Glow Theme */
+/* Morpheum Custom Styles - Scholarly Theme */
 /* Cache bust: {{ site.time | date: "%Y%m%d%H%M%S" }} */
-/* Force cache refresh: 2025-08-22-12:30 - Alternate color palette */
+/* Force cache refresh: 2025-08-23 - Scholarly design prioritizing readability */
 
-/* Neural Glow color palette - Alternate Color Scheme */
+/* Scholarly Academic color palette - Prioritizing Readability */
 :root {
-  --background-dark: #08141A;    /* Dark blue-green tone - primary background */
-  --accent-primary: #9EFD38;     /* Bright lime green - primary accent */
-  --accent-secondary: #327BFE;   /* Bright blue - secondary accent */
-  --text-primary: #E5F2F5;       /* Light blue-tinted white - primary text */
-  --text-secondary: #6B8096;     /* Blue-gray - secondary text */
-  --border-color: #2A3540;       /* Darker blue-green border for contrast */
-  --card-bg: #0F1E24;            /* Slightly lighter than main background for cards */
+  --background: #FEFEFE;           /* Clean white background */
+  --background-subtle: #F8F9FA;    /* Subtle off-white for cards */
+  --text-primary: #1A1A1A;         /* Near-black for high contrast reading */
+  --text-secondary: #555555;       /* Medium gray for secondary text */
+  --text-muted: #777777;           /* Lighter gray for meta information */
+  --accent-primary: #2E5D3E;       /* Muted green (nod to logo) - professional */
+  --accent-secondary: #1B4A73;     /* Deep blue - scholarly */
+  --border-light: #E0E4E7;         /* Light borders */
+  --border-medium: #D0D4D7;        /* Medium borders */
+  --link-color: #1B4A73;           /* Deep blue for links */
+  --link-hover: #2E5D3E;           /* Green on hover */
 }
 
-/* Global typography and layout */
+/* Global typography and layout - Academic style */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Crimson Text', Georgia, serif;
   color: var(--text-primary);
-  background-color: var(--background-dark);
-  line-height: 1.6;
+  background-color: var(--background);
+  line-height: 1.7;
+  font-size: 18px; /* Comfortable reading size */
 }
 
+/* Typography hierarchy for academic readability */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   color: var(--text-primary);
-  letter-spacing: 1.5px;
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 
-/* Header styling */
+h1 {
+  font-size: 2.2rem;  /* Reduced from 3rem for better readability */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--accent-primary);
+}
+
+h2 {
+  font-size: 1.6rem;  /* Reduced from 2rem */
+  margin-top: 2.5rem;
+  color: var(--accent-secondary);
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 0.5rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-top: 2rem;
+}
+
+p {
+  margin-bottom: 1.2rem;
+  color: var(--text-primary);
+}
+
+/* Clean, readable links */
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--link-hover);
+  border-bottom-color: var(--link-hover);
+}
+
+/* Header styling - Clean academic style */
 .site-header {
-  background-color: var(--background-dark);
-  border-bottom: 1px solid var(--border-color);
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .site-title {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--text-primary) !important;
+  font-size: 1.4rem;  /* Reduced from 26px */
+  font-weight: 600;   /* Reduced from 700 */
+  color: var(--accent-primary) !important;
   text-decoration: none;
   display: flex;
   align-items: center;
-  font-family: 'Orbitron', sans-serif;
-  letter-spacing: 1.5px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.5px;  /* Reduced from 1.5px */
 }
 
 .site-title:hover {
-  color: var(--accent-primary) !important;
-  text-shadow: 0px 0px 10px rgba(158, 253, 56, 0.5);
+  color: var(--accent-secondary) !important;
+  text-shadow: none;  /* Remove glow effect */
 }
 
 .site-logo {
-  height: 40px;
-  width: 40px;
-  margin-right: 12px;
+  height: 32px;  /* Reduced from 40px */
+  width: 32px;
+  margin-right: 10px;  /* Reduced from 12px */
   border-radius: 4px;
 }
 
@@ -72,193 +119,200 @@ h1, h2, h3, h4, h5, h6 {
 .site-nav .page-link:hover {
   color: var(--accent-secondary);
   text-decoration: none;
-  text-shadow: 0px 0px 8px rgba(50, 123, 254, 0.6);
+  text-shadow: none;  /* Remove glow effect */
 }
 
-/* Hero section with neural gradient */
+/* Hero section - Simplified academic style */
 .hero {
-  background: linear-gradient(135deg, var(--background-dark) 0%, #0F1E24 50%, var(--background-dark) 100%);
+  background-color: var(--background);
   color: var(--text-primary);
-  padding: 4rem 0;
-  text-align: center;
-  margin-bottom: 3rem;
+  padding: 3rem 0 2rem 0;  /* Reduced padding */
+  text-align: left;        /* Left-aligned for academic feel */
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-light);
   position: relative;
-  overflow: hidden;
 }
 
+/* Remove all the flashy gradient overlays */
 .hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, 
-    rgba(158, 253, 56, 0.1) 0%, 
-    transparent 50%, 
-    rgba(50, 123, 254, 0.1) 100%);
-  z-index: 1;
+  display: none;
 }
 
 .hero > * {
-  position: relative;
-  z-index: 2;
+  position: static;
+  z-index: auto;
 }
 
 .hero h1 {
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: 2.4rem;  /* Reduced from 3rem */
+  font-weight: 600;   /* Reduced from 700 */
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--accent-primary);
+  /* Remove gradient text effect */
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
 }
 
 .hero p {
-  font-size: 1.25rem;
-  opacity: 0.9;
-  max-width: 600px;
-  margin: 0 auto;
+  font-size: 1.1rem;        /* Reduced from 1.25rem */
+  opacity: 1;               /* Remove opacity effect */
+  max-width: 700px;         /* Increased for better readability */
+  margin: 0;
   color: var(--text-secondary);
 }
 
 .hero-logo {
-  height: 80px;
-  width: 80px;
+  height: 60px;  /* Reduced from 80px */
+  width: 60px;
   margin-bottom: 1rem;
   border-radius: 8px;
-  box-shadow: 0px 0px 30px rgba(158, 253, 56, 0.5);
-  transition: box-shadow 0.3s ease-in-out;
+  box-shadow: none;  /* Remove glow effect */
+  transition: none;  /* Remove hover effects */
 }
 
 .hero-logo:hover {
-  box-shadow: 0px 0px 40px rgba(158, 253, 56, 0.8);
+  box-shadow: none;  /* Remove glow effect */
 }
 
-/* Feature cards */
+/* Feature cards - Clean minimal style */
 .features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 3rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;             /* Reduced gap */
+  margin: 2rem 0;          /* Reduced margin */
 }
 
 .feature-card {
-  background: var(--card-bg);
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-color);
-  border-left: 4px solid var(--accent-secondary);
-  transition: transform 0.3s, box-shadow 0.3s;
+  background: var(--background-subtle);
+  padding: 1.5rem;         /* Reduced padding */
+  border-radius: 4px;      /* Smaller border radius */
+  box-shadow: none;        /* Remove shadow */
+  border: 1px solid var(--border-light);
+  transition: border-color 0.2s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0px 0px 20px rgba(50, 123, 254, 0.3);
-  border-left-color: var(--accent-primary);
+  border-color: var(--border-medium);
+  /* Remove glow effects */
+  box-shadow: none;
+  transform: none;
 }
 
 .feature-card h3 {
-  color: var(--text-primary);
-  margin-bottom: 1rem;
+  color: var(--accent-primary);
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;       /* Smaller headings */
+  font-weight: 500;
 }
 
 .feature-card p {
   color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 0;
 }
 
-/* Status indicators with neural glow */
+/* Status indicators - Clean academic style */
 .status-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
+  border-radius: 4px;  /* Reduced from 1rem */
+  font-size: 0.8rem;   /* Slightly smaller */
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.025rem;
 }
 
 .status-active {
-  background-color: rgba(50, 123, 254, 0.2);
+  background-color: rgba(27, 74, 115, 0.1);  /* Using academic blue */
   color: var(--accent-secondary);
   border: 1px solid var(--accent-secondary);
-  box-shadow: 0px 0px 10px rgba(50, 123, 254, 0.3);
+  box-shadow: none;  /* Remove glow */
 }
 
 .status-planned {
-  background-color: rgba(158, 253, 56, 0.2);
+  background-color: rgba(46, 93, 62, 0.1);   /* Using academic green */
   color: var(--accent-primary);
   border: 1px solid var(--accent-primary);
-  box-shadow: 0px 0px 10px rgba(158, 253, 56, 0.3);
+  box-shadow: none;  /* Remove glow */
 }
 
 .status-completed {
-  background-color: rgba(107, 128, 150, 0.2);
-  color: var(--text-secondary);
-  border: 1px solid var(--text-secondary);
+  background-color: rgba(119, 119, 119, 0.1);
+  color: var(--text-muted);
+  border: 1px solid var(--text-muted);
 }
 
-/* Neural Glow call-to-action buttons */
+/* Clean academic call-to-action buttons */
 .cta-button {
   display: inline-block;
   background-color: var(--accent-primary);
   color: white;
-  padding: 0.75rem 1.5rem;
+  padding: 0.7rem 1.5rem;
   text-decoration: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-family: 'Orbitron', sans-serif;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease-in-out;
+  border-radius: 4px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
   border: none;
   cursor: pointer;
-  /* The neural glow effect */
-  box-shadow: 0px 0px 20px rgba(158, 253, 56, 0.6);
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  /* Remove glow effects */
+  box-shadow: none;
 }
 
 .cta-button:hover {
-  background-color: var(--accent-primary);
+  background-color: var(--accent-secondary);
   color: white;
   text-decoration: none;
-  transform: translateY(-3px);
-  /* Intensify the glow on hover */
-  box-shadow: 0px 0px 30px rgba(158, 253, 56, 0.8);
+  border-bottom: none;
+  /* Remove hover effects */
+  transform: none;
+  box-shadow: none;
 }
 
 .cta-button-secondary {
   background-color: transparent;
   color: var(--accent-secondary);
-  border: 2px solid var(--accent-secondary);
-  box-shadow: 0px 0px 15px rgba(50, 123, 254, 0.4);
+  border: 1px solid var(--accent-secondary);
+  box-shadow: none;
 }
 
 .cta-button-secondary:hover {
   background-color: var(--accent-secondary);
-  color: var(--background-dark);
-  box-shadow: 0px 0px 25px rgba(50, 123, 254, 0.7);
-  transform: translateY(-3px);
+  color: white;
+  /* Remove glow effects */
+  box-shadow: none;
+  transform: none;
 }
 
-/* Content sections */
+/* Content sections with academic spacing */
 .content-section {
-  margin: 3rem 0;
-  padding: 2rem 0;
+  margin: 2.5rem 0;        /* Reduced margins */
+  padding: 0;              /* Remove extra padding */
 }
 
 .content-section h2 {
-  color: var(--text-primary);
+  color: var(--accent-secondary);
   margin-bottom: 1.5rem;
-  font-size: 2rem;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.6rem;
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 0.5rem;
+  /* Remove gradient text effect */
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
 }
 
 .content-section p {
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
 }
 
 /* Navigation improvements */
@@ -266,88 +320,74 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--text-primary);
 }
 
-/* Footer styling */
+/* Footer styling - Clean academic style */
 .site-footer {
-  background-color: var(--card-bg);
-  border-top: 1px solid var(--border-color);
+  background-color: var(--background-subtle);
+  border-top: 1px solid var(--border-light);
   color: var(--text-secondary);
 }
 
-/* Code blocks with neural theme */
+/* Code blocks - Clean academic style */
 pre, code {
-  border-radius: 0.375rem;
-  background-color: var(--card-bg) !important;
+  border-radius: 4px;
+  background-color: var(--background-subtle) !important;
   color: var(--text-primary) !important;
+  border: 1px solid var(--border-light);
 }
 
 .highlight {
-  border-radius: 0.375rem;
-  border: 1px solid var(--border-color);
-  background-color: var(--card-bg) !important;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+  background-color: var(--background-subtle) !important;
 }
 
-/* Tables with neural styling */
+/* Tables - Clean academic style */
 table {
   border-collapse: collapse;
   width: 100%;
   margin: 1rem 0;
-  background-color: var(--card-bg);
-  border-radius: 8px;
+  background-color: var(--background);
+  border-radius: 4px;
   overflow: hidden;
 }
 
 table th,
 table td {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-light);
   padding: 0.75rem;
   text-align: left;
   color: var(--text-primary);
 }
 
 table th {
-  background-color: var(--background-dark);
+  background-color: var(--background-subtle);
   font-weight: 600;
-  color: var(--accent-primary);
+  color: var(--accent-secondary);
 }
 
-/* Page content wrapper with subtle neural glow */
+/* Page content wrapper - Clean style */
 .page-content {
-  background-color: var(--background-dark);
+  background-color: var(--background);
 }
 
 .wrapper {
   position: relative;
+  max-width: 900px;  /* Narrower for better readability */
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
+/* Remove all neural glow background effects */
 .wrapper::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(158, 253, 56, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(50, 123, 254, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 40% 80%, rgba(158, 253, 56, 0.03) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Links with neural glow */
-a {
-  color: var(--accent-secondary);
-  transition: all 0.2s ease-in-out;
-}
-
-a:hover {
-  color: var(--accent-primary);
-  text-shadow: 0px 0px 8px rgba(158, 253, 56, 0.5);
-  text-decoration: none;
+  display: none;
 }
 
 /* Responsive design */
 @media screen and (max-width: 600px) {
+  body {
+    font-size: 16px;
+  }
+  
   .hero h1 {
     font-size: 2rem;
   }
@@ -358,5 +398,26 @@ a:hover {
   
   .features {
     grid-template-columns: 1fr;
+  }
+  
+  .wrapper {
+    padding: 0 1rem;
+  }
+}
+
+/* Print-friendly styles for academic feel */
+@media print {
+  body {
+    background: white;
+    color: black;
+    font-size: 12pt;
+  }
+  
+  .hero {
+    border-bottom: 2px solid black;
+  }
+  
+  h1, h2 {
+    color: black;
   }
 }
