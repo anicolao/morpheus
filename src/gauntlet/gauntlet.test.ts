@@ -89,4 +89,33 @@ even more output`;
     
     expect(cleanStdout).toBe('');
   });
+
+  it('should handle refine-existing-codebase API response with pollution', () => {
+    // Test the specific case for refine-existing-codebase task
+    const pollutedApiResponse = '✅ Gauntlet project environment ready\n{"status": "ok", "timestamp": "2025-01-29T12:00:00.000Z"}';
+    
+    const cleanStdout = cleanStdoutForJSON(pollutedApiResponse);
+    const parsed = JSON.parse(cleanStdout);
+    
+    expect(parsed.status).toBe('ok');
+    expect(parsed.timestamp).toBeTruthy();
+    expect(cleanStdout.includes('✅')).toBe(false);
+    expect(cleanStdout.includes('Gauntlet project environment ready')).toBe(false);
+  });
+
+  it('should handle refine-existing-codebase API response with multiline pollution', () => {
+    // Test with flake.nix pollution that might occur but clean JSON from the API
+    const pollutedApiResponse = `✅ DOCKER_HOST automatically set to Colima's socket.
+✅ Gauntlet project environment ready
+{"status": "ok", "timestamp": "2025-01-29T12:00:00.000Z"}`;
+    
+    const cleanStdout = cleanStdoutForJSON(pollutedApiResponse);
+    const parsed = JSON.parse(cleanStdout);
+    
+    expect(parsed.status).toBe('ok');
+    expect(parsed.timestamp).toBeTruthy();
+    expect(cleanStdout.includes('✅')).toBe(false);
+    expect(cleanStdout.includes('DOCKER_HOST')).toBe(false);
+    expect(cleanStdout.includes('Gauntlet project environment ready')).toBe(false);
+  });
 });
