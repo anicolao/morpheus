@@ -61,7 +61,7 @@ export class TokenManager {
     
     console.log('[TokenManager] Matrix specification does not support converting access tokens to refresh tokens');
     console.log('[TokenManager] To get refresh tokens, you need to authenticate with username/password initially');
-    console.log('[TokenManager] Consider adding USERNAME and PASSWORD environment variables for refresh token support');
+    console.log('[TokenManager] Consider adding MATRIX_USERNAME and MATRIX_PASSWORD environment variables for refresh token support');
     
     return undefined;
   }

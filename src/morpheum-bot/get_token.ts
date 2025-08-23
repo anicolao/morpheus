@@ -1,11 +1,11 @@
 import * as sdk from 'matrix-js-sdk';
 
 const homeserverUrl = process.env.HOMESERVER_URL;
-const username = process.env.USERNAME;
-const password = process.env.PASSWORD;
+const username = process.env.MATRIX_USERNAME;
+const password = process.env.MATRIX_PASSWORD;
 
 if (!homeserverUrl || !username || !password) {
-    console.error("HOMESERVER_URL, USERNAME, and PASSWORD environment variables are required.");
+    console.error("HOMESERVER_URL, MATRIX_USERNAME, and MATRIX_PASSWORD environment variables are required.");
     process.exit(1);
 }
 

@@ -14,18 +14,18 @@ import { TokenManager } from "./token-manager";
 // read environment variables
 const homeserverUrl = process.env.HOMESERVER_URL;
 const accessToken = process.env.ACCESS_TOKEN;
-const username = process.env.USERNAME;
-const password = process.env.PASSWORD;
+const username = process.env.MATRIX_USERNAME;
+const password = process.env.MATRIX_PASSWORD;
 
 if (!homeserverUrl) {
   console.error("HOMESERVER_URL environment variable is required.");
   process.exit(1);
 }
 
-// Require either ACCESS_TOKEN or both USERNAME and PASSWORD
+// Require either ACCESS_TOKEN or both MATRIX_USERNAME and MATRIX_PASSWORD
 if (!accessToken && (!username || !password)) {
   console.error(
-    "Either ACCESS_TOKEN or both USERNAME and PASSWORD environment variables are required.",
+    "Either ACCESS_TOKEN or both MATRIX_USERNAME and MATRIX_PASSWORD environment variables are required.",
   );
   process.exit(1);
 }
@@ -92,8 +92,8 @@ if (username && password) {
   }
 } else if (accessToken) {
   console.log("[Auth] Using ACCESS_TOKEN-only mode");
-  console.log("[Auth] Note: Automatic token refresh requires USERNAME and PASSWORD");
-  console.log("[Auth] To enable refresh tokens, set USERNAME and PASSWORD environment variables");
+  console.log("[Auth] Note: Automatic token refresh requires MATRIX_USERNAME and MATRIX_PASSWORD");
+  console.log("[Auth] To enable refresh tokens, set MATRIX_USERNAME and MATRIX_PASSWORD environment variables");
   console.log("[Auth] Bot will continue with static token but may stop working when token expires");
 } else {
   console.log("[Auth] Using static ACCESS_TOKEN (no automatic refresh)");

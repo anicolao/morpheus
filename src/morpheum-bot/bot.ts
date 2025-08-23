@@ -792,8 +792,8 @@ ${spoilerContent}
       await sendMessage(
         `Matrix Token Status: Static token mode
 - Authentication: Using ACCESS_TOKEN environment variable
-- Automatic refresh: Not available (requires USERNAME and PASSWORD)
-- Recommendation: Set USERNAME and PASSWORD environment variables to enable automatic token refresh`
+- Automatic refresh: Not available (requires MATRIX_USERNAME and MATRIX_PASSWORD)
+- Recommendation: Set MATRIX_USERNAME and MATRIX_PASSWORD environment variables to enable automatic token refresh`
       );
       return;
     }
@@ -807,7 +807,7 @@ ${spoilerContent}
 
 ${status.hasCredentials && status.hasAccessToken ? 
   '✅ Automatic token refresh is enabled and working' : 
-  '⚠️  Token refresh may not work properly - ensure USERNAME and PASSWORD are set'}`;
+  '⚠️  Token refresh may not work properly - ensure MATRIX_USERNAME and MATRIX_PASSWORD are set'}`;
 
     await sendMessage(statusMessage);
   }
@@ -820,7 +820,7 @@ ${status.hasCredentials && status.hasAccessToken ?
       await sendMessage(
         `❌ Manual token refresh not available
 - Current mode: Static token (ACCESS_TOKEN only)
-- To enable refresh: Set USERNAME and PASSWORD environment variables and restart bot`
+- To enable refresh: Set MATRIX_USERNAME and MATRIX_PASSWORD environment variables and restart bot`
       );
       return;
     }
@@ -829,7 +829,7 @@ ${status.hasCredentials && status.hasAccessToken ?
     if (!status.hasCredentials) {
       await sendMessage(
         `❌ Cannot refresh token: Missing credentials
-- USERNAME and PASSWORD environment variables are required for token refresh
+- MATRIX_USERNAME and MATRIX_PASSWORD environment variables are required for token refresh
 - Current configuration only supports static ACCESS_TOKEN mode`
       );
       return;
