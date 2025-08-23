@@ -137,9 +137,13 @@ export class CopilotClient implements LLMClient {
         onChunk(`🚀 Starting GitHub Copilot session for [#${session.issueNumber}](${issueUrl})...\n`);
         
         // Generate and send iframe information for progress tracking
-        const iframeInfo = this.generateCopilotProgressInfo(session);
-        if (iframeInfo) {
-          onChunk(iframeInfo);
+        const progressInfo = this.generateCopilotProgressInfo(session);
+        if (progressInfo.text) {
+          // Send as a special chunk that includes both text and HTML
+          onChunk(`__DUAL_MESSAGE__${JSON.stringify({
+            text: progressInfo.text,
+            html: progressInfo.html
+          })}`);
         }
       }
       
@@ -830,36 +834,86 @@ export class CopilotClient implements LLMClient {
   /**
    * Generate progress tracking information for GitHub Copilot sessions
    */
-  private generateCopilotProgressInfo(session: CopilotSession): string {
+  private generateCopilotProgressInfo(session: CopilotSession): { text: string; html: string } {
     if (!session.issueNumber) {
-      return '';
+      return { text: '', html: '' };
     }
 
     const issueUrl = this.buildIssueUrl(session.issueNumber);
     const isDemo = session.id.startsWith('cop_demo_');
     const prefix = isDemo ? '[DEMO] ' : '';
     
-    // Return rich markdown message with embedded iframe for compatible clients
-    const progressMessage = `
-📊 **${prefix}GitHub Copilot Progress Tracking**
+    // Text version for text-only clients
+    const textMessage = `📊 **${prefix}GitHub Copilot Progress Tracking**
 
-🔗 **Direct Link:** [Open GitHub Issue #${session.issueNumber} ↗](${issueUrl})
+🔗 **Issue:** [#${session.issueNumber}](${issueUrl})`;
 
-💡 **For Matrix Web clients that support HTML rendering:**
-<div style="border: 1px solid #d1d5da; border-radius: 6px; padding: 16px; margin: 8px 0;">
-  <h4 style="margin: 0 0 12px 0;">🤖 ${prefix}Live Progress Tracking</h4>
-  <p style="margin: 0 0 12px 0;"><a href="${issueUrl}" target="_blank">📊 Open in GitHub ↗</a></p>
-  <iframe src="${issueUrl}" width="100%" height="600px" 
-          frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups"
-          style="border: 1px solid #d1d5da; border-radius: 4px;"
-          title="Copilot progress for ${this.repository} issue #${session.issueNumber}">
-    <p>Your Matrix client doesn't support iframes. <a href="${issueUrl}" target="_blank">Track progress here ↗</a></p>
-  </iframe>
-</div>
+    // Add PR and session links if available
+    let additionalLinks = '';
+    if (session.pullRequestUrl) {
+      const prNumber = this.extractPRNumber(session.pullRequestUrl);
+      if (prNumber) {
+        const prUrl = this.buildPRUrl(prNumber);
+        const sessionUrl = `${prUrl}/agent-sessions/${session.id}`;
+        additionalLinks += `\n🔗 **Pull Request:** [#${prNumber}](${prUrl})`;
+        additionalLinks += `\n🤖 **Copilot Session:** [${session.id}](${sessionUrl})`;
+      }
+    }
 
-📱 **For all other Matrix clients:** Use the direct link above to track progress.
-`;
+    const fullTextMessage = textMessage + additionalLinks + '\n';
     
-    return progressMessage.trim() + '\n';
+    // HTML version with multiple iframes for HTML-capable clients
+    let htmlContent = `<div style="border: 1px solid #d1d5da; border-radius: 6px; padding: 16px; margin: 8px 0;">
+  <h4 style="margin: 0 0 12px 0;">🤖 ${prefix}Live Progress Tracking</h4>
+  
+  <div style="margin-bottom: 16px;">
+    <h5 style="margin: 0 0 8px 0;">📊 Issue Tracking:</h5>
+    <p style="margin: 0 0 8px 0;"><a href="${issueUrl}" target="_blank">Open Issue #${session.issueNumber} ↗</a></p>
+    <iframe src="${issueUrl}" width="100%" height="400px" 
+            frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups"
+            style="border: 1px solid #d1d5da; border-radius: 4px; margin-bottom: 12px;"
+            title="GitHub issue #${session.issueNumber} for ${this.repository}">
+      <p>Your client doesn't support iframes. <a href="${issueUrl}" target="_blank">View issue ↗</a></p>
+    </iframe>
+  </div>`;
+
+    // Add PR iframe if available
+    if (session.pullRequestUrl) {
+      const prNumber = this.extractPRNumber(session.pullRequestUrl);
+      if (prNumber) {
+        const prUrl = this.buildPRUrl(prNumber);
+        const sessionUrl = `${prUrl}/agent-sessions/${session.id}`;
+        
+        htmlContent += `
+  <div style="margin-bottom: 16px;">
+    <h5 style="margin: 0 0 8px 0;">🔗 Pull Request:</h5>
+    <p style="margin: 0 0 8px 0;"><a href="${prUrl}" target="_blank">Open PR #${prNumber} ↗</a></p>
+    <iframe src="${prUrl}" width="100%" height="400px" 
+            frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups"
+            style="border: 1px solid #d1d5da; border-radius: 4px; margin-bottom: 12px;"
+            title="GitHub PR #${prNumber} for ${this.repository}">
+      <p>Your client doesn't support iframes. <a href="${prUrl}" target="_blank">View PR ↗</a></p>
+    </iframe>
+  </div>
+  
+  <div style="margin-bottom: 16px;">
+    <h5 style="margin: 0 0 8px 0;">🤖 Copilot Session:</h5>
+    <p style="margin: 0 0 8px 0;"><a href="${sessionUrl}" target="_blank">Open Session ${session.id} ↗</a></p>
+    <iframe src="${sessionUrl}" width="100%" height="400px" 
+            frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups"
+            style="border: 1px solid #d1d5da; border-radius: 4px;"
+            title="GitHub Copilot session ${session.id} for ${this.repository}">
+      <p>Your client doesn't support iframes. <a href="${sessionUrl}" target="_blank">View session ↗</a></p>
+    </iframe>
+  </div>`;
+      }
+    }
+
+    htmlContent += '</div>';
+    
+    return { 
+      text: fullTextMessage,
+      html: htmlContent
+    };
   }
 }
