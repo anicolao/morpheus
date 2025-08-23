@@ -245,27 +245,28 @@ describe('CopilotClient', () => {
     mockOctokit.graphql
       .mockRejectedValueOnce(new Error('API not available'));
 
-    const chunks: Array<{ text: string, html?: string }> = [];
-    const onChunk = vi.fn((text: string, html?: string) => {
-      chunks.push({ text, html });
+    const chunks: string[] = [];
+    const onChunk = vi.fn((text: string) => {
+      chunks.push(text);
     });
 
     await client.sendStreaming('Fix authentication bug', onChunk);
     
-    // Find the iframe chunk
-    const iframeChunk = chunks.find(chunk => 
-      chunk.text.includes('Track detailed progress below:') && chunk.html
+    // Find the progress tracking chunk
+    const progressChunk = chunks.find(chunk => 
+      chunk.includes('GitHub Copilot Progress Tracking') && chunk.includes('<iframe')
     );
     
-    expect(iframeChunk).toBeDefined();
-    expect(iframeChunk!.html).toContain('<iframe');
-    expect(iframeChunk!.html).toContain('src="https://github.com/owner/repo/issues/123"');
-    expect(iframeChunk!.html).toContain('🤖 [DEMO] GitHub Copilot Progress');
-    expect(iframeChunk!.html).toContain('sandbox="allow-scripts allow-same-origin allow-popups"');
-    expect(iframeChunk!.html).toContain('Track progress here ↗');
+    expect(progressChunk).toBeDefined();
+    expect(progressChunk!).toContain('<iframe');
+    expect(progressChunk!).toContain('src="https://github.com/owner/repo/issues/123"');
+    expect(progressChunk!).toContain('🤖 [DEMO] Live Progress Tracking');
+    expect(progressChunk!).toContain('sandbox="allow-scripts allow-same-origin allow-popups"');
+    expect(progressChunk!).toContain('Track progress here ↗');
+    expect(progressChunk!).toContain('Open GitHub Issue #123 ↗');
     
     // Verify fallback text is present
-    expect(iframeChunk!.text).toContain('📊 Track detailed progress below:');
-    expect(iframeChunk!.text).toContain('https://github.com/owner/repo/issues/123');
+    expect(progressChunk!).toContain('📊 **[DEMO] GitHub Copilot Progress Tracking**');
+    expect(progressChunk!).toContain('For all other Matrix clients');
   }, 20000);
 });
