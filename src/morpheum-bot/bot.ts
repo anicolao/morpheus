@@ -885,4 +885,18 @@ ${status.hasCredentials && status.hasAccessToken ?
       await sendMessage(`❌ Token refresh failed: ${errorMessage}`);
     }
   }
+
+  /**
+   * Get accumulated LLM metrics from the current client
+   */
+  getLLMMetrics() {
+    return this.currentLLMClient.getMetrics?.() || null;
+  }
+
+  /**
+   * Reset LLM metrics for the current client
+   */
+  resetLLMMetrics() {
+    this.currentLLMClient.resetMetrics?.();
+  }
 }

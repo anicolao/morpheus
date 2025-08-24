@@ -1,7 +1,18 @@
 import { type LLMClient } from './llmClient';
+import { type LLMMetrics, MetricsTracker, estimateTokens } from './metrics';
 
 export class OllamaClient implements LLMClient {
+  private metricsTracker = new MetricsTracker();
+
   constructor(private readonly apiUrl: string, private readonly model: string) {}
+
+  getMetrics(): LLMMetrics | null {
+    return this.metricsTracker.getMetrics();
+  }
+
+  resetMetrics(): void {
+    this.metricsTracker.reset();
+  }
 
   async send(prompt: string): Promise<string> {
     console.log(`--- OLLAMA REQUEST (${this.model} @ ${this.apiUrl}) ---`);
@@ -24,6 +35,12 @@ export class OllamaClient implements LLMClient {
     }
 
     const data = await response.json();
+    
+    // Track metrics - Ollama may provide token counts in response
+    const inputTokens = data.prompt_eval_count || estimateTokens(prompt);
+    const outputTokens = data.eval_count || estimateTokens(data.response);
+    this.metricsTracker.addRequest(inputTokens, outputTokens);
+    
     console.log(`--- OLLAMA RESPONSE (${this.model} @ ${this.apiUrl}) ---`);
     console.log(data.response.split('\n').map((line: string) => `  ${line}`).join('\n'));
     console.log("-----------------------");
@@ -89,6 +106,11 @@ export class OllamaClient implements LLMClient {
     } finally {
       reader.releaseLock();
     }
+    
+    // Track metrics for streaming - estimate since Ollama streaming may not include token counts
+    const inputTokens = estimateTokens(prompt);
+    const outputTokens = estimateTokens(fullContent);
+    this.metricsTracker.addRequest(inputTokens, outputTokens);
     
     console.log(`--- OLLAMA STREAMING RESPONSE COMPLETE (${this.model} @ ${this.apiUrl}) ---`);
     console.log(fullContent.split('\n').map(line => `  ${line}`).join('\n'));

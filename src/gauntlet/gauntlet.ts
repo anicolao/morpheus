@@ -2,6 +2,7 @@ import { program } from "commander";
 import { MorpheumBot } from "../morpheum-bot/bot";
 import { SWEAgent } from "../morpheum-bot/sweAgent";
 import { JailClient } from "../morpheum-bot/jailClient";
+import { type LLMMetrics, MetricsTracker } from "../morpheum-bot/metrics";
 import { execa } from "execa";
 import * as net from "net";
 import { fileURLToPath } from "url";
@@ -448,6 +449,7 @@ EOF`,
 interface GauntletResult {
   [taskId: string]: {
     success: boolean;
+    metrics?: LLMMetrics;
   };
 }
 
@@ -683,13 +685,20 @@ async function runGauntlet(
   if (progressCallback) {
     await progressCallback(`🤖 **Executing task**: ${task.prompt}`);
   }
+  
+  // Reset metrics before the task
+  bot.resetLLMMetrics();
+  
   const result = await bot.processMessage(
     task.prompt,
     "gauntlet",
     messageSender,
   );
 
-  // 4. Capture the model's output and actions
+  // 4. Capture metrics after the task
+  const taskMetrics = bot.getLLMMetrics();
+
+  // 5. Capture the model's output and actions
   if (Array.isArray(result)) {
     capturedOutput.push(...result);
   }
@@ -698,47 +707,83 @@ async function runGauntlet(
   console.log(JSON.stringify(capturedOutput, null, 2));
   console.log("--- END CAPTURED OUTPUT ---\n");
 
-  // 4. Evaluate the output against the success condition
+  // 6. Evaluate the output against the success condition
   if (progressCallback) {
     await progressCallback(`📋 **Evaluating**: Checking if task requirements are met...`);
   }
   const success = await evaluateSuccessCondition(task, containerName, verbose);
   console.log(`\n--- TASK ${task.id} ---`);
   console.log(`Success: ${success}`);
+  if (taskMetrics) {
+    console.log(`Metrics: ${JSON.stringify(taskMetrics)}`);
+  }
   console.log("--- END TASK ---\\n");
   
   if (progressCallback) {
     await progressCallback(`${success ? '✅' : '❌'} **Task ${taskId} ${success ? 'PASSED' : 'FAILED'}**`);
   }
   
-  results[taskId] = { success };
+  results[taskId] = { success, metrics: taskMetrics || undefined };
 }
 
-// Helper function to create a progress table showing task status
+// Helper function to create a progress table showing task status and metrics
 function createProgressTable(
   tasksToRun: GauntletTask[], 
   results: GauntletResult, 
   nextTaskId: string | null
 ): string {
+  // Calculate cumulative metrics
+  const cumulativeMetrics = { requests: 0, inputTokens: 0, outputTokens: 0 };
+  Object.values(results).forEach(result => {
+    if (result.metrics) {
+      cumulativeMetrics.requests += result.metrics.requests;
+      cumulativeMetrics.inputTokens += result.metrics.inputTokens;
+      cumulativeMetrics.outputTokens += result.metrics.outputTokens;
+    }
+  });
+
   const header = `📊 **Gauntlet Progress Table**
 
-| Task | Status |
-|------|--------|`;
+| Task | Status | Requests | Input Tokens | Output Tokens |
+|------|--------|----------|--------------|---------------|`;
 
   const rows = tasksToRun.map(task => {
     let status;
+    let requests = '';
+    let inputTokens = '';
+    let outputTokens = '';
+    
     if (results[task.id] !== undefined) {
-      status = results[task.id]!.success ? '✅ PASS' : '❌ FAIL';
+      const result = results[task.id]!;
+      status = result.success ? '✅ PASS' : '❌ FAIL';
+      if (result.metrics) {
+        requests = result.metrics.requests.toString();
+        inputTokens = result.metrics.inputTokens.toString();
+        outputTokens = result.metrics.outputTokens.toString();
+      } else {
+        requests = '—';
+        inputTokens = '—';
+        outputTokens = '—';
+      }
     } else if (task.id === nextTaskId) {
       status = '▶️ NEXT';
+      requests = '—';
+      inputTokens = '—';
+      outputTokens = '—';
     } else {
       status = '⏳ PENDING';
+      requests = '—';
+      inputTokens = '—';
+      outputTokens = '—';
     }
     
-    return `| ${task.id} | ${status} |`;
+    return `| ${task.id} | ${status} | ${requests} | ${inputTokens} | ${outputTokens} |`;
   });
 
-  return [header, ...rows].join('\n');
+  // Add totals row
+  const totalsRow = `| **TOTAL** | **${Object.keys(results).length}/${tasksToRun.length}** | **${cumulativeMetrics.requests}** | **${cumulativeMetrics.inputTokens}** | **${cumulativeMetrics.outputTokens}** |`;
+
+  return [header, ...rows, totalsRow].join('\n');
 }
 
 // Export function for use by the bot

@@ -1,3 +1,5 @@
+import { type LLMMetrics, MetricsTracker } from './metrics';
+
 /**
  * Common interface for LLM clients (OpenAI, Ollama, etc.)
  */
@@ -16,6 +18,17 @@ export interface LLMClient {
    * @returns Promise that resolves to the complete LLM response
    */
   sendStreaming(prompt: string, onChunk: (chunk: string) => void): Promise<string>;
+
+  /**
+   * Get accumulated metrics for this client
+   * @returns Current metrics or null if metrics tracking is not enabled
+   */
+  getMetrics?(): LLMMetrics | null;
+
+  /**
+   * Reset metrics for this client
+   */
+  resetMetrics?(): void;
 }
 
 /**

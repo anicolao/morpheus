@@ -1,4 +1,5 @@
 import { type LLMClient } from './llmClient';
+import { type LLMMetrics, MetricsTracker, estimateTokens } from './metrics';
 import { Octokit } from '@octokit/rest';
 
 /**
@@ -68,6 +69,7 @@ export interface CopilotIssueResponse {
  * GitHub Copilot client implementing the LLMClient interface
  */
 export class CopilotClient implements LLMClient {
+  private metricsTracker = new MetricsTracker();
   private octokit: Octokit;
   private owner: string;
   private repo: string;
@@ -95,6 +97,14 @@ export class CopilotClient implements LLMClient {
     this.pollInterval = parseInt(process.env.COPILOT_POLL_INTERVAL || '30', 10) * 1000;
   }
 
+  getMetrics(): LLMMetrics | null {
+    return this.metricsTracker.getMetrics();
+  }
+
+  resetMetrics(): void {
+    this.metricsTracker.reset();
+  }
+
   async send(prompt: string): Promise<string> {
     console.log(`--- GITHUB COPILOT REQUEST (${this.repository} @ ${this.baseUrl}) ---`);
     console.log(prompt.split('\n').map(line => `  ${line}`).join('\n'));
@@ -106,6 +116,12 @@ export class CopilotClient implements LLMClient {
       const completedSession = await this.waitForCompletion(session);
       
       const result = await this.formatFinalResult(completedSession);
+      
+      // Track metrics - for Copilot, we count the session as one "request"
+      // and estimate tokens based on input prompt and output result
+      const inputTokens = estimateTokens(prompt);
+      const outputTokens = estimateTokens(result);
+      this.metricsTracker.addRequest(inputTokens, outputTokens);
       
       console.log(`--- GITHUB COPILOT RESPONSE (${this.repository} @ ${this.baseUrl}) ---`);
       console.log(result.split('\n').map(line => `  ${line}`).join('\n'));
@@ -187,6 +203,11 @@ export class CopilotClient implements LLMClient {
       }
       
       const finalResult = await this.formatFinalResult(currentSession);
+      
+      // Track metrics for streaming - estimate tokens based on prompt and final result
+      const inputTokens = estimateTokens(prompt);
+      const outputTokens = estimateTokens(finalResult);
+      this.metricsTracker.addRequest(inputTokens, outputTokens);
       
       // Send the final result as a chunk so it reaches the chat room
       onChunk(finalResult);

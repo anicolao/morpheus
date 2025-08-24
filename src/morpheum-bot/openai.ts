@@ -1,11 +1,22 @@
 import { type LLMClient } from './llmClient';
+import { type LLMMetrics, MetricsTracker, estimateTokens } from './metrics';
 
 export class OpenAIClient implements LLMClient {
+  private metricsTracker = new MetricsTracker();
+
   constructor(
     private readonly apiKey: string,
     private readonly model: string = 'gpt-3.5-turbo',
     private readonly baseUrl: string = 'https://api.openai.com/v1'
   ) {}
+
+  getMetrics(): LLMMetrics | null {
+    return this.metricsTracker.getMetrics();
+  }
+
+  resetMetrics(): void {
+    this.metricsTracker.reset();
+  }
 
   async send(prompt: string): Promise<string> {
     console.log(`--- OPENAI REQUEST (${this.model} @ ${this.baseUrl}) ---`);
@@ -37,6 +48,11 @@ export class OpenAIClient implements LLMClient {
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '';
+    
+    // Track metrics - OpenAI provides token usage in response
+    const inputTokens = data.usage?.prompt_tokens || estimateTokens(prompt);
+    const outputTokens = data.usage?.completion_tokens || estimateTokens(content);
+    this.metricsTracker.addRequest(inputTokens, outputTokens);
     
     console.log(`--- OPENAI RESPONSE (${this.model} @ ${this.baseUrl}) ---`);
     console.log(content.split('\n').map((line: string) => `  ${line}`).join('\n'));
@@ -115,6 +131,11 @@ export class OpenAIClient implements LLMClient {
     } finally {
       reader.releaseLock();
     }
+    
+    // Track metrics for streaming - estimate tokens since OpenAI streaming doesn't provide usage
+    const inputTokens = estimateTokens(prompt);
+    const outputTokens = estimateTokens(fullContent);
+    this.metricsTracker.addRequest(inputTokens, outputTokens);
     
     console.log(`--- OPENAI STREAMING RESPONSE COMPLETE (${this.model} @ ${this.baseUrl}) ---`);
     console.log(fullContent.split('\n').map(line => `  ${line}`).join('\n'));
