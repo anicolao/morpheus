@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cleanStdoutForJSON } from './gauntlet';
+import { cleanStdoutForJSON, gauntletTasks } from './gauntlet';
 
 describe('XML Converter Output Cleaning', () => {
 
@@ -118,4 +118,28 @@ even more output`;
     expect(cleanStdout.includes('DOCKER_HOST')).toBe(false);
     expect(cleanStdout.includes('Gauntlet project environment ready')).toBe(false);
   });
+});
+
+describe('Gauntlet Task Order', () => {
+
+  it('should have create-project-dir as the first task', () => {
+    expect(gauntletTasks.length).toBeGreaterThan(0);
+    expect(gauntletTasks[0]?.id).toBe('create-project-dir');
+  });
+
+  it('should have check-sed-available as the second task', () => {
+    expect(gauntletTasks.length).toBeGreaterThan(1);
+    expect(gauntletTasks[1]?.id).toBe('check-sed-available');
+  });
+
+  it('should have add-jq as the third task', () => {
+    expect(gauntletTasks.length).toBeGreaterThan(2);
+    expect(gauntletTasks[2]?.id).toBe('add-jq');
+  });
+
+  it('should maintain the correct task order: create-project-dir, check-sed-available, add-jq', () => {
+    const firstThreeTaskIds = gauntletTasks.slice(0, 3).map(task => task.id);
+    expect(firstThreeTaskIds).toEqual(['create-project-dir', 'check-sed-available', 'add-jq']);
+  });
+
 });

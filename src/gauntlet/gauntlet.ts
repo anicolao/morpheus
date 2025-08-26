@@ -41,27 +41,17 @@ interface GauntletTask {
 // Define the tasks based on GAUNTLET.md
 const tasks: GauntletTask[] = [
   {
-    id: "add-jq",
+    id: "create-project-dir",
     skill: "Environment Management & Tooling",
     difficulty: "Easy",
-    prompt:
-      "I need to parse some JSON from the command line. Add the 'jq' tool to my environment.",
+    prompt: "create a /project directory if none exists",
     successCondition: async (containerName) => {
       const { stdout } = await execa(
         "nix",
-        [
-          "develop",
-          "-c",
-          "docker",
-          "exec",
-          containerName,
-          "sh",
-          "-c",
-          "cd /project && nix develop -c which jq",
-        ],
+        ["develop", "-c", "docker", "exec", containerName, "ls", "/"],
         { cwd: "./jail" },
       );
-      return stdout.includes("/nix/store");
+      return stdout.includes("project");
     },
   },
   {
@@ -88,17 +78,27 @@ const tasks: GauntletTask[] = [
     },
   },
   {
-    id: "create-project-dir",
+    id: "add-jq",
     skill: "Environment Management & Tooling",
     difficulty: "Easy",
-    prompt: "create a /project directory if none exists",
+    prompt:
+      "I need to parse some JSON from the command line. Add the 'jq' tool to my environment.",
     successCondition: async (containerName) => {
       const { stdout } = await execa(
         "nix",
-        ["develop", "-c", "docker", "exec", containerName, "ls", "/"],
+        [
+          "develop",
+          "-c",
+          "docker",
+          "exec",
+          containerName,
+          "sh",
+          "-c",
+          "cd /project && nix develop -c which jq",
+        ],
         { cwd: "./jail" },
       );
-      return stdout.includes("project");
+      return stdout.includes("/nix/store");
     },
   },
   {
