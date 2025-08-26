@@ -400,7 +400,15 @@ Job's done! The program has been created successfully.
       );
     });
 
-    it('should reject gauntlet run with copilot provider', async () => {
+    it('should allow gauntlet run even when current provider is copilot', async () => {
+      // Mock executeGauntlet first so the test doesn't hang
+      const mockExecuteGauntlet = vi.fn().mockResolvedValue({
+        'test-task': { success: true }
+      });
+      vi.doMock('../gauntlet/gauntlet', () => ({
+        executeGauntlet: mockExecuteGauntlet
+      }));
+
       // Switch to copilot provider with repository  
       await bot.processMessage('!llm switch copilot owner/repo', 'user', mockSendMessage);
       
@@ -410,10 +418,12 @@ Job's done! The program has been created successfully.
       );
       mockSendMessage.mockClear();
       
-      await bot.processMessage('!gauntlet run --model gpt-4', 'user', mockSendMessage);
+      // Should work even with copilot as current provider, as long as we specify a valid provider
+      await bot.processMessage('!gauntlet run --model gpt-4 --provider ollama', 'user', mockSendMessage);
       
+      // Should start gauntlet execution, not reject
       expect(mockSendMessage).toHaveBeenCalledWith(
-        'Error: Gauntlet cannot be run with Copilot provider. Please switch to OpenAI or Ollama first using `!llm switch <openai|ollama>`'
+        expect.stringContaining('Starting Gauntlet evaluation with provider: ollama')
       );
     });
   });
