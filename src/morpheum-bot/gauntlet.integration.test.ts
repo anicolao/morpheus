@@ -135,9 +135,10 @@ describe('Gauntlet Integration', () => {
     );
   });
 
-  it('should prevent gauntlet execution with copilot provider', async () => {
+  it('should allow gauntlet execution with openai provider even when current provider is copilot', async () => {
     // Set up environment for copilot to work
     process.env.GITHUB_TOKEN = 'test-token';
+    process.env.OPENAI_API_KEY = 'test-key';
     
     // Create a new bot instance with the environment set
     const testBot = new MorpheumBot();
@@ -148,16 +149,35 @@ describe('Gauntlet Integration', () => {
     // Clear previous calls
     mockSendMessage.mockClear();
 
-    // Try to run gauntlet with copilot
-    await testBot.processMessage('!gauntlet run --model test-model', 'test-user', mockSendMessage);
+    const mockExecuteGauntlet = vi.mocked(executeGauntlet);
+    mockExecuteGauntlet.mockResolvedValue({
+      'test-task': { success: true }
+    });
 
-    // Should show error about copilot incompatibility
+    // Try to run gauntlet with openai provider - should work even though current provider is copilot
+    await testBot.processMessage('!gauntlet run --model gpt-4 --provider openai', 'test-user', mockSendMessage);
+
+    // Should start gauntlet execution, not show error about copilot incompatibility
     expect(mockSendMessage).toHaveBeenCalledWith(
-      expect.stringContaining('Error: Gauntlet cannot be run with Copilot provider')
+      expect.stringContaining('Starting Gauntlet evaluation with provider: openai')
     );
+
+    // Verify executeGauntlet was called with openai provider
+    expect(mockExecuteGauntlet).toHaveBeenCalledWith('gpt-4', 'openai', undefined, false, expect.any(Function));
     
     // Clean up
     delete process.env.GITHUB_TOKEN;
+    delete process.env.OPENAI_API_KEY;
+  });
+
+  it('should prevent gauntlet execution when copilot is requested as provider', async () => {
+    // Try to run gauntlet with copilot as the requested provider (should be blocked)
+    await bot.processMessage('!gauntlet run --model test-model --provider copilot', 'test-user', mockSendMessage);
+
+    // Should show error about invalid provider
+    expect(mockSendMessage).toHaveBeenCalledWith(
+      expect.stringContaining('Error: --provider must be either "openai" or "ollama"')
+    );
   });
 
   it('should display gauntlet results with pass/fail status', async () => {

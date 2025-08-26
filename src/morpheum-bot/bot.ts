@@ -474,12 +474,6 @@ Configuration:
     const parts = body.split(' ');
     const subcommand = parts[1];
 
-    // Check if current LLM provider is compatible with gauntlet
-    if (this.currentLLMProvider === 'copilot') {
-      await sendMessage('Error: Gauntlet cannot be run with Copilot provider. Please switch to OpenAI or Ollama first using `!llm switch <openai|ollama>`');
-      return;
-    }
-
     if (subcommand === 'help' || !subcommand) {
       const helpMessage = `🏆 **Gauntlet - AI Model Evaluation**
 
