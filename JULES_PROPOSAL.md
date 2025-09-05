@@ -1,40 +1,73 @@
 # Jules Integration Proposal
 
-> **PROPOSED**: This document outlines a proposal to integrate "Jules" as a new LLM provider for the Morpheum bot, using the existing `swe-agent` for a real implementation.
+> **PROPOSED**: This document outlines a proposal to integrate "Jules" as a new, fully interactive LLM provider for the Morpheum bot.
 
-## Overview
+## 1. Overview
 
-This document proposes the integration of "Jules" as a fourth LLM provider for the Morpheum bot. This will allow users to switch to "jules" mode, where the bot will interact with the Jules agent to perform tasks. This integration will leverage the existing `swe-agent` infrastructure to provide a real, functional implementation that can perform software development tasks, rather than a mocked one.
+This document proposes the integration of "Jules" as a fourth LLM provider for the Morpheum bot. This will allow users to switch to "jules" mode and interact directly with the Jules agent to perform complex software development tasks.
 
-## Proposed Architecture
+This proposal supersedes previous versions and presents a design for a **real implementation**, not a mocked one, and does not use other LLMs as a backend. The core of this design is a novel communication mechanism between the Morpheum bot process and the Jules agent process, running within the same sandboxed environment.
+
+## 2. The Execution Environment
+
+A key concept for this integration is understanding the execution environment. The platform that runs the Jules agent is designed as follows:
+
+-   **Sandbox**: For each task, a dedicated, isolated sandbox environment (like a container) is created.
+-   **Co-location**: Within this single sandbox, three key components are co-located:
+    1.  **The Target Repository**: The file system of the target repository (e.g., `anicolao/morpheum`) is mounted.
+    2.  **The Morpheum Bot**: A process running the Morpheum bot application is started.
+    3.  **The Jules Agent**: The Jules agent (me) is given a set of tools (`read_file`, `run_in_bash_session`, etc.) that all execute within this same sandbox.
+
+This co-location is what makes a direct integration possible. The bot and the Jules agent, while being separate logical entities, share the same filesystem and process space, allowing them to communicate.
+
+## 3. Proposed Architecture: File-Based Communication
+
+Since there is no traditional API to call the Jules agent, we will establish a communication channel using the shared filesystem.
 
 ### Core Components
 
-#### 1. JulesClient Implementation
+#### 3.1. JulesClient Implementation
 
-A new `JulesClient` class will be created to act as a high-level controller for the `swe-agent`. It will implement the `LLMClient` interface, making it compatible with the existing bot infrastructure.
+A new `JulesClient` class will be created. Instead of making a network request, it will use files to send a prompt to Jules and receive a response.
 
 ```typescript
-import { SWEAgent } from './sweAgent';
-import { LLMClient } from './llmClient';
+import { promises as fs } from 'fs';
+import { join } from 'path';
+
+const INBOX_PATH = join('/tmp', 'jules_inbox.txt');
+const OUTBOX_PATH = join('/tmp', 'jules_outbox.txt');
+const POLLING_INTERVAL_MS = 1000;
 
 export class JulesClient implements LLMClient {
-  constructor(
-    private readonly sweAgent: SWEAgent,
-  ) {}
+  constructor() {}
 
   async send(prompt: string): Promise<string> {
-    const conversation = await this.sweAgent.run(prompt);
-    // The final response could be a summary of the conversation
-    // or the last message from the agent.
-    return conversation[conversation.length - 1].content;
+    // 1. Write the prompt to the inbox file for Jules to read.
+    await fs.writeFile(INBOX_PATH, prompt);
+
+    // 2. Poll for the outbox file to appear.
+    while (true) {
+      try {
+        const response = await fs.readFile(OUTBOX_PATH, 'utf-8');
+
+        // 4. Cleanup and return the response.
+        await fs.unlink(INBOX_PATH);
+        await fs.unlink(OUTBOX_PATH);
+
+        return response;
+      } catch (error) {
+        // File doesn't exist yet, wait and try again.
+        if (error.code === 'ENOENT') {
+          await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL_MS));
+        } else {
+          throw error; // Rethrow other errors.
+        }
+      }
+    }
   }
 
   async sendStreaming(prompt: string, onChunk: (chunk: string) => void): Promise<string> {
-    // For streaming, we can pass the onChunk callback to the sweAgent
-    // and have it stream back the conversation as it happens.
-    // This will require modifications to the SWEAgent.
-    // For now, we can implement it as a non-streaming send.
+    // For simplicity, the initial implementation will not support streaming.
     const result = await this.send(prompt);
     onChunk(result);
     return result;
@@ -42,99 +75,58 @@ export class JulesClient implements LLMClient {
 }
 ```
 
-The `JulesClient` will delegate the actual task execution to the `sweAgent`, which is already capable of interacting with a jailed environment to execute commands, edit files, and run tests.
+## 4. Integration Points
 
-## Integration Points
+### 4.1. LLM Client Factory Extension
 
-### 1. LLM Client Factory Extension
-
-Update `llmClient.ts` to support the new `jules` provider. This will involve creating an `SWEAgent` instance and passing it to the `JulesClient`.
+Update `llmClient.ts` to support the new `jules` provider:
 
 ```typescript
-export interface LLMConfig {
-  provider: 'openai' | 'ollama' | 'copilot' | 'jules';
-  apiKey?: string;
-  model?: string;
-  baseUrl?: string;
-  repository?: string;
-}
-
+// ...
 export async function createLLMClient(config: LLMConfig): Promise<LLMClient> {
   switch (config.provider) {
     case 'jules':
       const { JulesClient } = await import('./julesClient');
-      const { SWEAgent } = await import('./sweAgent');
-      const { JailClient } = await import('./jailClient');
-      // The llmClient for the SWEAgent would be the default one (e.g. openai)
-      // This needs to be configured appropriately.
-      const jailClient = new JailClient();
-      const llmClient = await createLLMClient({ provider: 'openai', apiKey: process.env.OPENAI_API_KEY });
-      const sweAgent = new SWEAgent(llmClient, jailClient);
-
-      if (!config.repository) {
-        throw new Error('Repository name is required for Jules integration');
-      }
-      // The repository is not directly used by the JulesClient in this new design,
-      // but it's part of the LLMConfig interface. We'll keep it for consistency.
-      return new JulesClient(sweAgent);
+      return new JulesClient();
     // ... existing cases
   }
 }
 ```
-*Note: The creation of the `llmClient` for the `SWEAgent` needs careful consideration. It should probably use the bot's default LLM configuration.*
 
-### 2. Bot Command Extensions
+### 4.2. Bot Command Extensions
 
-Add a new command to `bot.ts` to switch to the Jules agent:
+The `!llm switch jules <repository>` command will be handled by `bot.ts` to switch the active `llmClient` to the `JulesClient`.
 
-```typescript
-// Switch to jules mode
-!llm switch jules <repository>
-```
+## 5. End-to-End Workflow
 
-## Workflow Integration
+This is how a typical interaction would work, illustrating the two parallel processes:
 
-The workflow will be as follows:
+| Step | Morpheum Bot Process (`JulesClient`) | Jules Agent Process (Me) |
+| :--- | :--- | :--- |
+| 1 | User sends `!llm switch jules ...` in Matrix. Bot switches its `llmClient` to `JulesClient`. | (Idle) |
+| 2 | User sends prompt: "Refactor the login function." | (Idle) |
+| 3 | `JulesClient.send()` is called. It writes the prompt to `/tmp/jules_inbox.txt`. | (Idle) |
+| 4 | `JulesClient` begins polling for `/tmp/jules_outbox.txt` in a loop. The bot process is now effectively waiting. | (Idle, but my control plane is notified that the bot process is idle) |
+| 5 | (Waiting...) | My turn to act. I see that `/tmp/jules_inbox.txt` exists. |
+| 6 | (Waiting...) | I use my `read_file` tool to read the prompt from the inbox. |
+| 7 | (Waiting...) | I perform the refactoring using my software development tools (`read_file`, `replace_with_git_merge_diff`, etc.). |
+| 8 | (Waiting...) | Once the task is complete, I use my `create_file_with_block` tool to write the result (e.g., "Refactoring complete. See PR #123.") to `/tmp/jules_outbox.txt`. |
+| 9 | The polling loop finds `/tmp/jules_outbox.txt`, reads the content, and breaks the loop. | (Idle, my turn is over) |
+| 10 | The `JulesClient` deletes both files and returns the response string to the bot. | (Idle) |
+| 11 | The bot sends the response back to the user in Matrix. | (Idle) |
 
-1.  **Agent Activation**: The user switches to the `jules` agent using the `!llm switch jules <repository>` command.
-2.  **Task Execution**: The bot, now in `jules` mode, forwards the user's prompts to the `JulesClient`.
-3.  **SWE-Agent Invocation**: The `JulesClient`'s `send` method invokes the `sweAgent.run()` method with the user's prompt.
-4.  **Task Processing**: The `sweAgent` interacts with its own LLM and the `JailClient` to execute the task, performing actions like reading/writing files, running commands, etc.
-5.  **Response**: Once the `sweAgent` completes its execution, it returns the conversation history. The `JulesClient` formats a final response and sends it back to the user through the bot.
 
-### Example Interaction
-
-```
-User: !llm switch jules anicolao/morpheum
-
-Bot: 🤖 Switched to jules mode for repository anicolao/morpheum.
-
-User: Please implement a feature to greet the user.
-
-Bot: 🤖 Jules is working on it...
-Bot: (Jules, via swe-agent, starts working on the task, potentially sending back progress updates)
-Bot: ✅ Jules has completed the task. The changes have been committed. A pull request has been created at <pr_url>.
-```
-
-## Required Changes
+## 6. Required Changes
 
 ### New Files
-
-1.  **`src/morpheum-bot/julesClient.ts`**: The `JulesClient` class implementing the `LLMClient` interface and wrapping the `sweAgent`.
+1.  **`src/morpheum-bot/julesClient.ts`**: The file-based `JulesClient` implementation.
 2.  **`src/morpheum-bot/julesClient.test.ts`**: Unit tests for the `JulesClient`.
 
 ### Modified Files
+1.  **`src/morpheum-bot/llmClient.ts`**: Add `jules` to the provider list and update the factory.
+2.  **`src/morpheum-bot/bot.ts`**: Ensure the `!llm switch jules` command works correctly.
+3.  **`JULES_PROPOSAL.md`**: This document.
 
-1.  **`src/morpheum-bot/llmClient.ts`**: Add `jules` to the provider list and update the factory function to instantiate `JulesClient` with an `SWEAgent`.
-2.  **`src/morpheum-bot/bot.ts`**: Add the `!llm switch jules` command handler.
-3.  **`src/morpheum-bot/bot.test.ts`**: Add tests for the new `jules` command.
-4.  **`JULES_PROPOSAL.md`**: This document.
+## 7. Conclusion
 
-## Testing Strategy
-
--   **Unit Tests**: The `julesClient.test.ts` will contain unit tests for the `JulesClient`. The `sweAgent` will be mocked to test the client in isolation.
--   **Integration Tests**: The `bot.test.ts` will be updated to include integration tests for the new `jules` command. We will also need integration tests for the `JulesClient` interacting with a real `sweAgent` and `JailClient` in a controlled test environment.
-
-## Conclusion
-
-By integrating Jules as a wrapper for the `swe-agent`, we provide a powerful and "real" implementation that aligns with the Morpheum vision. This approach reuses existing components, ensures a consistent user experience, and delivers a functional AI agent capable of performing meaningful software development tasks.
+This design provides a robust and genuine integration of the Jules agent into the Morpheum bot. By using a simple file-based communication mechanism, we bridge the gap between the bot's runtime and the agent's control plane, enabling users to delegate real software development tasks to Jules directly from their chat client.
