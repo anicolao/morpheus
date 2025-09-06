@@ -80,6 +80,10 @@ defaults:
     values:
       layout: "page"
 
+# Include special directories that start with dots
+include:
+  - .well-known
+
 # Exclude from processing
 exclude:
   - Gemfile
