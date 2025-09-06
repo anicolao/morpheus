@@ -60,7 +60,7 @@ The content of the `client` file must be the following JSON object:
 ```json
 {
     "m.homeserver": {
-        "base_url": "[https://matrix.morpheum.dev](https://matrix.morpheum.dev)"
+        "base_url": "https://matrix.morpheum.dev"
     }
 }
 ```
