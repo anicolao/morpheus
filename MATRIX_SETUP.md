@@ -149,4 +149,28 @@ Update your `configuration.nix` file to reflect this delegated setup. The key is
 
   # 4. Firewall Configuration
   networking.firewall = {
-    allowedTCPPorts =
+     allowedTCPPorts = [ 80, 443 ];
+  };
+}
+```
+
+---
+
+### ## Step 4: Final Deployment and Verification
+
+1.  **Create the Cloudflare credentials file** specified in your NixOS config. Ensure it is secure (`sudo chmod 600 /path/to/your/cloudflare.ini`).
+
+2.  **Apply the configuration:**
+    ```shell
+    sudo nixos-rebuild switch
+    ```
+
+3.  **Verify your setup:** Use the **Matrix Federation Tester** at `https://federationtester.matrix.org/`. Enter `morpheum.dev` as the server name. The tool should correctly follow the delegation path and show a success report for `matrix.morpheum.dev`.
+
+4.  **Create your first user:**
+    ```shell
+    # Usage: conduit-admin create-user <username> <password>
+    conduit-admin create-user my-username 'a-very-strong-password'
+    ```
+
+You can now log in from any Matrix client by specifying `morpheum.dev` as your homeserver. Your user ID will be correctly formatted as `@my-username:morpheum.dev`.
